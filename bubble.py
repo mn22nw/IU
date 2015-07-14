@@ -1,28 +1,3 @@
-'''
-Deflectouch
-
-Copyright (C) 2012 2015  Cyril Stoller
-
-For comments, suggestions or other messages, contact me at:
-<cyril.stoller@gmail.com>
-
-This file is part of Deflectouch.
-
-Deflectouch is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Deflectouch is distributed in the hope that it will be fun,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Deflectouch.  If not, see <http://www.gnu.org/licenses/>.
-'''
-
-
 import kivy
 kivy.require('1.8.0')
 
@@ -81,6 +56,10 @@ class Bubble(Image):
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
     def calc_destination(self, angle):
+
+        '''
+        CHANGE ALL THIS!!!!!!
+        '''
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
         # the following "magic numbers" are based on the dimensions of the

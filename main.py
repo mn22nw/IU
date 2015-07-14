@@ -96,6 +96,9 @@ class DbShooterWidget(Widget):
         #get all the questions and answers for the first level
         question_list = self.getQuestions(1)
 
+        #create all the bubbles for the startup
+        self.createBubbles()
+
     '''
     ####################################
     ##
@@ -169,14 +172,20 @@ class DbShooterWidget(Widget):
         label.text = 'Lives: ' + str(text) 
     
     def createBubbles(self):
+        
+
+        
         #create ten bubbles och lägg dom i listan muhaha
 
-        for x in range(10)
+        for x in range(10):
             b = Bubble()
-            self.bubble_list(b)
+            #make a random color?! do this inside the bubble??
+            self.bubble_list.append(b)
+
+        for b in self.bubble_list:
+            self.add_widget(b)
 
 
-        print(self.bubble_list 
 
     def getQuestions(self, level):
         #get the json-file were the questions are stored
