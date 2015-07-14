@@ -1,0 +1,113 @@
+
+# Background description:
+<Background>:
+	source: self.source
+	allow_stretch: True
+	keep_ratio: False
+	size: app.window.size
+
+
+<Shooter>:
+	shooter_tower_scatter: shooter_tower_scatter
+	size: 100, 100   
+
+	Image:
+		id: 'tank_image'
+		source: 'graphics/db.png'
+		size: 100, 100
+		pos: root.pos
+
+	Scatter:
+		id: shooter_tower_scatter
+		size_hint: None, None
+		size: 30, 210
+		pos:root.x + 35, root.y 
+		#center: root.center
+		do_rotation: False
+		do_scale: False
+		do_translation: False
+		
+		Image:
+			source: 'graphics/tank_tower.png'
+			size: 30, 210 
+			pos: self.pos
+			rotate:90
+
+	Image:
+		id: 'tank_top'
+		source: 'graphics/tank_top.png'
+		size: 60, 30
+		pos: root.x + 20, root.y + 85
+
+# Bullet description:
+<Bullet>:
+	Image:
+		source: 'graphics/bubble.png'
+		size:35,35
+		#size: 35 / (1200.0 / app.window.height), 35 / (1200.0 / app.window.height)
+		size_hint: None, None
+
+# Main widget description:
+<DbShooterWidget>:
+	id: DbShooterWidget
+	shooter: shooter
+	Image:
+	    source: 'graphics/background.jpg'
+        allow_stretch: True
+        keep_ratio: False
+        size: app.window.size
+
+	Shooter:
+		id: shooter
+		tank_image_source: 'graphics/tank.png'
+		pos:  (root.width *0.5 - 50 , app.window.height*0.3)
+
+	BoxLayout:
+	    spacing: 15
+	    padding: 20
+	    
+	    size: app.window.width, app.window.height *0.2
+	    right: app.window.width
+	    bottom: app.window.height
+	
+		Button:
+			text: 'Fire'
+			bold: True
+			font_size: 17
+			background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+			on_press: root.fire_button_pressed()
+		
+		Label:
+			id: livesLbl
+	        text: 'Lives: ' + str(DbShooterWidget.lives)
+	        bold: True
+	        font_size: 18
+	        size_hint: 1, 0.5
+	        color: 1, 1, 1, 1
+
+	    Label:
+	        text: 'Level: ' + str(root.level)
+	        bold: True
+	        font_size: 18
+	        size_hint: 1, 0.5
+	        color: 1, 1, 1, 1
+	    
+	    Widget:
+	        size_hint: 1, 0.5
+		
+		Button:
+			text: 'Settings'
+			bold: True
+			font_size: 15
+			background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+			on_press: root.settings_button_pressed()
+		
+		Button:
+            text: 'Exit'
+            bold: True
+            font_size: 17
+            background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+            on_press: root.app.stop()
