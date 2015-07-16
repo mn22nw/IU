@@ -172,18 +172,19 @@ class DbShooterWidget(Widget):
         label.text = 'Lives: ' + str(text) 
     
     def createBubbles(self):
-        
-
-        
         #create ten bubbles och lägg dom i listan muhaha
-
+        
+        layout = self.ids.bubbleLayout
+        
         for x in range(10):
-            b = Bubble()
+            b = Bubble() 
+            b.setRandomColor()
+            b.source = 'graphics/bubbles/' + b.getColor() + '.png'
+            print(b.source, 'SSSSSSSRC')
+            layout.add_widget(b)
             #make a random color?! do this inside the bubble??
-            self.bubble_list.append(b)
+            #self.bubble_list.append(b)
 
-        for b in self.bubble_list:
-            self.add_widget(b)
 
 
 

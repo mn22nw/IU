@@ -1,7 +1,7 @@
 import kivy
-kivy.require('1.8.0')
+kivy.require('1.9.0')
 
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
 from kivy.graphics import Color, Point
@@ -13,12 +13,13 @@ from math import sin
 from math import pi
 from math import radians
 from kivy.vector import Vector
-
+import random
 
 class Bubble(Image):
+    bubbleColor= StringProperty()
     angle = NumericProperty(0) # in radians!
     animation = None
-    
+    colorList = ['blue', 'green', 'red', 'purple', 'yellow']
     exploding = False
         
     '''
@@ -121,9 +122,11 @@ class Bubble(Image):
         destination_y += self.center_y
         
         return (destination_x, destination_y)
-    
-    def check_bubble_collision(self, deflector):
         
+    def check_bubble_collision(self, deflector):
+        '''
+        CHANGE ALL THIS!!!!!!
+        '''
         # first thing to do is: we need a vector describing the bullet. Length isn't important.
         bullet_position = Vector(self.center)
         bullet_direction = Vector(1, 0).rotate(self.angle * 360 / (2*pi))
@@ -190,7 +193,7 @@ class Bubble(Image):
         
         self.parent.bubble_exploding()
 
-
+    #TODO - flytta till threat!!!?!
     def threat_explode(self):
         if self.exploding == True:
             return
@@ -214,13 +217,16 @@ class Bubble(Image):
         #check if there is surrounding colors of same
 
         #if there is 2 of sam e color POP THEM and remove them from bullet_list
-        
-    '''   
-    def on_collision_with_goal(self):
-        # i still have some strange exceptions because of multiple function calls:
-        if self.parent is None:
-            return
-        self.parent.level_accomplished()
-        
-        self.bullet_explode()
-    '''
+    
+    #returns a string with the color name  
+    def setRandomColor(self):
+        c = random.randint(0,(len(self.colorList) - 1))
+        self.bubbleColor = self.colorList[c]
+        return self.bubbleColor
+
+        #for c in range(0,len(colorList)):
+    def getColor(self):
+        print(self.bubbleColor, 'CCssCCCOL')
+        return self.bubbleColor
+
+

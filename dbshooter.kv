@@ -41,7 +41,6 @@
 
 # Bubble description:
 <Bubble>:
-	source: 'graphics/bubble.png'
 	size:35,35
 	#size: 35 / (1200.0 / app.window.height), 35 / (1200.0 / app.window.height)
 	size_hint: None, None
@@ -50,6 +49,7 @@
 <DbShooterWidget>:
 	id: DbShooterWidget
 	shooter: shooter
+
 	Image:
 	    source: 'graphics/background.jpg'
         allow_stretch: True
@@ -60,6 +60,20 @@
 		id: shooter
 		tank_image_source: 'graphics/tank.png'
 		pos:  (root.width *0.5 - 50 , app.window.height*0.3)
+
+	BoxLayout:
+		id: bubbleLayout
+	    spacing: 15
+	    padding: 20
+	    
+	    size: 500, 500
+
+		Button:
+			text: 'tooo'
+			bold: True
+			font_size: 17
+			background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
 
 	BoxLayout:
 	    spacing: 15
