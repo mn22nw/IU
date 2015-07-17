@@ -17,6 +17,7 @@ from kivy.core.audio import SoundLoader
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
+from kivy.uix.button import Button
 
 from math import sin
 from math import cos
@@ -96,8 +97,8 @@ class DbShooterWidget(Widget):
         #get all the questions and answers for the first level
         question_list = self.getQuestions(1)
 
-        #create all the bubbles for the startup
-        self.createBubbles()
+        #create all the bubbles and threats for the startup
+        self.createObsticles()
 
     '''
     ####################################
@@ -171,23 +172,37 @@ class DbShooterWidget(Widget):
     def update_label(self, label, text):
         label.text = 'Lives: ' + str(text) 
     
-    def createBubbles(self):
-        #create ten bubbles och lägg dom i listan muhaha
-        
+    def addRow(self):
         layout = self.ids.bubbleLayout
-        
-        for x in range(10):
+        row = BoxLayout(orientation='horizontal')
+
+        btn1 = Button(text='Hello world 1')
+        btn2 = Button(text='Hello world 2')
+        btn2.size_hint = 1.5, 0.5
+        #btn2.size_x = 600
+        row.add_widget(btn1)
+        row.add_widget(btn2)
+        '''
+        #Need to add threats amongst the bubbles
+        #Need one row to always be on
+        #Todo change number of bubbles according to screenSize?
+        for x in range(12):
             b = Bubble() 
             b.setRandomColor()
             b.source = 'graphics/bubbles/' + b.getColor() + '.png'
             print(b.source, 'SSSSSSSRC')
-            layout.add_widget(b)
+            row.add_widget(b)
             #make a random color?! do this inside the bubble??
             #self.bubble_list.append(b)
+        '''
+        layout.add_widget(row)
 
-
-
-
+    def createObsticles(self):
+        #create ten bubbles och lägg dom i listan muhaha
+        for x in range(4):
+            self.addRow()
+        
+        
     def getQuestions(self, level):
         #get the json-file were the questions are stored
         store = JsonStore('questions.json')
