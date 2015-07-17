@@ -42,7 +42,7 @@
 
 # Bubble description:
 <Bubble>:
-	size:45,45
+	size:46,46
 	#size: 35 / (1200.0 / app.window.height), 35 / (1200.0 / app.window.height)
 	size_hint: None, None
 
@@ -57,32 +57,35 @@
         keep_ratio: False
         size: app.window.size
 
-	Shooter:
-		id: shooter
-		tank_image_source: 'graphics/tank.png'
-		pos:  (root.width *0.5 - 50 , app.window.height*0.3)
-
+	
 	# Widget where all the obsticles (balls, threats) will be:
-	BoxLayout:
+	FloatLayout:
 		id: bubbleLayout
-		orientation:'vertical'
 		canvas:
 			Color:
-	            rgb: 1, 0, 0
+	            rgba: 1, 1, 1, 0.25
 	        Rectangle:
 	            pos: self.pos
 	            size: self.size
 
 		pos_hint:None, None
-	    #spacing: 15
-	    #padding: 20
 	    pos:(self.parent.width-self.width)/2, (self.parent.height-self.height)/2
-	    #pos:root.x, root.y + self.height *0.9
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * 0.669
-	    #pos:root.x, root.y + root.height * 0.9 
-	    #size: self.size
+
+	#this is the table/database image
+	Image:
+	    source: 'graphics/table.png'
+	    size_hint:None, None
+	    height: root.height * 0.4
+        width: root.height * 0.669
+        pos: 0.5, 0
+
+	Shooter:
+		id: shooter
+		tank_image_source: 'graphics/tank.png'
+		pos:  (root.width *0.5 - 50 , app.window.height*0.3)
 
 
 	# the layout for the buttons etc:
@@ -93,14 +96,6 @@
 	    size: app.window.width, app.window.height *0.2
 	    right: app.window.width
 	    bottom: app.window.height
-		
-		Button:
-			text: 'Fire'
-			bold: True
-			font_size: 17
-			background_normal: 'graphics/button_normal.png'
-            background_down: 'graphics/button_down.png'
-			on_press: root.fire_button_pressed()
 		
 		Label:
 			id: livesLbl
@@ -127,13 +122,6 @@
 			background_normal: 'graphics/button_normal.png'
             background_down: 'graphics/button_down.png'
 			on_press: root.settings_button_pressed()
-		
-		Button:
-            text: 'Exit'
-            bold: True
-            font_size: 17
-            background_normal: 'graphics/button_normal.png'
-            background_down: 'graphics/button_down.png'
-            on_press: root.app.stop()
+
 <Button>:
 	font_size:43

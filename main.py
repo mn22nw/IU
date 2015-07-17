@@ -172,36 +172,34 @@ class DbShooterWidget(Widget):
     def update_label(self, label, text):
         label.text = 'Lives: ' + str(text) 
     
-    def addRow(self):
+    def createRow(self, numberOfBubbles, bubblePosX, bubblePosY):
         layout = self.ids.bubbleLayout
-        row = BoxLayout(orientation='horizontal')
-
-        btn1 = Button(text='Hello world 1')
-        btn2 = Button(text='Hello world 2')
-        btn2.size_hint = 1.5, 0.5
-        #btn2.size_x = 600
-        row.add_widget(btn1)
-        row.add_widget(btn2)
-        '''
-        #Need to add threats amongst the bubbles
-        #Need one row to always be on
-        #Todo change number of bubbles according to screenSize?
-        for x in range(12):
-            b = Bubble() 
+        for x in range(numberOfBubbles):
+            b = Bubble(pos_hint={'x': bubblePosX, 'center_y': bubblePosY}) 
             b.setRandomColor()
             b.source = 'graphics/bubbles/' + b.getColor() + '.png'
-            print(b.source, 'SSSSSSSRC')
-            row.add_widget(b)
-            #make a random color?! do this inside the bubble??
+            layout.add_widget(b)
             #self.bubble_list.append(b)
-        '''
-        layout.add_widget(row)
+            bubblePosX +=0.08333333333333
 
-    def createObsticles(self):
-        #create ten bubbles och lägg dom i listan muhaha
-        for x in range(4):
-            self.addRow()
-        
+
+    def createObsticles(self):             
+        evenRow = True
+        bubblePosY = 0
+
+        for r in range(20):
+            if evenRow:
+                self.createRow(12, 0, bubblePosY)
+                evenRow = False
+            else: 
+                self.createRow(11, 0.041666666666665, bubblePosY)
+                evenRow = True
+
+            bubblePosY+=0.045
+
+
+
+        #per varannan rad placera hälften till höger minus en 
         
     def getQuestions(self, level):
         #get the json-file were the questions are stored
