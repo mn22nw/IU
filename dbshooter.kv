@@ -62,8 +62,12 @@
 
 # Threat description:
 <Threat>:
-	size:138,138
 	size_hint: None, None
+	keep_data: True
+    size:138,138
+    pos_hint: {'center_x': .1, 'center_y': .1}
+    source: 'graphics/wolf.png'
+    opacity: .3
 
 # Main widget description:
 <DbShooterWidget>:
@@ -88,7 +92,8 @@
 	            size: self.size
 
 		pos_hint:None, None
-	    pos:(root.width-self.width)/2, (root.height-self.height)/2
+		pos:root.x, root.y + 500
+	    #pos:(root.width-self.width)/2, (root.height-self.height)/2
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * 0.669

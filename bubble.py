@@ -226,7 +226,7 @@ class Bubble(Image):
 
         #for c in range(0,len(colorList)):
     def getColor(self):
-        print(self.bubbleColor, 'CCssCCCOL')
+        #print(self.bubbleColor, 'CCssCCCOL')
         return self.bubbleColor
 
 

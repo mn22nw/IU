@@ -29,6 +29,8 @@ class Shooter(Widget):
     '''
     def on_touch_down(self, touch):
 
+        print('touched Y\'ALL', touch.y, '<---y')
+
         '''
         if not self.collide_point(*touch.pos):
             return False
@@ -36,8 +38,10 @@ class Shooter(Widget):
             touch.ud['shooter_touch'] = True
             return True
         '''   
+    def on_touch_up(self, touch):
+        print('touched Y\'ALL X', touch.x, '<---x')
+        #shooot a bubble muhahah
         
-    
     '''
     ####################################
     ##

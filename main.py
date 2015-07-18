@@ -23,6 +23,7 @@ from kivy.uix.button import Button
 from math import sin
 from math import cos
 from math import radians
+import random
 
 from shooter import Shooter
 from bubble import Bubble
@@ -178,8 +179,102 @@ class DbShooterWidget(Widget):
 
     def update_label(self, label, text):
         label.text = 'Lives: ' + str(text) 
-    
-    def createRow(self, numberOfBubbles, bubblePosX, bubblePosY):
+
+    def createBubble(self, x, y):
+        b = Bubble(pos_hint={'x': x, 'center_y': y}) 
+        b.setRandomColor()
+        b.source = 'graphics/bubbles/' + b.getColor() + '.png'
+        return b
+        #self.bubble_list.append(b)
+
+    def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
+
+        layout = self.ids.bubbleLayout
+        print('BL-->', bubblesLeft,'BR-->', bubblesRight)
+        
+        #create bubbles to the left
+        for i in range(bubblesLeft):
+            b = self.createBubble(x, y)
+            layout.add_widget(b)
+            x += 0.08333333333333 
+        
+        #add empty space for the threat
+        x += (0.08333333333333 * spaces)
+        
+        #create bubbles to right
+        for i in range(bubblesRight):
+            b = self.createBubble(x, y)
+            layout.add_widget(b)
+            x += 0.08333333333333 
+         
+
+    def createThreat(self, x, y):
+        layout = self.ids.bubbleLayout
+        t = Threat(pos_hint={'x': x, 'center_y': y})
+        #b.setRandomColor()
+        #t.setQuestion()
+        t.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+        layout.add_widget(t)
+
+    def createObsticles(self):       
+        rowCount = 0
+        numberOfBubbles = 12
+        x = 0
+        y = 0
+        xOdd = 0.041666666666665
+        
+
+        for r in range(10):
+            numberOfBubbles = 12
+            spaces = 3
+            #set startnumber for threat
+            #startNumber = random.randint(1,11)
+            startNumber = 3
+
+            #bubbles and posistion for first row of threat
+            bubblesLeft = startNumber -1
+            bubblesRight = numberOfBubbles - startNumber - spaces + 1
+
+            for i in range(3):
+                self.createThreat(x, y)
+                if (rowCount % 2 == 0): #even 
+                    if i == 1:  #if row is even for every fourth row then add one bubble off left, and remove one right
+                        bubblesLeft += 1
+                        bubblesRight -= 1
+                    self.createBubbleRow(spaces, bubblesLeft, bubblesRight, x, y)
+                    numberOfBubbles -= 1
+                else: #odd
+                    if i == 2:  #if row is uneven for every third row then take one bubble off left
+                        bubblesLeft -= 1
+                        #bubblesRight -= 1
+                    self.createBubbleRow(spaces, bubblesLeft, bubblesRight -1, xOdd, y)
+                    numberOfBubbles += 1
+                spaces -= 1
+                #bubbles and posistion for second row of threat
+                if i == 1:
+                    #print('bubblesLeft', bubblesLeft)
+                    bubblesLeft +=1
+                    print('bubblesLeft', bubblesLeft)
+
+                bubblesRight += 1 
+                y+=0.045
+                rowCount +=1 
+                i+=1
+            
+
+        '''
+        for r in range(20):
+
+            if (rowCount % 2 == 0): #even 
+                self.createRow(numberOfBubbles, x, y, threat)
+            else: #odd
+                self.createRow(numberOfBubbles -1 , xOdd, y, threat)
+            #the procentual value for each row 
+            y+=0.045
+            rowCount +=1 
+        '''
+    '''
+     def createRow(self, numberOfBubbles, bubblePosX, bubblePosY):
         layout = self.ids.bubbleLayout
         for x in range(numberOfBubbles):
             b = Bubble(pos_hint={'x': bubblePosX, 'center_y': bubblePosY}) 
@@ -205,7 +300,7 @@ class DbShooterWidget(Widget):
                 evenRow = True
             #the procentual value for each row 
             bubblePosY+=0.045
-
+    '''
         
     def getQuestions(self, level):
         #get the json-file were the questions are stored

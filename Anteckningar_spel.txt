@@ -2,8 +2,8 @@ FIXA
 issue #1 - tank out of place
 
 
-FAST LAYOUT på BUBBLE-området
-Sidorna kan vara environment etc....
+Fast layout på bubble-området, ha resten responsivt
+
 
 
 TANKAR/ FÖRSLAG PÅ LÖSNINGAR 
@@ -32,6 +32,7 @@ TREAT
  - Kanske gör en ikon för olika typer av hot
 
 - bestäm vilken rad det ska starta på mellan 1-*
+- om det ligger en bubbla inom samma område som triangeln (eftersom png-bilden egentligen är fyrkantig), ta bort den istället...
 
 DATABASE
 - bilden borde ligga innuti en boxlayout som är horizontal,  som i sin tur ( i ena columnen) har en gridlayout som innehåller labels för level etc
@@ -42,8 +43,33 @@ DATABASE
 - ha den nästkommande bubbelfärgen i datarutan. + lägg ev. ev. till möjlighet att växla färg mellan de två bubblorna
 
 
+#hur ska jag få threatsen blandat bland bubblorna?! ....
+ - definera en startpunkt bland 1-11 
+ - modifiera bubblepositionen samt hur många bubblor som ska försvinna per rad.
+ - kommer det ett threat så:
+  	- skapa 3 rader i taget med ett threat däri?, varav första har numberOfBubbles - 3, andra har numberOfBubbles - 2 osv
+
+ - upptagna startpunkter? 
 
 gör en fast floatLayout, med bakgrundsfärg.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 '''

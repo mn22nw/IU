@@ -32,18 +32,39 @@ class Threat(Image):
     '''
     
     def __init__(self, **kwargs):
-        super(Bubble, self).__init__(**kwargs)
-        
-    def display_question_screen(self):
+        super(Threat, self).__init__(**kwargs)
+    
+    # collide_point + on_touch_down taken from https://groups.google.com/forum/#!topic/kivy-users/LBdragxkYDA
+
+
+    def collide_point(self, x, y):
+        # Do not want to upset the read_pixel method, in case of a bound error
+        try:
+            color = self._coreimage.read_pixel(x - self.x, self.height - (y - self.y))
+        except:
+            color = 0, 0, 0, 0
+        if color[-1] > 0:
+            return True
+        return False
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.opacity = 1
+        else:
+            self.opacity = .3
+
+
+    def displayQuestionScreen(self):
         # display the question screen on a Popup
-        image = Image(source='graphics/help_screen.png')
         
-        help_screen = Popup(title='Help Screen',
+        image = Image(source='graphics/questionScreen.png')
+        
+        questionScreen = Popup(title='Question Screen',
                             attach_to=self,
                             size_hint=(0.98, 0.98),
-                            content=image)
-        image.bind(on_touch_down=help_screen.dismiss)
-        help_screen.open()
+                            content=Label(text='Hello world'))
+        image.bind(on_touch_down=questionScreen.dismiss)
+        questionScreen.open()
     
     def create_animation(self, speed, destination):
         # create the animation
@@ -55,72 +76,6 @@ class Threat(Image):
         # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
-    def calc_destination(self, angle):
-
-        '''
-        CHANGE ALL THIS!!!!!!
-        '''
-        # calculate the path until the bullet hits the edge of the screen
-        win = self.get_parent_window()
-        # the following "magic numbers" are based on the dimensions of the
-        # cutting of the image 'overlay.png'
-        left = 150.0 * win.width / 1920.0
-        right = win.width - 236.0 * win.width / 1920.0
-        top = win.height - 50.0 * win.height / 1920.0
-        bottom = 96.0 * win.height / 1920.0
-        
-        bullet_x_to_right = right - self.center_x
-        bullet_x_to_left = left - self.center_x
-        bullet_y_to_top = top - self.center_y
-        bullet_y_to_bottom = bottom - self.center_y
-        
-        destination_x = 0
-        destination_y = 0
-        
-            
-        # this is a little bit ugly, but I couldn't find a nicer way in the hurry
-        if 0 <= self.angle < pi/2:
-            # 1st quadrant
-            if self.angle == 0:
-                destination_x = bullet_x_to_right
-                destination_y = 0
-            else:
-                destination_x = boundary(bullet_y_to_top / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_right, bullet_y_to_bottom, bullet_y_to_top)
-                
-        elif pi/2 <= self.angle < pi:
-            # 2nd quadrant
-            if self.angle == pi/2:
-                destination_x = 0
-                destination_y = bullet_y_to_top
-            else:
-                destination_x = boundary(bullet_y_to_top / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_left, bullet_y_to_bottom, bullet_y_to_top)
-                
-        elif pi <= self.angle < 3*pi/2:
-            # 3rd quadrant
-            if self.angle == pi:
-                destination_x = bullet_x_to_left
-                destination_y = 0
-            else:
-                destination_x = boundary(bullet_y_to_bottom / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_left, bullet_y_to_bottom, bullet_y_to_top) 
-                       
-        elif self.angle >= 3*pi/2:
-            # 4th quadrant
-            if self.angle == 3*pi/2:
-                destination_x = 0
-                destination_y = bullet_y_to_bottom
-            else:
-                destination_x = boundary(bullet_y_to_bottom / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_right, bullet_y_to_bottom, bullet_y_to_top)
-            
-        
-        # because all of the calculations above were relative, add the bullet position to it.
-        destination_x += self.center_x
-        destination_y += self.center_y
-        
-        return (destination_x, destination_y)
         
     def check_threat_collision(self, deflector):
         '''
@@ -215,7 +170,7 @@ class Threat(Image):
 
         #for c in range(0,len(colorList)):
     def getColor(self):
-        print(self.bubbleColor, 'CCssCCCOL')
+        #print(self.bubbleColor, 'threatCOlor')
         return self.bubbleColor
 
 
