@@ -17,6 +17,7 @@ BUBBLE
 
 SHOOTER
 - klicka bara någonstans och bollen ska hamna där (sen åker tower tillbaka) 
+- fire-event måste ske på touch up
  
  	TANK
  	- uppdatera position för tank efter att kordinater har ändrats

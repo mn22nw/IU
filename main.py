@@ -26,6 +26,7 @@ from math import radians
 
 from shooter import Shooter
 from bubble import Bubble
+from threat import Threat
 
 #sätter storleken för huvudfönstret
 Window.size = 560, 836
@@ -80,7 +81,7 @@ class SettingDialog(BoxLayout):
     
     def dismiss_parent(self):
         self.root.setting_popup.dismiss()
-        
+
 
 
 # huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
@@ -191,21 +192,20 @@ class DbShooterWidget(Widget):
 
     def createObsticles(self):             
         evenRow = True
+        bubblePosX = 0
+        bubblePosXOdd = 0.041666666666665
         bubblePosY = 0
 
         for r in range(20):
             if evenRow:
-                self.createRow(12, 0, bubblePosY)
+                self.createRow(12, bubblePosX, bubblePosY)
                 evenRow = False
             else: 
-                self.createRow(11, 0.041666666666665, bubblePosY)
+                self.createRow(11, bubblePosXOdd, bubblePosY)
                 evenRow = True
-
+            #the procentual value for each row 
             bubblePosY+=0.045
 
-
-
-        #per varannan rad placera hälften till höger minus en 
         
     def getQuestions(self, level):
         #get the json-file were the questions are stored
