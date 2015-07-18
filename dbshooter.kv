@@ -6,8 +6,22 @@
 	keep_ratio: False
 	size: app.window.size
 
+# Sets the styling for the labels that contains lives, points and  level
+<TableLabel>:
+	canvas.before:
+	    Color:
+	    	rgb: 1,1,1
+		Rectangle:
+			size: self.size
+			pos:self.x - 10, self.y
+			source: 'graphics/column.png'
+	color: 0,0,0,1
+	font_size: 18
+	bold: True
+	text_size: self.size
+	valign:'middle'
 
-
+# Shooter description:
 <Shooter>:
 	shooter_tower_scatter: shooter_tower_scatter
 	size: 100, 100   
@@ -69,59 +83,71 @@
 	            size: self.size
 
 		pos_hint:None, None
-	    pos:(self.parent.width-self.width)/2, (self.parent.height-self.height)/2
+	    pos:(root.width-self.width)/2, (root.height-self.height)/2
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * 0.669
+	#
+	#this defines the base on which the shooter stands (with level, table/database image etc) 
+	BoxLayout:
+		id: databaseWidget
+		height: root.height *0.2
+		width: bubbleLayout.width *0.8
+		bottom: root.height
+		size_hint: None, None
+		pos: bubbleLayout.pos
+		canvas:
+			Rectangle:
+	            size: self.width, self.height
+	            pos: root.width *0.5 - self.width *0.5, 0
+	            source: 'graphics/table.png'
 
-	#this is the table/database image
-	Image:
-	    source: 'graphics/table.png'
-	    size_hint:None, None
-	    height: root.height * 0.4
-        width: root.height * 0.669
-        pos: 0.5, 0
+	   
+	BoxLayout:
+		height:root.height *0.16
+		width:bubbleLayout.width *0.7
+		bottom: root.height 
+		size_hint:None, None
+		pos: root.width *0.5 - self.width *0.5, 0
+		canvas:
+			Color:
+				rgb:0,0,1
+			Rectangle:
+	            size: self.width, self.height
+	            pos: root.width *0.5 - self.width *0.5, 0
+	    FloatLayout:
+	    		
 
+	    GridLayout:
+	    	cols:2
+	    	padding:20
+	    	spacing:10,10
+	    	#lives
+	    	TableLabel:
+	    		text: 'Lives'
+	    		
+	    	TableLabel:
+				id: livesLbl
+		        text: str(DbShooterWidget.lives)
+		    #points
+		    TableLabel:
+	    		text: 'Points'
+		    TableLabel:
+		        text: str(root.points)
+
+		    #level
+		    TableLabel:
+	    		text: 'Level'
+		    TableLabel:
+		        text: str(root.level)
+		       		         
 	Shooter:
 		id: shooter
 		tank_image_source: 'graphics/tank.png'
-		pos:  (root.width *0.5 - 50 , app.window.height*0.3)
+		pos: root.width *0.5 - 50 , databaseWidget.height - (databaseWidget.height * 0.15)
 
-
-	# the layout for the buttons etc:
-	BoxLayout:
-	    spacing: 15
-	    padding: 20
-	    
-	    size: app.window.width, app.window.height *0.2
-	    right: app.window.width
-	    bottom: app.window.height
-		
-		Label:
-			id: livesLbl
-	        text: 'Lives: ' + str(DbShooterWidget.lives)
-	        bold: True
-	        font_size: 18
-	        size_hint: 1, 0.5
-	        color: 1, 1, 1, 1
-
-	    Label:
-	        text: 'Level: ' + str(root.level)
-	        bold: True
-	        font_size: 18
-	        size_hint: 1, 0.5
-	        color: 1, 1, 1, 1
-	    
-	    Widget:
-	        size_hint: 1, 0.5
-		
-		Button:
-			text: 'Settings'
-			bold: True
-			font_size: 15
-			background_normal: 'graphics/button_normal.png'
-            background_down: 'graphics/button_down.png'
-			on_press: root.settings_button_pressed()
 
 <Button>:
 	font_size:43
+
+

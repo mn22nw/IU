@@ -8,7 +8,6 @@ Sidorna kan vara environment etc....
 
 TANKAR/ FÖRSLAG PÅ LÖSNINGAR 
 
-
 Skapa hela levels på en gång!  då skapas alla rader och bubblor med threats men de åker ner istället. 
 
 BUBBLE
@@ -28,7 +27,8 @@ TREAT
  - generera en random fråga ur level 
  - lägg alla frågor i en lista, om 'avklarad', radera från listan. 
  - skapa nytt för varannan rad?
-
+ - kanske borde ha en timer för frågorna
+ - Kanske gör en ikon för olika typer av hot
 
 - bestäm vilken rad det ska starta på mellan 1-*
 
@@ -38,8 +38,45 @@ DATABASE
 
 ÖVRIGT
 - tror floatlayout är bäst eftersom bubbles och threats kan placeras överallt
-- ha den nästkommande bubbelfärgen i datarutan. 
+- ha den nästkommande bubbelfärgen i datarutan. + lägg ev. ev. till möjlighet att växla färg mellan de två bubblorna
 
 
 
 gör en fast floatLayout, med bakgrundsfärg.
+
+
+'''
+Image:
+	    source: 'graphics/table.png'
+	    size_hint:None, None
+	    height: root.height * 0.4
+        width: root.height * 0.669
+        pos: 0.5, 0
+'''
+
+
+'''
+# the layout for the buttons etc:
+	BoxLayout:
+	    spacing: 15
+	    padding: 20
+	    
+	    size: app.window.width, app.window.height *0.2
+	    right: app.window.width
+	    bottom: app.window.height
+		
+	    
+	    Widget:
+	        size_hint: 1, 0.5
+		
+		Button:
+			text: 'Settings'
+			bold: True
+			font_size: 15
+			background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+			on_press: root.settings_button_pressed()
+
+
+
+'''

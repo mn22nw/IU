@@ -12,6 +12,7 @@ from kivy.storage.jsonstore import JsonStore
 from kivy.lang import Builder
 from kivy.uix.widget import Widget
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 from kivy.properties import StringProperty
 from kivy.core.audio import SoundLoader
 from kivy.uix.popup import Popup
@@ -28,6 +29,10 @@ from bubble import Bubble
 
 #sätter storleken för huvudfönstret
 Window.size = 560, 836
+
+#Custom styles for Label
+class TableLabel(Label):  
+    title = Label.text
 
 
 '''
@@ -75,7 +80,7 @@ class SettingDialog(BoxLayout):
     
     def dismiss_parent(self):
         self.root.setting_popup.dismiss()
-
+        
 
 
 # huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
@@ -83,6 +88,7 @@ class DbShooterWidget(Widget):
     #app = ObjectProperty(None)
     level = 1
     lives = 5
+    points = 0
     bubble = None
 
     bubble_list = []
