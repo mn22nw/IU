@@ -127,13 +127,18 @@ class DbShooterWidget(Widget):
         ###
         '''
         # create a bubble, calculate the start position and fire it.
-        tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
+        #tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
         tower_angle= self.shooter.shooter_tower_angle # * (3.14159265 / 180.) 
         print('TOWER ANGLE FIRE BULLET = ', tower_angle )
+        
         tower_position = self.shooter.pos
-        bubble_position = (tower_position[0] + 48 + cos(tower_angle) * 130, tower_position[1] + 70 + sin(tower_angle) * 130)
-        self.bubble = Bubble(angle=tower_angle)
-        self.bubble.center = bubble_position
+        #bubble_position = (tower_position[0] + 48 + cos(tower_angle) * 130, tower_position[1] + 70 + sin(tower_angle) * 130)
+        print(tower_position[0], 'TOWER POSITION')
+        self.bubble = self.createBubble(5,4)
+
+
+        #Bubble(angle=tower_angle)
+        #self.bubble.center = bubble_position
         self.add_widget(self.bubble)
         self.bubble.fire()
         
@@ -180,7 +185,7 @@ class DbShooterWidget(Widget):
         help_screen.open()
 
     def update_label(self, label, text):
-        label.text = 'Lives: ' + str(text) 
+        label.text = str(text) 
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 

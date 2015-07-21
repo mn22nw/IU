@@ -40,9 +40,11 @@ class Shooter(Widget):
         '''   
     def on_touch_up(self, touch):
         print('touched Y\'ALL X', touch.x, '<---x')
+        
+        self.changeAngle(touch)
         #shooot a bubble muhahah
         self.parent.fireBubble()
-        self.changeAngle(touch)
+        
         #need to change the ange here too
         
     '''
@@ -58,11 +60,10 @@ class Shooter(Widget):
             
 
     def changeAngle(self, touch):
-        print('DB HAS BEEN MOVED LOL', touch.y, '<---y', self.top)
+        #print('DB HAS BEEN MOVED LOL', touch.y, '<---y', self.top)
         ud = touch.ud
         #if not 'shooter_touch' in ud:
            # return False
-        a = atan2(20,5)
         angle = atan2(touch.y - self.shooter_tower_scatter.center_y, touch.x - self.shooter_tower_scatter.center_x );
         angle = angle * (180/pi);
             # if the current touch is already in the 'rotate' mode, rotate the tower.
