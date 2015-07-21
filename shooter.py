@@ -41,6 +41,9 @@ class Shooter(Widget):
     def on_touch_up(self, touch):
         print('touched Y\'ALL X', touch.x, '<---x')
         #shooot a bubble muhahah
+        self.parent.fireBubble()
+        self.changeAngle(touch)
+        #need to change the ange here too
         
     '''
     ####################################
@@ -50,7 +53,11 @@ class Shooter(Widget):
     ####################################
     '''
     def on_touch_move(self, touch):
+        self.changeAngle(touch)
+        
+            
 
+    def changeAngle(self, touch):
         print('DB HAS BEEN MOVED LOL', touch.y, '<---y', self.top)
         ud = touch.ud
         #if not 'shooter_touch' in ud:
@@ -82,5 +89,3 @@ class Shooter(Widget):
                     self.shooter_tower_scatter.x = self.shooter_tower_scatter.x + 1
             '''
        #jetSprite.rotation =90 + angle;
-            
-

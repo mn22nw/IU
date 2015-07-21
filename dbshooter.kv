@@ -65,7 +65,7 @@
 	size_hint: None, None
 	keep_data: True
     size:138,138
-    pos_hint: {'center_x': .1, 'center_y': .1}
+    #pos_hint: {'center_x': .1, 'center_y': .1}
     source: 'graphics/wolf.png'
     opacity: .3
 
@@ -112,22 +112,22 @@
 	            pos: root.width *0.5 - self.width *0.5, 0
 	            source: 'graphics/table.png'
 
-	   
+	#This is the wrapper for level, and points etc
 	BoxLayout:
 		height:root.height *0.16
 		width:bubbleLayout.width *0.7
 		bottom: root.height 
 		size_hint:None, None
 		pos: root.width *0.5 - self.width *0.5, 0
-		canvas:
-			Color:
-				rgb:0,0,1
-			Rectangle:
-	            size: self.width, self.height
-	            pos: root.width *0.5 - self.width *0.5, 0
+		#canvas:
+		#	Color:
+		#		rgb:0,0,1
+		#	Rectangle:
+	    #        size: self.width, self.height
+	    #        pos: root.width *0.5 - self.width *0.5, 0
 	    FloatLayout:
 	    		
-
+	    #this defines the level, points and lives
 	    GridLayout:
 	    	cols:2
 	    	padding:20

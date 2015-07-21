@@ -115,17 +115,19 @@ class DbShooterWidget(Widget):
     ##
     ####################################
     '''
-    def fire_button_pressed(self):
+    def fireBubble(self):
         if self.bubble:
             # if there is already a bullet existing (which means it's flying around or exploding somewhere)
             # don't fire.
             return
         print('FIREEEE')
+        '''
         #hej = App.get_running_app()
         #hej.sound['bullet_start'].play()
-        
+        ###
+        '''
         # create a bubble, calculate the start position and fire it.
-        #tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
+        tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
         tower_angle= self.shooter.shooter_tower_angle # * (3.14159265 / 180.) 
         print('TOWER ANGLE FIRE BULLET = ', tower_angle )
         tower_position = self.shooter.pos
@@ -188,7 +190,7 @@ class DbShooterWidget(Widget):
         #self.bubble_list.append(b)
 
     def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
-
+        bubbleSizeX =  0.08333333333333 
         layout = self.ids.bubbleLayout
         print('BL-->', bubblesLeft,'BR-->', bubblesRight)
         
@@ -196,18 +198,17 @@ class DbShooterWidget(Widget):
         for i in range(bubblesLeft):
             b = self.createBubble(x, y)
             layout.add_widget(b)
-            x += 0.08333333333333 
+            x += bubbleSizeX
         
         #add empty space for the threat
-        x += (0.08333333333333 * spaces)
+        x += (bubbleSizeX * spaces)
         
         #create bubbles to right
         for i in range(bubblesRight):
             b = self.createBubble(x, y)
             layout.add_widget(b)
-            x += 0.08333333333333 
+            x += bubbleSizeX
          
-
     def createThreat(self, x, y):
         layout = self.ids.bubbleLayout
         t = Threat(pos_hint={'x': x, 'center_y': y})
@@ -216,27 +217,45 @@ class DbShooterWidget(Widget):
         t.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
         layout.add_widget(t)
 
-    def createObsticles(self):       
+    def createObsticles(self):    
+        #each block contains one threat and 3 rows of bubbles
+        numberOfBlocks = 4  
+        bubbleSizeX =  0.08333333333333 
+        bubbleSizeY = 0.045
+        threatSizeY = bubbleSizeY
         rowCount = 0
         numberOfBubbles = 12
         x = 0
         y = 0
         xOdd = 0.041666666666665
-        
 
-        for r in range(10):
+        #the range is number of rows
+        for r in range(numberOfBlocks):
             numberOfBubbles = 12
+            #number of spaces that's needed for the threat to fit within the bubbles
             spaces = 3
             #set startnumber for threat
-            #startNumber = random.randint(1,11)
-            startNumber = 3
+            startNumber = random.randint(1,9)
 
             #bubbles and posistion for first row of threat
             bubblesLeft = startNumber -1
             bubblesRight = numberOfBubbles - startNumber - spaces + 1
 
+            #this will create 3 rows of bubbles with a threat inside at a random position
             for i in range(3):
-                self.createThreat(x, y)
+                print('this is i!!!!', i)
+                #print('bubblesLeft', bubblesLeft)
+                #print('bubblesRight', bubblesRight)
+                #create a threat only on first row of block
+                if i == 0:
+                    threatPosX = (startNumber - 1) * bubbleSizeX
+                     #if threat starts at an uneven row, add half a bubble of extra space on it's left
+                    if (rowCount % 2 == 1): 
+                        threatPosX += xOdd
+                    print('CREATING A THREAT')
+                    self.createThreat(threatPosX, threatSizeY)
+                    #increase the y-value for the threat position
+                    threatSizeY += bubbleSizeY * 3
                 if (rowCount % 2 == 0): #even 
                     if i == 1:  #if row is even for every fourth row then add one bubble off left, and remove one right
                         bubblesLeft += 1
@@ -254,54 +273,11 @@ class DbShooterWidget(Widget):
                 if i == 1:
                     #print('bubblesLeft', bubblesLeft)
                     bubblesLeft +=1
-                    print('bubblesLeft', bubblesLeft)
-
+                    
                 bubblesRight += 1 
-                y+=0.045
+                y+=bubbleSizeY
                 rowCount +=1 
-                i+=1
-            
 
-        '''
-        for r in range(20):
-
-            if (rowCount % 2 == 0): #even 
-                self.createRow(numberOfBubbles, x, y, threat)
-            else: #odd
-                self.createRow(numberOfBubbles -1 , xOdd, y, threat)
-            #the procentual value for each row 
-            y+=0.045
-            rowCount +=1 
-        '''
-    '''
-     def createRow(self, numberOfBubbles, bubblePosX, bubblePosY):
-        layout = self.ids.bubbleLayout
-        for x in range(numberOfBubbles):
-            b = Bubble(pos_hint={'x': bubblePosX, 'center_y': bubblePosY}) 
-            b.setRandomColor()
-            b.source = 'graphics/bubbles/' + b.getColor() + '.png'
-            layout.add_widget(b)
-            #self.bubble_list.append(b)
-            bubblePosX +=0.08333333333333
-
-
-    def createObsticles(self):             
-        evenRow = True
-        bubblePosX = 0
-        bubblePosXOdd = 0.041666666666665
-        bubblePosY = 0
-
-        for r in range(20):
-            if evenRow:
-                self.createRow(12, bubblePosX, bubblePosY)
-                evenRow = False
-            else: 
-                self.createRow(11, bubblePosXOdd, bubblePosY)
-                evenRow = True
-            #the procentual value for each row 
-            bubblePosY+=0.045
-    '''
-        
     def getQuestions(self, level):
         #get the json-file were the questions are stored
         store = JsonStore('questions.json')
