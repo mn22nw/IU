@@ -13,7 +13,6 @@ from kivy.lang import Builder
 from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.uix.label import Label
-from kivy.properties import StringProperty
 from kivy.core.audio import SoundLoader
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
@@ -92,7 +91,7 @@ class DbShooterWidget(Widget):
     lives = 5
     points = 0
     bubble = None
-
+    nextBubble = None
     bubble_list = []
     threat_list = []
     #goal_list = []
@@ -108,6 +107,7 @@ class DbShooterWidget(Widget):
         #create all the bubbles and threats for the startup
         self.createObsticles()
 
+
     '''
     ####################################
     ##
@@ -115,6 +115,33 @@ class DbShooterWidget(Widget):
     ##
     ####################################
     '''
+    def getUpcomingBubble(self):
+
+        layout = self.ids.nextBubbleLayout
+        if self.nextBubble:
+            #remove the previous bubble
+            layout.remove_widget(self.nextBubble)
+
+        self.remove_widget(self.nextBubble)
+        #need to create two bubbles (one for preview and one to shoot) because the parent widget can't add the same childwidget twice. 
+        #self.nextBubble = self.createBubble(0, 0)
+        self.nextBubble = Bubble() 
+        self.nextBubble.setRandomColor()
+        self.nextBubble.source = 'graphics/threats/treat.png'
+
+        self.nextBubble.x = 0
+        self.nextBubble.y = 0
+
+        self.bubble = self.createBubble(50, 50)
+        #set the shooting bubble to the same color as the upcoming previewd bubble
+        self.bubble.bubbleColor = self.nextBubble.getColor()
+        
+        #add the upcomingBubble to the preview-window
+        
+        layout.add_widget(self.nextBubble)
+        print (layout.children, 'CHIIIIIILD')
+        
+
     def fireBubble(self):
         if self.bubble:
             # if there is already a bullet existing (which means it's flying around or exploding somewhere)
@@ -128,14 +155,30 @@ class DbShooterWidget(Widget):
         '''
         # create a bubble, calculate the start position and fire it.
         #tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
-        tower_angle= self.shooter.shooter_tower_angle # * (3.14159265 / 180.) 
+
+        #get the angle in radians from the tower
+        tower_angle= radians(self.shooter.shooter_tower_angle) # * (3.14159265 / 180.) 
         print('TOWER ANGLE FIRE BULLET = ', tower_angle )
         
-        tower_position = self.shooter.pos
-        #bubble_position = (tower_position[0] + 48 + cos(tower_angle) * 130, tower_position[1] + 70 + sin(tower_angle) * 130)
-        print(tower_position[0], 'TOWER POSITION')
-        self.bubble = self.createBubble(5,4)
+        #get the tower widget from the canvas
+        tower = self.shooter.ids.shooter_tower_scatter
 
+        bubble_position_x = self.shooter.center_x  + cos(tower_angle) 
+        bubble_position_y = self.shooter.center_y  + sin(tower_angle) + tower.height * 0.25
+
+        #Get the upcoming bubble 
+        self.getUpcomingBubble()
+
+        self.bubble.center_x = bubble_position_x 
+        self.bubble.center_y = bubble_position_y
+
+        #reset the upcoming bubble
+
+        #angle in degrees
+        self.bubble.angle = tower_angle
+        self.bubble.setRandomColor()
+        self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
+        #I already have the angle for the bullet in degrees now I need it for
 
         #Bubble(angle=tower_angle)
         #self.bubble.center = bubble_position
@@ -247,10 +290,10 @@ class DbShooterWidget(Widget):
             bubblesRight = numberOfBubbles - startNumber - spaces + 1
 
             #this will create 3 rows of bubbles with a threat inside at a random position
-            for i in range(3):
-                print('this is i!!!!', i)
+            for i in range(3): #remember! first time in range i will be equal to 0
                 #print('bubblesLeft', bubblesLeft)
                 #print('bubblesRight', bubblesRight)
+                
                 #create a threat only on first row of block
                 if i == 0:
                     threatPosX = (startNumber - 1) * bubbleSizeX

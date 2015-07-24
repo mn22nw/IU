@@ -23,7 +23,7 @@ SHOOTER
  	- uppdatera position för tank efter att kordinater har ändrats
 
 TREAT
- - tar upp 2 rader i höjd (två bubblor) och tre bubblor i höjd... nope, behöver designas som en 'blomma'
+ - tar upp 2 rader i höjd (två bubblor) och tre bubblor i höjd... nope, behöver designas som en 'blomma'...eller trekant!!
  - ska också ha random color
  - generera en random fråga ur level 
  - lägg alla frågor i en lista, om 'avklarad', radera från listan. 
@@ -44,7 +44,7 @@ DATABASE
 
 
 #hur ska jag få threatsen blandat bland bubblorna?! ....
- - definera en startpunkt bland 1-11 
+ - definera en startpunkt bland 1-9 
  - modifiera bubblepositionen samt hur många bubblor som ska försvinna per rad.
  - kommer det ett threat så:
   	- skapa 3 rader i taget med ett threat däri?, varav första har numberOfBubbles - 3, andra har numberOfBubbles - 2 osv
@@ -54,6 +54,10 @@ DATABASE
 gör en fast floatLayout, med bakgrundsfärg.
 
 
+
+#räkna ut vinkeln
+ - jag har tillgång till vinkeln (hypotenusan) och tillgång till startpunkten för bubblan? 
+ - startpunkten blir samma punkt som tornet är. 
 
 
 

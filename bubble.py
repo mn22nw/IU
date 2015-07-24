@@ -8,10 +8,7 @@ from kivy.graphics import Color, Point
 from kivy.app import App
 
 from kivy.utils import boundary
-from math import tan
-from math import sin
-from math import pi
-from math import radians
+import math
 from kivy.vector import Vector
 import random
 
@@ -34,10 +31,19 @@ class Bubble(Image):
         super(Bubble, self).__init__(**kwargs)
         
     def fire(self):
-        destination = self.calc_destination(self.angle)
+        #angle in radiants
+        #destination = self.calc_destination(self.angle)
+        destination = 600
+
+        X=destination* math.cos(self.angle) + self.center_x 
+        Y=destination* math.sin(self.angle) + self.center_y
+
+
+        print('BUBBLE DESTINATION', X, Y)
+
         app = App.get_running_app()  # maybe change this??!
         speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
-        self.animation = self.create_animation(speed, destination)
+        self.animation = self.create_animation(speed, (X, Y))
         
         # start the animation
         self.animation.start(self)
@@ -45,6 +51,10 @@ class Bubble(Image):
         
         # start to track the position changes
         self.bind(pos=self.callback_pos)
+
+    def calculateOrigin(self):
+        self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
+        self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)
     
     def create_animation(self, speed, destination):
         # create the animation
@@ -58,9 +68,6 @@ class Bubble(Image):
         
     def calc_destination(self, angle):
 
-        '''
-        CHANGE ALL THIS!!!!!!
-        '''
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
         # the following "magic numbers" are based on the dimensions of the
@@ -74,53 +81,59 @@ class Bubble(Image):
         bullet_x_to_left = left - self.center_x
         bullet_y_to_top = top - self.center_y
         bullet_y_to_bottom = bottom - self.center_y
+
+
+        X=distance*cos(angle) + self.x 
+        Y=distance*sin(angle) + self.y
+
+        print('SELF ANGLE DEGREES', self.angle)
+       
+        #sin an cos needs the angle in radiant 
+        #self.angle = self.degreesToRadians(self.angle)
+       
+        print('SELF ANGLE RADIANT', self.angle)
         
-        destination_x = 0
-        destination_y = 0
-        
-            
-        # this is a little bit ugly, but I couldn't find a nicer way in the hurry
-        if 0 <= self.angle < pi/2:
-            # 1st quadrant
-            if self.angle == 0:
-                destination_x = bullet_x_to_right
-                destination_y = 0
-            else:
-                destination_x = boundary(bullet_y_to_top / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_right, bullet_y_to_bottom, bullet_y_to_top)
-                
-        elif pi/2 <= self.angle < pi:
-            # 2nd quadrant
-            if self.angle == pi/2:
-                destination_x = 0
-                destination_y = bullet_y_to_top
-            else:
-                destination_x = boundary(bullet_y_to_top / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_left, bullet_y_to_bottom, bullet_y_to_top)
-                
-        elif pi <= self.angle < 3*pi/2:
-            # 3rd quadrant
-            if self.angle == pi:
-                destination_x = bullet_x_to_left
-                destination_y = 0
-            else:
-                destination_x = boundary(bullet_y_to_bottom / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_left, bullet_y_to_bottom, bullet_y_to_top) 
-                       
-        elif self.angle >= 3*pi/2:
-            # 4th quadrant
-            if self.angle == 3*pi/2:
-                destination_x = 0
-                destination_y = bullet_y_to_bottom
-            else:
-                destination_x = boundary(bullet_y_to_bottom / tan(self.angle), bullet_x_to_left, bullet_x_to_right)
-                destination_y = boundary(tan(self.angle) * bullet_x_to_right, bullet_y_to_bottom, bullet_y_to_top)
+        destination_x = math.sin(self.angle) 
+        destination_y = math.cos(self.angle) 
+
+        print('destination_x', destination_x, 'destination_y', destination_y)
+        '''
+        mport math
+        GRAD = math.pi / 180
+        class BigBird(pygame.sprites.Sprites):
+            #...
+            def __init__(self):
+                pressedkeys = pygame.key.get_pressed()
+                self.ddx = 0.0
+                self.ddy = 0.0
+                if pressedkeys[pygame.K_w]: # forward
+                                 self.ddx = -math.sin(self.angle*GRAD) 
+                                 self.ddy = -math.cos(self.angle*GRAD) 
+                if pressedkeys[pygame.K_s]: # backward
+                                 self.ddx = +math.sin(self.angle*GRAD) 
+                                 self.ddy = +math.cos(self.angle*GRAD) 
+                if pressedkeys[pygame.K_e]: # right side
+                                 self.ddx = +math.cos(self.angle*GRAD)
+                                 self.ddy = -math.sin(self.angle*GRAD)
+                if pressedkeys[pygame.K_q]: # left side
+                                 self.ddx = -math.cos(self.angle*GRAD) 
+                                 self.ddy = +math.sin(self.angle*GRAD) 
+                #...
+                self.dx += self.ddx * self.speed
+                self.dy += self.ddy * self.speed
+                #...
+                self.pos[0] += self.dx * seconds
+                self.pos[1] += self.dy * seconds
+                #...
+
+
+
             
         
         # because all of the calculations above were relative, add the bullet position to it.
         destination_x += self.center_x
         destination_y += self.center_y
-        
+        '''
         return (destination_x, destination_y)
         
     def check_bubble_collision(self, deflector):
@@ -216,7 +229,9 @@ class Bubble(Image):
         Pass
         #check if there is surrounding colors of same
 
-        #if there is 2 of sam e color POP THEM and remove them from bullet_list
+        #if there is 2 of sam e color POP THEM and remove them from bubble_list
+    def degreesToRadians(self,degrees):
+            return degrees * (math.pi / 180.0)
     
     #returns a string with the color name  
     def setRandomColor(self):

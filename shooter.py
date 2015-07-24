@@ -64,14 +64,21 @@ class Shooter(Widget):
         ud = touch.ud
         #if not 'shooter_touch' in ud:
            # return False
+        print('TOUCH Y, X', touch.y, touch.x)
+        
+        #calculates the angle i radians from x, and y values   
         angle = atan2(touch.y - self.shooter_tower_scatter.center_y, touch.x - self.shooter_tower_scatter.center_x );
-        angle = angle * (180/pi);
+
+        #radians to degrees
+        angle = angle * (180/pi);    #degrees = radians * (180/pi)
             # if the current touch is already in the 'rotate' mode, rotate the tower.
             #dx = touch.x - self.x
             #dy = touch.y - self.y
-        angle = boundary(angle, 10, 180)     #boundary(value, minvalue, maxvalue)  Limit a value between a minvalue and maxvalue.
-        if angle < 149 and angle > 29:
 
+        #Limit a value between a minvalue and maxvalue, for how far the tower can rotate
+        angle = boundary(angle, 0, 360)     #boundary(value, minvalue, maxvalue)  Limit a value between a minvalue and maxvalue.
+        
+        if angle < 149 and angle > 29:
             print(angle, 'ANGLEEE')
             angle_change = self.shooter_tower_scatter.rotation - angle
             #rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
@@ -79,14 +86,12 @@ class Shooter(Widget):
             self.shooter_tower_scatter.rotation = -90 + angle
 
             self.shooter_tower_angle = angle
-            '''
-            if angle < 90:
-                if not self.shooter_tower_scatter.x > self.x :
-                    print ('scatter', self.shooter_tower_scatter.x , 'self', self.x)
-                    self.shooter_tower_scatter.x = self.shooter_tower_scatter.x - 1
-            if angle > 90:
-                if not self.shooter_tower_scatter.x < self.x :
-                    print ('scatter', self.shooter_tower_scatter.x , 'self', self.x)
-                    self.shooter_tower_scatter.x = self.shooter_tower_scatter.x + 1
-            '''
+
        #jetSprite.rotation =90 + angle;
+    '''
+        def radians_to_degrees(radians):
+            return (radians / math.pi) * 180.0
+        
+        def degrees_to_radians(degrees):
+            return degrees * (math.pi / 180.0)
+    '''
