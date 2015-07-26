@@ -49,30 +49,29 @@ DATABASE
  - kommer det ett threat så:
   	- skapa 3 rader i taget med ett threat däri?, varav första har numberOfBubbles - 3, andra har numberOfBubbles - 2 osv
 
+
  - upptagna startpunkter? 
 
 gör en fast floatLayout, med bakgrundsfärg.
 
 
-
 #räkna ut vinkeln
  - jag har tillgång till vinkeln (hypotenusan) och tillgång till startpunkten för bubblan? 
- - startpunkten blir samma punkt som tornet är. 
+ - startpunkten blir samma punkt som mittpunkten av top-tornet är. (har tillgång till x,y) - skapa en vector för det
+
+ - 
 
 
 
 
+TIPS
+
+#http://www.dahuatu.com/QBy99JoYy2.html
+Edit: based on your image, perhaps you want circle collision, calculate the distance between the centres of the two widgets and return True if it's less than the sum of their radii, which is probably equal to the width of either of them if they're square and the circle fills the widget.
 
 
 
-
-
-
-
-
-
-
-
+# on collision I have to check were it should be placed
 
 
 
@@ -110,4 +109,13 @@ Image:
 
 
 
+
+canvas:
+        Color:
+            rgba: 1, 0, 1, 1
+        Ellipse:
+        	id: bubbleEllipse
+            pos: self.pos
+            size: 35, 35
+            source: 'data/logo/kivy-icon-512.png'
 '''

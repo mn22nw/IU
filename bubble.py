@@ -13,6 +13,7 @@ from kivy.vector import Vector
 import random
 
 class Bubble(Image):
+    radius = NumericProperty() 
     bubbleColor= StringProperty()
     angle = NumericProperty(0) # in radians!
     animation = None
@@ -29,28 +30,28 @@ class Bubble(Image):
     
     def __init__(self, **kwargs):
         super(Bubble, self).__init__(**kwargs)
-        
+        #set radius to half the size of the bullet minus 2 pixels
+        self.radius = self.width *0.5 - 2
+
     def fire(self):
         #angle in radiants
-        #destination = self.calc_destination(self.angle)
-        destination = 600
-
-        X=destination* math.cos(self.angle) + self.center_x 
-        Y=destination* math.sin(self.angle) + self.center_y
-
-
-        print('BUBBLE DESTINATION', X, Y)
+        destination = self.calculateDestination(self.angle)
 
         app = App.get_running_app()  # maybe change this??!
         speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
-        self.animation = self.create_animation(speed, (X, Y))
+        self.animation = self.create_animation(speed, destination)
         
         # start the animation
         self.animation.start(self)
-        self.animation.bind(on_complete=self.on_collision_with_edge)
+       
+        #when animation is completed/stopped run this function
+        self.animation.bind(on_complete=self.animationComplete)
         
         # start to track the position changes
-        self.bind(pos=self.callback_pos)
+        self.bind(pos=self.callbackPos)
+        
+        
+
 
     def calculateOrigin(self):
         self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
@@ -66,7 +67,7 @@ class Bubble(Image):
         # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
-    def calc_destination(self, angle):
+    def calculateDestination(self, angle):
 
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
@@ -82,109 +83,91 @@ class Bubble(Image):
         bullet_y_to_top = top - self.center_y
         bullet_y_to_bottom = bottom - self.center_y
 
+        #set a destination
+        destination = 600
 
-        X=distance*cos(angle) + self.x 
-        Y=distance*sin(angle) + self.y
+        #set angle and distance from the correct position (x, y).
+        destinationX = destination* math.cos(self.angle) + self.center_x 
+        destinationY = destination* math.sin(self.angle) + self.center_y
 
-        print('SELF ANGLE DEGREES', self.angle)
-       
-        #sin an cos needs the angle in radiant 
-        #self.angle = self.degreesToRadians(self.angle)
-       
-        print('SELF ANGLE RADIANT', self.angle)
-        
-        destination_x = math.sin(self.angle) 
-        destination_y = math.cos(self.angle) 
+        return (destinationX, destinationY)
 
-        print('destination_x', destination_x, 'destination_y', destination_y)
-        '''
-        mport math
-        GRAD = math.pi / 180
-        class BigBird(pygame.sprites.Sprites):
-            #...
-            def __init__(self):
-                pressedkeys = pygame.key.get_pressed()
-                self.ddx = 0.0
-                self.ddy = 0.0
-                if pressedkeys[pygame.K_w]: # forward
-                                 self.ddx = -math.sin(self.angle*GRAD) 
-                                 self.ddy = -math.cos(self.angle*GRAD) 
-                if pressedkeys[pygame.K_s]: # backward
-                                 self.ddx = +math.sin(self.angle*GRAD) 
-                                 self.ddy = +math.cos(self.angle*GRAD) 
-                if pressedkeys[pygame.K_e]: # right side
-                                 self.ddx = +math.cos(self.angle*GRAD)
-                                 self.ddy = -math.sin(self.angle*GRAD)
-                if pressedkeys[pygame.K_q]: # left side
-                                 self.ddx = -math.cos(self.angle*GRAD) 
-                                 self.ddy = +math.sin(self.angle*GRAD) 
-                #...
-                self.dx += self.ddx * self.speed
-                self.dy += self.ddy * self.speed
-                #...
-                self.pos[0] += self.dx * seconds
-                self.pos[1] += self.dy * seconds
-                #...
+    def animationComplete(self, animation, widget):
+        print('COMPLETEOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD')
+        self.correctPlacementBubble()
 
+        #this doesn't workediworki
+        #self.checkWidgetOverlap()
+        #add the new bubble to the list of bubbles
+        self.parent.bubbleList.append(self)
 
-
-            
-        
-        # because all of the calculations above were relative, add the bullet position to it.
-        destination_x += self.center_x
-        destination_y += self.center_y
-        '''
-        return (destination_x, destination_y)
-        
-    def check_bubble_collision(self, deflector):
-        '''
-        CHANGE ALL THIS!!!!!!
-        '''
-        # first thing to do is: we need a vector describing the bullet. Length isn't important.
-        bullet_position = Vector(self.center)
-        bullet_direction = Vector(1, 0).rotate(self.angle * 360 / (2*pi))
-        deflector_point1 = Vector(deflector.to_parent(deflector.point1.center[0], deflector.point1.center[1]))
-        deflector_point2 = Vector(deflector.to_parent(deflector.point2.center[0], deflector.point2.center[1]))
-        
-        # then we need a vector describing the deflector line.
-        deflector_vector = Vector(deflector_point2 - deflector_point1)
-        
-        # now we do a line intersection with the deflector line:
-        intersection = Vector.line_intersection(bullet_position, bullet_position + bullet_direction, deflector_point1, deflector_point2)
-        
-        # now we want to proof if the bullet comes from the 'right' side.
-        # Because it's possible that the bullet is colliding with the deflectors bounding box but
-        # would miss / has already missed the deflector line.
-        # We do that by checking if the expected intersection point is BEHIND the bullet position.
-        # ('behind' means the bullets direction vector points AWAY from the vector 
-        # [bullet -> intersection]. That also means the angle between these two vectors is not 0
-        # -> due to some math-engine-internal inaccuracies, i have to check if the angle is greater than one:
-        if abs(bullet_direction.angle(intersection - bullet_position)) > 1:
-            # if the bullet missed the line already - NO COLLISION
-            return False
-        
-        # now we finally check if the bullet is close enough to other bubbles:
-        distance = abs(sin(radians(bullet_direction.angle(deflector_vector)) % (pi/2))) * Vector(intersection - bullet_position).length()
-        if distance < (self.width / 2):
-            # there is a collision!
-            # kill the animation!
-            self.animation.unbind(on_complete=self.on_collision_with_edge)
-            self.animation.stop(self)
-            # call the collision handler
-            self.on_collision_with_deflector(deflector, deflector_vector)
-            
-        
-    
-    def callback_pos(self, instance, pos):
-        # check here if the bullet collides with another bubble
-        # (edge collision detection is irrelevant - the edge is where the bullet animation ends
-        # and therefor a callback is raised then)
-        
-        # first check if there's a collision with other bubbles:
-        if not len(self.parent.bubble_list) == 0:
-            for bubble in self.parent.bubble_list:
+    def correctPlacementBubble(self):
+        if not len(self.parent.bubbleList) == 0:
+            for bubble in self.parent.bubbleList:
                 if bubble.collide_widget(self):
-                    self.check_bubble_collision(bubble)
+                    print(bubble.getColor())
+                '''
+                if bubble.collide_widget(self):
+                    X = bubble.center_x
+                    Y = bubble.center_y
+                    self.center = X - self.radius * 0.5, Y - self.radius * 2
+                '''
+
+   
+    def checkBubbleDistance(self,bubble):
+        #calculate the distance between the centre of both bubbles
+        a = Vector(self.center)
+        b = Vector(bubble.center)
+        distance = int(Vector(a).distance(b))
+
+        diameter = int(self.radius + bubble.radius)
+
+        print('CENTER', distance, 'radi: ', diameter)
+
+        #if for some reason the distance is 0 return false
+        if distance == 0:
+            return False
+
+        if distance < diameter: 
+            return True        
+
+        #if there is 2 of sam e color POP THEM and remove them from bubble_list
+
+    def checkBubbleCollision(self, bubble): 
+        print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))            
+        if self.checkBubbleDistance(bubble):
+            #stop animation on collide
+            self.animation.stop(self)
+            self.unbind(pos=self.callbackPos)
+    
+    def checkCollision(self, bubble):
+        if self.checkBubbleCollision(bubble):
+            return True
+        if self.checkThreatCollision(bubble):
+            return True
+
+
+    def checkThreatCollision(self, bubble): 
+        pass
+        #self.threatExplode()
+              
+
+    def checkWidgetOverlap(self):
+        vaku = 0
+        if not len(self.parent.bubbleList) == 0:
+            for bubble in self.parent.bubbleList:
+                for i in range(int(self.width * 0.5)):
+                    if int(bubble.x) + i == int(self.x):
+                        print('JOMENSeeATTE :' , bubble.getColor(), 'x', bubble.x, 'selfX', self.x)            
+        print( 'VAKUUUU', len(self.parent.bubbleList))
+ 
+    def callbackPos(self, instance, pos):
+        # check here if the bubble collides with another bubble
+        if not len(self.parent.bubbleList) == 0:
+            for bubble in self.parent.bubbleList:
+                if bubble.collide_widget(self):
+                    #check if it collides with a threat or bubble
+                    self.checkCollision(bubble)
                     return
         
         
@@ -195,7 +178,7 @@ class Bubble(Image):
                     self.on_collision_with_threat()
                     return
 
-    def bubble_explode(self):
+    def bubbleExplode(self):
         if self.exploding == True:
             return
         self.exploding = True
@@ -204,10 +187,10 @@ class Bubble(Image):
         self.animation.unbind(on_complete=self.on_collision_with_edge)
         self.animation.stop(self)
         
-        self.parent.bubble_exploding()
+        #self.parent.bubble_exploding()
 
     #TODO - flytta till threat!!!?!
-    def threat_explode(self):
+    def threatExplode(self):
         if self.exploding == True:
             return
         self.exploding = True
@@ -219,17 +202,9 @@ class Bubble(Image):
         self.parent.threat_exploding()
         
     def on_collision_with_edge(self, animation, widget):
-        self.bubble_explode()
-    
-    def on_collision_with_threat(self):
-        self.threat_explode()
-    
-    def on_collision_with_bubble(self, bubble, deflector_vector):
-        #self.parent.app.sound['poppop'].play()
-        Pass
-        #check if there is surrounding colors of same
+        self.bubbleExplode()
 
-        #if there is 2 of sam e color POP THEM and remove them from bubble_list
+        
     def degreesToRadians(self,degrees):
             return degrees * (math.pi / 180.0)
     

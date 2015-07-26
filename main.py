@@ -91,10 +91,12 @@ class DbShooterWidget(Widget):
     lives = 5
     points = 0
     bubble = None
-    nextBubble = None
-    bubble_list = []
+    firstBubble = None
+    secondBubble = None
+    bubbleList = []
     threat_list = []
     #goal_list = []
+    angle = NumericProperty()
     
     
     #constructor, decides what happens when the class gets instanciated 
@@ -107,84 +109,39 @@ class DbShooterWidget(Widget):
         #create all the bubbles and threats for the startup
         self.createObsticles()
 
+        #create the upcoming bubbles for shooting
+        self.setUpcomingBubbles()
+        #add the first upcoming bubble to the view
+        self.addUpcomingBubbletoView()
 
-    '''
-    ####################################
-    ##
-    ##   GUI Functions
-    ##
-    ####################################
-    '''
-    def getUpcomingBubble(self):
 
+    def setUpcomingBubbles(self):
+        
+        if self.secondBubble:
+            self.secondBubble = self.firstBubble
+        else:
+            self.secondBubble = self.createBubble(0,0)
+
+        self.firstBubble = self.createBubble(0,0)
+
+
+    def addUpcomingBubbletoView(self):
         layout = self.ids.nextBubbleLayout
-        if self.nextBubble:
-            #remove the previous bubble
-            layout.remove_widget(self.nextBubble)
+        #remove the previous bubble
+        if self.secondBubble:            
+            layout.remove_widget(self.secondBubble)
 
-        self.remove_widget(self.nextBubble)
-        #need to create two bubbles (one for preview and one to shoot) because the parent widget can't add the same childwidget twice. 
-        #self.nextBubble = self.createBubble(0, 0)
-        self.nextBubble = Bubble() 
-        self.nextBubble.setRandomColor()
-        self.nextBubble.source = 'graphics/threats/treat.png'
+        self.secondBubble.x = 0
+        self.secondBubble.y = 0
+        #add the upcomingBubble to the preview-window
+        layout.add_widget(self.secondBubble)
+        print (layout.children, 'CHIIIIIILD')
 
-        self.nextBubble.x = 0
-        self.nextBubble.y = 0
-
+    def createShootingBullet(self):
         self.bubble = self.createBubble(50, 50)
         #set the shooting bubble to the same color as the upcoming previewd bubble
-        self.bubble.bubbleColor = self.nextBubble.getColor()
-        
-        #add the upcomingBubble to the preview-window
-        
-        layout.add_widget(self.nextBubble)
-        print (layout.children, 'CHIIIIIILD')
-        
-
-    def fireBubble(self):
-        if self.bubble:
-            # if there is already a bullet existing (which means it's flying around or exploding somewhere)
-            # don't fire.
-            return
-        print('FIREEEE')
-        '''
-        #hej = App.get_running_app()
-        #hej.sound['bullet_start'].play()
-        ###
-        '''
-        # create a bubble, calculate the start position and fire it.
-        #tower_angle = radians(self.shooter.shooter_tower_scatter.rotation) 
-
-        #get the angle in radians from the tower
-        tower_angle= radians(self.shooter.shooter_tower_angle) # * (3.14159265 / 180.) 
-        print('TOWER ANGLE FIRE BULLET = ', tower_angle )
-        
-        #get the tower widget from the canvas
-        tower = self.shooter.ids.shooter_tower_scatter
-
-        bubble_position_x = self.shooter.center_x  + cos(tower_angle) 
-        bubble_position_y = self.shooter.center_y  + sin(tower_angle) + tower.height * 0.25
-
-        #Get the upcoming bubble 
-        self.getUpcomingBubble()
-
-        self.bubble.center_x = bubble_position_x 
-        self.bubble.center_y = bubble_position_y
-
-        #reset the upcoming bubble
-
-        #angle in degrees
-        self.bubble.angle = tower_angle
-        self.bubble.setRandomColor()
+        self.bubble.bubbleColor = self.secondBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
-        #I already have the angle for the bullet in degrees now I need it for
-
-        #Bubble(angle=tower_angle)
-        #self.bubble.center = bubble_position
-        self.add_widget(self.bubble)
-        self.bubble.fire()
-        
 
     '''
     ####################################
@@ -193,10 +150,46 @@ class DbShooterWidget(Widget):
     ##
     ####################################
     '''
-    
+    def fireBubble(self):
+
+        print('FIREEEE')
+        '''
+        #hej = App.get_running_app()
+        #hej.sound['bullet_start'].play()
+        ###
+        '''
+        # create a bubble, calculate the start position and fire it.
+        self.createShootingBullet()
+
+        #set/reset the upcoming bubbles 
+        self.setUpcomingBubbles()
+
+        #add the upcoming bubble to the view
+        self.addUpcomingBubbletoView()
+
+        #get the angle in radians from the tower
+        self.angle= radians(self.shooter.shooter_tower_angle) 
+        print('TOWER ANGLE FIRE BULLET = ', self.angle )
+        #set the bubble angle to the same as tower angle (in radiant)
+        self.bubble.angle = self.angle
+        
+
+        self.setBubbleStartPosition()
+               
+        #add the bubble to the canvas
+        self.add_widget(self.bubble, -1)
+        self.bubble.fire()
+     
+    def setBubbleStartPosition(self):
+        #get the tower widget from the canvas (to be able to calculate the correct position for the bubble)
+        tower = self.shooter.ids.shooter_tower_scatter
+        #defines the x and y value for the bubble's centered position
+        bubblePosition = (self.shooter.center_x  + cos(self.angle) , self.shooter.center_y  + sin(self.angle) + tower.height * 0.25)
+        self.bubble.center = bubblePosition 
+
     def bubble_exploding(self):
         #self.app.sound['pop'].play()
-        
+    
         # create an animation on the old bullets position:
         # bug: gif isn't transparent
         #old_pos = self.bullet.center
@@ -235,7 +228,7 @@ class DbShooterWidget(Widget):
         b.setRandomColor()
         b.source = 'graphics/bubbles/' + b.getColor() + '.png'
         return b
-        #self.bubble_list.append(b)
+        #self.bubbleList.append(b)
 
     def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
         bubbleSizeX =  0.08333333333333 
@@ -246,6 +239,7 @@ class DbShooterWidget(Widget):
         for i in range(bubblesLeft):
             b = self.createBubble(x, y)
             layout.add_widget(b)
+            self.bubbleList.append(b)
             x += bubbleSizeX
         
         #add empty space for the threat
@@ -255,6 +249,7 @@ class DbShooterWidget(Widget):
         for i in range(bubblesRight):
             b = self.createBubble(x, y)
             layout.add_widget(b)
+            self.bubbleList.append(b)
             x += bubbleSizeX
          
     def createThreat(self, x, y):
