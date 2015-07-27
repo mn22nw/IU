@@ -340,110 +340,45 @@ class DbShooterWidget(Widget):
             threat.title = question.title
             threatList.append(threat)
 
-
         t.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
     
-
-    #this function is taken from http://stackoverflow.com/questions/1305532/convert-python-dict-to-object#1305547
-    def obj_dic(self, d):
-            top = type('new', (object,), d)
-            seqs = tuple, list, set, frozenset
-            for i, j in d.items():
-                if isinstance(j, dict):
-                    setattr(top, i, self.obj_dic(j))
-                elif isinstance(j, seqs):
-                    setattr(top, i, 
-                        type(j)(self.obj_dic(sj) if isinstance(sj, dict) else sj for sj in j))
-                else:
-                    setattr(top, i, j)
-            return top
-
-
 
     def getQuestions(self, level):
 
         #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
         import json
 
-
         try:
             #get the json-file were the questions are stored
-            #with open('questions.json', "r") as f:
-            #    data = json.loads(f.read())
+            with open('questions.json', "r") as f:
+                data = json.loads(f.read())
 
-            jsonL = '{ "one": 1, "level1": { "CSRF": [ {"question":"What does CSRF stand for?"},{"answers":[ "miii", "loo", "doo" ]} ] } }'
-            data = json.loads(jsonL)
-         
-            # pretty printing of json-formatted string
-            print (json.dumps(data, sort_keys=True, indent=4))
-         
-            print ("Complex JSON parsing example: ", data['level' + str(level)]['CSRF'][1]['answers'][0])
+            #get all CSRF questions
+            for CSRF in data['level' + str(level)]['CSRF']:
+                threat = Threat()
+                threat.title = 'CSRF'
+                threat.question = CSRF['question']
+                threat.answers = CSRF['answers']
+                threat.correctAnswer = str(CSRF['correctAnswer'])
+                #print('THREAT ANW', threat)
+            
+            #get all SQL-Injection questions
+            for SQL in data['level' + str(level)]['SQL-Injection']:
+                threat = Threat()
+                threat.title = 'SQL-Injection'
+                threat.question = SQL['question']
+                threat.answers = SQL['answers']
+                threat.correctAnswer = str(SQL['correctAnswer'])
+
+
+
+            #print ("Complex JSON parsing example: ", data['level' + str(level)]['CSRF'][0]['answers'][0])
             #print ("Complex JSON parsing example: ", data['level' + str(level)]['CSRF'][0]['question'])
          
         except (ValueError, KeyError, TypeError):
             print "JSON format error"
 
-
-
-        '''
-        #get the json-file were the questions are stored
-        store = JsonStore('questions.json')
-
-        level = store.get('level' + str(level))
         
-        for subject in level:
-            print( 'subject', subject['CSRF'][0])
-            for questionTitle in subject:
-                t = Threat() 
-                t.title = questionTitle
-
-                if questionTitle == 'CSRF':
-                    for question in questionTitle[0]:
-                        t.title = questionTitle
-                        t.question = question
-                        
-
-                print(questionTitle)
-            print('___________________')
-
-        #print(store, 'iiiiiiiiiiiiiiiiiih')
-    
-                best =  store.get('level1')
-                print(best[0])
-                test =  store.get('level')['best']
-                print test
-                #for key in sorted(store):
-                 #   print (str(key['test']), 'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWi')
-                #res = store.get('CSRF')
-                #for item in res:
-                   # print "res=", str(item)
-                    #print "res=", str(item[1]['answers'])
-        '''
-        
-        '''
-        def obj_dic(d):
-    top = type('new', (object,), d)
-    seqs = tuple, list, set, frozenset
-    for i, j in d.items():
-        if isinstance(j, dict):
-            setattr(top, i, obj_dic(j))
-        elif isinstance(j, seqs):
-            setattr(top, i, 
-                type(j)(obj_dic(sj) if isinstance(sj, dict) else sj for sj in j))
-        else:
-            setattr(top, i, j)
-    return top
-
-    >>> d
-    {'a': 1, 'b': {'c': 2}, 'd': ['hi', {'foo': 'bar'}]}
-    >>> x = obj_dic(d)
-    >>> x.a
-    1
-    >>> x.b.c
-    2
-    >>> x.d[1].foo
-    'bar'
-        '''
 Factory.register("Shooter", Shooter)
 
 #Huvudklassen som bygger applicationen och returnerar MainWidget

@@ -2,12 +2,9 @@ FIXA
 issue #1 - tank out of place
 
 
-Fast layout på bubble-området, ha resten responsivt
-
-
 
 TANKAR/ FÖRSLAG PÅ LÖSNINGAR 
-
+Fast layout på bubble-området, ha resten responsivt
 Skapa hela levels på en gång!  då skapas alla rader och bubblor med threats men de åker ner istället. 
 
 BUBBLE
@@ -23,7 +20,7 @@ SHOOTER
  	- uppdatera position för tank efter att kordinater har ändrats
 
 TREAT
- - tar upp 2 rader i höjd (två bubblor) och tre bubblor i höjd... nope, behöver designas som en 'blomma'...eller trekant!!
+ - tar upp 2 rader i höjd (två bubblor) och tre bubblor i höjd... nope, behöver designas som en 'blomma'...eller trekant!!!
  - ska också ha random color
  - generera en random fråga ur level 
  - lägg alla frågor i en lista, om 'avklarad', radera från listan. 
@@ -34,8 +31,8 @@ TREAT
 - bestäm vilken rad det ska starta på mellan 1-*
 - om det ligger en bubbla inom samma område som triangeln (eftersom png-bilden egentligen är fyrkantig), ta bort den istället...
 
-DATABASE
-- bilden borde ligga innuti en boxlayout som är horizontal,  som i sin tur ( i ena columnen) har en gridlayout som innehåller labels för level etc
+BASE
+- databasgrundbilden borde ligga innuti en boxlayout som är horizontal,  som i sin tur ( i ena columnen) har en gridlayout som innehåller labels för level etc och i andra en FloatLayout
 
 
 ÖVRIGT
@@ -47,25 +44,24 @@ DATABASE
  - definera en startpunkt bland 1-9 
  - modifiera bubblepositionen samt hur många bubblor som ska försvinna per rad.
  - kommer det ett threat så:
-  	- skapa 3 rader i taget med ett threat däri?, varav första har numberOfBubbles - 3, andra har numberOfBubbles - 2 osv
-
-
+  	- skapa 3 rader i taget med ett threat däri?
  - upptagna startpunkter? 
 
 gör en fast floatLayout, med bakgrundsfärg.
 
 
 #räkna ut vinkeln
- - jag har tillgång till vinkeln (hypotenusan) och tillgång till startpunkten för bubblan? 
+ - jag har tillgång till vinkeln (hypotenusan) och tillgång till startpunkten för bubblan....hmm! 
  - startpunkten blir samma punkt som mittpunkten av top-tornet är. (har tillgång till x,y) - skapa en vector för det
-
  - 
 
+
+varje [] räknas som en lista, och varje objekt {} kan hämtas med
+for person in people_list: if person['name'] == name: return person
 
 
 
 TIPS
-
 #http://www.dahuatu.com/QBy99JoYy2.html
 Edit: based on your image, perhaps you want circle collision, calculate the distance between the centres of the two widgets and return True if it's less than the sum of their radii, which is probably equal to the width of either of them if they're square and the circle fills the widget.
 
@@ -79,8 +75,16 @@ Edit: based on your image, perhaps you want circle collision, calculate the dist
 	
 
 
-
+GAMMAL KOD SOM KANSKE BEHÖVS
 '''
+print(json.dumps(data, indent=4))
+
+#jsonL = '{ "level1": { "CSRF": [ {"question":"What does CSRF stand for?"},{"answers":[ "miii", "loo", "doo" ]}, {"correctAnswer": 0} ] }, "level2": 1 }'
+            jsonL = '{ "level1": { "CSRF": [ {"question":"What does CSRF stand for?", "answers":[ "miisi", "loo", "doo" ], "correctAnswer": 0} ] }, "level2": 1 }'
+            data = json.loads(jsonL)
+
+
+
 Image:
 	    source: 'graphics/table.png'
 	    size_hint:None, None
@@ -135,3 +139,39 @@ canvas:
     	{"question":"What is an SQL-Injection?", "answers": [{"1":"When a user tries to ", "2":"Cross-Site Request Forgery", "3": "Woop"} ]}
     ]}
 ]}*/
+
+
+ '''
+        #get the json-file were the questions are stored
+        store = JsonStore('questions.json')
+
+        level = store.get('level' + str(level))
+        
+        for subject in level:
+            print( 'subject', subject['CSRF'][0])
+            for questionTitle in subject:
+                t = Threat() 
+                t.title = questionTitle
+
+                if questionTitle == 'CSRF':
+                    for question in questionTitle[0]:
+                        t.title = questionTitle
+                        t.question = question
+                        
+
+                print(questionTitle)
+            print('___________________')
+
+        #print(store, 'iiiiiiiiiiiiiiiiiih')
+    
+                best =  store.get('level1')
+                print(best[0])
+                test =  store.get('level')['best']
+                print test
+                #for key in sorted(store):
+                 #   print (str(key['test']), 'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWi')
+                #res = store.get('CSRF')
+                #for item in res:
+                   # print "res=", str(item)
+                    #print "res=", str(item[1]['answers'])
+        '''
