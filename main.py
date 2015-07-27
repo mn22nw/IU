@@ -94,7 +94,8 @@ class DbShooterWidget(Widget):
     firstBubble = None
     secondBubble = None
     bubbleList = []
-    threat_list = []
+    threatList = []
+    questionList = []
     #goal_list = []
     angle = NumericProperty()
     
@@ -104,7 +105,7 @@ class DbShooterWidget(Widget):
         super(DbShooterWidget, self).__init__(**kwargs)
 
         #get all the questions and answers for the first level
-        question_list = self.getQuestions(1)
+        self.questionList  = self.getQuestions(1)
 
         #create all the bubbles and threats for the startup
         self.createObsticles()
@@ -130,9 +131,9 @@ class DbShooterWidget(Widget):
         #remove the previous bubble
         if self.secondBubble:            
             layout.remove_widget(self.secondBubble)
-
         self.secondBubble.x = 0
         self.secondBubble.y = 0
+        self.secondBubble.pos_hint={'x': 0.55, 'center_y': .5}
         #add the upcomingBubble to the preview-window
         layout.add_widget(self.secondBubble)
         print (layout.children, 'CHIIIIIILD')
@@ -169,7 +170,7 @@ class DbShooterWidget(Widget):
 
         #get the angle in radians from the tower
         self.angle= radians(self.shooter.shooter_tower_angle) 
-        print('TOWER ANGLE FIRE BULLET = ', self.angle )
+        #print('TOWER ANGLE FIRE BULLET = ', self.angle )
         #set the bubble angle to the same as tower angle (in radiant)
         self.bubble.angle = self.angle
         
@@ -258,11 +259,13 @@ class DbShooterWidget(Widget):
         #b.setRandomColor()
         #t.setQuestion()
         t.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+        self.threatList.append(t)
         layout.add_widget(t)
 
     def createObsticles(self):    
         #each block contains one threat and 3 rows of bubbles
         numberOfBlocks = 4  
+        #setting procentual values for bubblesize, to be able to make the game responsive
         bubbleSizeX =  0.08333333333333 
         bubbleSizeY = 0.045
         threatSizeY = bubbleSizeY
@@ -295,7 +298,9 @@ class DbShooterWidget(Widget):
                      #if threat starts at an uneven row, add half a bubble of extra space on it's left
                     if (rowCount % 2 == 1): 
                         threatPosX += xOdd
-                    print('CREATING A THREAT')
+                    #print('CREATING A THREAT')
+
+                    #TODO - do not create a threat here, pick one from the list!!!!!!!!!!
                     self.createThreat(threatPosX, threatSizeY)
                     #increase the y-value for the threat position
                     threatSizeY += bubbleSizeY * 3

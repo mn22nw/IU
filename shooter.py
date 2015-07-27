@@ -29,7 +29,7 @@ class Shooter(Widget):
     '''
     def on_touch_down(self, touch):
 
-        print('touched Y\'ALL', touch.y, '<---y')
+        #print('touched Y\'ALL', touch.y, '<---y')
 
         '''
         if not self.collide_point(*touch.pos):
@@ -64,8 +64,8 @@ class Shooter(Widget):
         ud = touch.ud
         #if not 'shooter_touch' in ud:
            # return False
-        print('TOUCH Y, X', touch.y, touch.x)
-        
+        #print('TOUCH Y, X', touch.y, touch.x)
+
         #calculates the angle i radians from x, and y values   
         angle = atan2(touch.y - self.shooter_tower_scatter.center_y, touch.x - self.shooter_tower_scatter.center_x );
 
@@ -79,7 +79,7 @@ class Shooter(Widget):
         angle = boundary(angle, 0, 360)     #boundary(value, minvalue, maxvalue)  Limit a value between a minvalue and maxvalue.
         
         if angle < 149 and angle > 29:
-            print(angle, 'ANGLEEE')
+            #print(angle, 'ANGLEEE')
             angle_change = self.shooter_tower_scatter.rotation - angle
             #rotation_matrix = Matrix().rotate(-radians(angle_change), 0, 0, 1)
             #self.shooter_tower_scatter.apply_transform(rotation_matrix, post_multiply=True, anchor=(105, 15))

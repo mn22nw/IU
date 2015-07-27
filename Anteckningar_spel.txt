@@ -75,6 +75,11 @@ Edit: based on your image, perhaps you want circle collision, calculate the dist
 
 
 
+# Kanske borde ha en klass som heter question?
+	
+
+
+
 '''
 Image:
 	    source: 'graphics/table.png'

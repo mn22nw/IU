@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import kivy
 kivy.require('1.9.0')
 
@@ -104,15 +105,25 @@ class Bubble(Image):
     def correctPlacementBubble(self):
         if not len(self.parent.bubbleList) == 0:
             for bubble in self.parent.bubbleList:
-                if bubble.collide_widget(self):
+
+                #Check if a point (x, y) is inside the widget’s axis aligned bounding
+                if bubble.collide_point(self.center_x , self.top):
+                    print('TRUUUUUUUUUUE')
                     print(bubble.getColor())
                 '''
+                if bubble.collide_widget(self):
+
+
+                    print(bubble.getColor())
+                    X = bubble.center_x
+                    Y = bubble.center_y
+                    self.center = X - self.radius * 0.5, Y - self.radius * 2
+                
                 if bubble.collide_widget(self):
                     X = bubble.center_x
                     Y = bubble.center_y
                     self.center = X - self.radius * 0.5, Y - self.radius * 2
                 '''
-
    
     def checkBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
@@ -133,33 +144,27 @@ class Bubble(Image):
 
         #if there is 2 of sam e color POP THEM and remove them from bubble_list
 
-    def checkBubbleCollision(self, bubble): 
-        print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))            
+    def checkBubbleCollision(self, bubble):              
         if self.checkBubbleDistance(bubble):
             #stop animation on collide
             self.animation.stop(self)
             self.unbind(pos=self.callbackPos)
-    
-    def checkCollision(self, bubble):
-        if self.checkBubbleCollision(bubble):
-            return True
-        if self.checkThreatCollision(bubble):
-            return True
+            print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
 
 
-    def checkThreatCollision(self, bubble): 
-        pass
-        #self.threatExplode()
-              
+    def checkThreatCollision(self, threat): 
+        #find threats in parent threat list
+        print('threeaaat COLLIIIIIISSISOSIon')
+        self.animation.stop(self)
+        self.unbind(pos=self.callbackPos)
+        threat.displayQuestionScreen()
 
     def checkWidgetOverlap(self):
-        vaku = 0
         if not len(self.parent.bubbleList) == 0:
             for bubble in self.parent.bubbleList:
                 for i in range(int(self.width * 0.5)):
                     if int(bubble.x) + i == int(self.x):
                         print('JOMENSeeATTE :' , bubble.getColor(), 'x', bubble.x, 'selfX', self.x)            
-        print( 'VAKUUUU', len(self.parent.bubbleList))
  
     def callbackPos(self, instance, pos):
         # check here if the bubble collides with another bubble
@@ -167,15 +172,15 @@ class Bubble(Image):
             for bubble in self.parent.bubbleList:
                 if bubble.collide_widget(self):
                     #check if it collides with a threat or bubble
-                    self.checkCollision(bubble)
+                    self.checkBubbleCollision(bubble)
                     return
         
         
         # then check if there's a collision with threatBox:
-        if not len(self.parent.threat_list) == 0:
-            for threat in self.parent.threat_list:
+        if not len(self.parent.threatList) == 0:
+            for threat in self.parent.threatList:
                 if self.collide_widget(threat):
-                    self.on_collision_with_threat()
+                    self.checkThreatCollision(threat)
                     return
 
     def bubbleExplode(self):
