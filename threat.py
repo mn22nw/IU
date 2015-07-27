@@ -16,6 +16,9 @@ import random
 
 class Threat(Image):
     title = StringProperty()
+    question = StringProperty()
+    answers = []
+    correctAnswer = StringProperty()
     threatColor= StringProperty()
     animation = None
     colorList = ['blue', 'green', 'red', 'purple', 'yellow']

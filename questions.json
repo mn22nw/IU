@@ -1,8 +1,1 @@
-{"level1":[
-    {"CSRF":[ 
-    	{"question":"What does CSRF stand for?", "answers": [{"1":"Test", "2":"Cross-Site Request Forgery", "3": "Woop"} ]}
-    ]},
-     {"SQL-Injection":[ 
-    	{"question":"What is an SQL-Injection?", "answers": [{"1":"When a user tries to ", "2":"Cross-Site Request Forgery", "3": "Woop"} ]}
-    ]}
-]}
+{ "one": 1, "level1": { "CSRF": [ {"question":"What does CSRF stand for?"},{"answer1":"Test"} ] } }
