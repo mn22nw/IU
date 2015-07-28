@@ -9,6 +9,36 @@
                     "loo",
                     "doo"
                 ]
+            },
+            {
+                "question": "What does miii stand for?",
+                "correctAnswer": 0,
+                "answers": [
+                    "miisi",
+                    "loo",
+                    "doo"
+                ]
+            }
+        ] ,
+
+        "SQL-Injection": [
+            {
+                "question": "What does SQL stand for?",
+                "correctAnswer": 0,
+                "answers": [
+                    "yol",
+                    "loo",
+                    "iih"
+                ]
+            },
+            {
+                "question": "Injection huh?",
+                "correctAnswer": 0,
+                "answers": [
+                    "fa",
+                    "so",
+                    "la"
+                ]
             }
         ]
     },

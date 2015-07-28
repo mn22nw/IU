@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import kivy
 kivy.require('1.9.0')
 
@@ -7,11 +8,14 @@ from kivy.animation import Animation
 from kivy.graphics import Color, Point
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
 
 from kivy.utils import boundary
 from kivy.uix.popup import Popup
 from kivy.vector import Vector
 from kivy.uix.label import Label
+from kivy.uix.button import Button
+from functools import partial
 import random
 
 class Threat(Image):
@@ -23,6 +27,7 @@ class Threat(Image):
     animation = None
     colorList = ['blue', 'green', 'red', 'purple', 'yellow']
     exploding = False
+    questionScreen = None
         
     '''
     ####################################
@@ -34,7 +39,11 @@ class Threat(Image):
     
     def __init__(self, **kwargs):
         super(Threat, self).__init__(**kwargs)
-    
+        #skapa grunden för popupen
+        self.questionScreen = Popup( title=self.title, auto_dismiss=False,
+                            attach_to=self,
+                            size_hint=(0.90, 0.5), pos_hint={'center_x': 0.5, 'center_y': .6}
+                            )
     # collide_point + on_touch_down taken from https://groups.google.com/forum/#!topic/kivy-users/LBdragxkYDA
 
 
@@ -49,35 +58,47 @@ class Threat(Image):
         return False
 
     def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
+        if self.collide_point(touch.x, touch.y):
             self.opacity = 1
         else:
             self.opacity = .3
 
+    def checkAnswer(self, instance):
+        if instance.id == self.correctAnswer:
+            print('HELT RÄÄÄTTT')
+            self.questionScreen.content = Label(text= 'RÄTT')
+        else:
+            self.questionScreen.content = Label(text= 'Feeel')
+
+        # dismiss window after 1 seconds
+        Clock.schedule_once(self.questionScreen.dismiss, 1)
 
     def displayQuestionScreen(self):
         # display the question screen on a Popup
         
         #design this later!!
         image = Image(source='graphics/questionScreen.png')
-        layout = BoxLayout()
+        
+        layout = BoxLayout(orientation = 'vertical')
+        l = Label(text= self.question)
 
+        btn1 = Button(id= '0', text=self.answers[0])
+        btn1.bind(on_press= self.checkAnswer)
+        btn2 = Button(id= '1', text=self.answers[1])
+        btn2.bind(on_press=self.checkAnswer)
+        btn3 = Button(id= '2', text=self.answers[2])
+        btn3.bind(on_press=self.checkAnswer)
+        
+        layout.add_widget(l)
+        layout.add_widget(btn1)
+        layout.add_widget(btn2)
 
-        questionScreen = Popup(title='Question Screen',
-                            attach_to=self,
-                            size_hint=(0.90, 0.5),
-                            content=Label(text='Hello world'))
-        #questionScreen.bind(on_touch_down=questionScreen.dismiss)
-        questionScreen.open()
+        
+        self.questionScreen.title = self.title
+        self.questionScreen.content = layout
 
-
-    def setQuestion(self):
-
-        pass
-
-    def getQuestion(self):
-        pass
-
+        self.questionScreen.open()
+        
     
     def create_animation(self, speed, destination):
         # create the animation

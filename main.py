@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#Labb 4, Maria Nygren
+#Inlämningsuppgift, Maria Nygren
 #Plattform: Windows 8.1
 #Python version 3.4.3
 #kivy 1.9.0 (http://kivy.org/#home) - http://www.lfd.uci.edu/~gohlke/pythonlibs/#kivy
@@ -95,7 +95,7 @@ class DbShooterWidget(Widget):
     secondBubble = None
     bubbleList = []
     threatList = []
-    questionList = []
+    threatListCopy = []
     #goal_list = []
     angle = NumericProperty()
     
@@ -104,8 +104,8 @@ class DbShooterWidget(Widget):
     def __init__(self, **kwargs):
         super(DbShooterWidget, self).__init__(**kwargs)
 
-        #get all the questions and answers for the first level
-        self.questionList  = self.getQuestions(1)
+        #get all the questions and answers and make threats out of them
+        self.getAllThreats()
 
         #create all the bubbles and threats for the startup
         self.createObsticles()
@@ -253,20 +253,17 @@ class DbShooterWidget(Widget):
             self.bubbleList.append(b)
             x += bubbleSizeX
     
-    def addThreat(self, threat):
-        pass
-
     def createThreat(self, x, y):
-        pass
-        '''layout = self.ids.bubbleLayout
+        #get a random threat from the list
+        threatIndex = random.randint(0, len(self.threatList)-1)
         
-        t.pos_hint={'x': x, 'center_y': y}
+        threat = self.threatList.pop(threatIndex)
+        layout = self.ids.bubbleLayout
+        
+        threat.pos_hint={'x': x, 'center_y': y}
         #b.setRandomColor()
         #t.setQuestion()
-        
-        self.threatList.append(t)
-        layout.add_widget(t)
-        '''
+        layout.add_widget(threat)
 
     def createObsticles(self):    
         #each block contains one threat and 3 rows of bubbles
@@ -294,19 +291,15 @@ class DbShooterWidget(Widget):
             bubblesRight = numberOfBubbles - startNumber - spaces + 1
 
             #this will create 3 rows of bubbles with a threat inside at a random position
-            for i in range(3): #remember! first time in range i will be equal to 0
-                #print('bubblesLeft', bubblesLeft)
-                #print('bubblesRight', bubblesRight)
-                
+            for i in range(3): #remember! first time in range i will be equal to 0            
                 #create a threat only on first row of block
                 if i == 0:
                     threatPosX = (startNumber - 1) * bubbleSizeX
                      #if threat starts at an uneven row, add half a bubble of extra space on it's left
                     if (rowCount % 2 == 1): 
                         threatPosX += xOdd
-                    #print('CREATING A THREAT')
 
-                    #get a threat from the list
+                    #create a threat
                     self.createThreat(threatPosX, threatSizeY)
 
                     #increase the y-value for the threat position
@@ -321,70 +314,55 @@ class DbShooterWidget(Widget):
                     numberOfBubbles -= 1
                 else: #odd
                     if i == 2:  #if row is uneven for every third row then take one bubble off left
-                        bubblesLeft -= 1
-                        
+                        bubblesLeft -= 1                     
                     self.createBubbleRow(spaces, bubblesLeft, bubblesRight -1, xOdd, y)
                     numberOfBubbles += 1
                 spaces -= 1
                 #bubbles and posistion for second row of threat
                 if i == 1:
-                    #print('bubblesLeft', bubblesLeft)
                     bubblesLeft +=1
                     
                 bubblesRight += 1 
                 y+=bubbleSizeY
                 rowCount +=1 
     
-    def createThreats(self, title):
-        for question in questionList:
-            threat.title = question.title
-            threatList.append(threat)
+    def addThreats(self, subject, data):
+        for item in data['level' + str(self.level)][subject]:
+                threat = Threat()
+                threat.title = subject
+                threat.question = item['question']
+                threat.answers = item['answers']
+                threat.correctAnswer = str(item['correctAnswer'])
+                threat.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+                #print('THREAT ANW', threat)
+                print(threat.question)
+                self.threatList.append(threat)
+          
+    def getAllThreats(self):
 
-        t.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
-    
-
-    def getQuestions(self, level):
-
-        #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
         import json
-
+        #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
         try:
             #get the json-file were the questions are stored
             with open('questions.json', "r") as f:
                 data = json.loads(f.read())
 
             #get all CSRF questions
-            for CSRF in data['level' + str(level)]['CSRF']:
-                threat = Threat()
-                threat.title = 'CSRF'
-                threat.question = CSRF['question']
-                threat.answers = CSRF['answers']
-                threat.correctAnswer = str(CSRF['correctAnswer'])
-                #print('THREAT ANW', threat)
+            self.addThreats('CSRF', data)
             
             #get all SQL-Injection questions
-            for SQL in data['level' + str(level)]['SQL-Injection']:
-                threat = Threat()
-                threat.title = 'SQL-Injection'
-                threat.question = SQL['question']
-                threat.answers = SQL['answers']
-                threat.correctAnswer = str(SQL['correctAnswer'])
-
-
-
-            #print ("Complex JSON parsing example: ", data['level' + str(level)]['CSRF'][0]['answers'][0])
-            #print ("Complex JSON parsing example: ", data['level' + str(level)]['CSRF'][0]['question'])
-         
+            self.addThreats('SQL-Injection', data)
+            
+            #need a copy of the threatList to be able to check for collision later (the original threatList is manipulated later)
+            self.threatListCopy = list(self.threatList)
         except (ValueError, KeyError, TypeError):
             print "JSON format error"
-
         
 Factory.register("Shooter", Shooter)
 
 #Huvudklassen som bygger applicationen och returnerar MainWidget
 class DbShooter(App):
 	
-
     def build(self):
 
         self.sound = {}

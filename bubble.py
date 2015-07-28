@@ -175,10 +175,10 @@ class Bubble(Image):
                     self.checkBubbleCollision(bubble)
                     return
         
-        
+        #print('THREATLISTCOPYYYYYYYYYY', len(self.parent.threatListCopy))
         # then check if there's a collision with threatBox:
-        if not len(self.parent.threatList) == 0:
-            for threat in self.parent.threatList:
+        if not len(self.parent.threatListCopy) == 0:
+            for threat in self.parent.threatListCopy:
                 if self.collide_widget(threat):
                     self.checkThreatCollision(threat)
                     return
