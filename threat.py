@@ -162,6 +162,8 @@ class Threat(Widget):
         threatAnimation.start(self)
 
     def removeThreat(self, instance):
+        #first remove it from the threat list!
+        self.parent.parent.threatListCopy.remove(self)
         self.parent.remove_widget(self)
 
     #TODO - Do I use this?!?
