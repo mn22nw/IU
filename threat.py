@@ -19,7 +19,9 @@ from kivy.uix.button import Button
 from functools import partial
 import random
 
-
+#custom class for question buttons (so they can be styled in the KV file)
+class QuestionButton(Button):  
+    pass
 #custom triangle class for threat
 
 def point_inside_polygon(x, y, poly):
@@ -104,14 +106,25 @@ class Threat(Widget):
             self.opacity = .3
     '''
     def checkAnswer(self, instance):
+        layout = BoxLayout(orientation = 'vertical')
+        l = Label(text= self.question)
+
         if instance.id == self.correctAnswer:
-            print('HELT RÄÄÄTTT')
-            self.questionScreen.content = Label(text= 'RÄTT')
+            image = Image(source='graphics/success.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+            #l.text = 'Success'
+            #layout.add_widget(l)
+            layout.add_widget(image)
+            self.questionScreen.content = layout
+            
         else:
             self.questionScreen.content = Label(text= 'Feeel')
 
         # dismiss window after 1 seconds
         Clock.schedule_once(self.questionScreen.dismiss, 1)
+
+        #remove threat if success
+        Clock.schedule_once(self.animateThreat, 1.1)
+        Clock.schedule_once(self.removeThreat, 2)
 
     def displayQuestionScreen(self):
         # display the question screen on a Popup
@@ -122,24 +135,34 @@ class Threat(Widget):
         layout = BoxLayout(orientation = 'vertical')
         l = Label(text= self.question)
 
-        btn1 = Button(id= '0', text=self.answers[0])
+        btn1 = QuestionButton(id= '0', text='1)  ' + self.answers[0])
         btn1.bind(on_press= self.checkAnswer)
-        btn2 = Button(id= '1', text=self.answers[1])
+        btn2 = QuestionButton(id= '1', text='2)  ' + self.answers[1])
         btn2.bind(on_press=self.checkAnswer)
-        btn3 = Button(id= '2', text=self.answers[2])
+        btn3 = QuestionButton(id= '2', text='3)  ' +self.answers[2])
         btn3.bind(on_press=self.checkAnswer)
         
         layout.add_widget(l)
         layout.add_widget(btn1)
         layout.add_widget(btn2)
-
+        layout.add_widget(btn3)
         
         self.questionScreen.title = self.title
         self.questionScreen.content = layout
 
         self.questionScreen.open()
         
-    
+    def animateThreat(self, instance):
+        X = self.width
+        Y = self.height
+        #endPos = startPos
+        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
+        threatAnimation.start(self)
+
+    def removeThreat(self, instance):
+        self.parent.remove_widget(self)
+
+    #TODO - Do I use this?!?
     def create_animation(self, speed, destination):
         # create the animation
         time = Vector(self.center).distance(destination) / (speed * +70.0)

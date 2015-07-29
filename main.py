@@ -121,8 +121,6 @@ class DbShooterWidget(Widget):
     def addUpcomingBubbletoView(self):
         layout = self.ids.nextBubbleLayout
         self.upcomingBubble = self.createBubble(0,0)
-        self.upcomingBubble.x = 0
-        self.upcomingBubble.y = 0
         self.upcomingBubble.pos_hint={'x': 0.55, 'center_y': .5}
         #add the upcomingBubble to the preview-window
         layout.add_widget(self.upcomingBubble)
@@ -164,7 +162,7 @@ class DbShooterWidget(Widget):
 
         self.setBubbleStartPosition()
                
-        #add the bubble to the canvas
+        #add the bubble to the canvas with a lower index than the rest of the images
         self.add_widget(self.bubble, -1)
         self.bubble.fire()
      
@@ -344,7 +342,8 @@ class DbShooterWidget(Widget):
             self.threatListCopy = list(self.threatList)
         except (ValueError, KeyError, TypeError):
             print "JSON format error"
-        
+    
+
 Factory.register("Shooter", Shooter)
 
 #Huvudklassen som bygger applicationen och returnerar MainWidget

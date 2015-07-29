@@ -2,11 +2,12 @@
 import kivy
 kivy.require('1.9.0')
 
+from kivy.app import App
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
 from kivy.graphics import Color, Point
-from kivy.app import App
+from kivy.clock import Clock
 
 from kivy.utils import boundary
 import math
@@ -158,6 +159,8 @@ class Bubble(Image):
         self.animation.stop(self)
         self.unbind(pos=self.callbackPos)
         threat.displayQuestionScreen()
+        #Clock.schedule_once(self.animateBubble, 1.1)
+        #  Clock.schedule_once(self.removeBubble, 2)
 
     def checkWidgetOverlap(self):
         if not len(self.parent.bubbleList) == 0:
@@ -172,6 +175,7 @@ class Bubble(Image):
             for threat in self.parent.threatListCopy:
                 if self.collide_widget(threat):
                     self.checkThreatCollision(threat)
+                    #self.removeBubble()
                     return
 
         # check here if the bubble collides with another bubble
@@ -224,4 +228,12 @@ class Bubble(Image):
         #print(self.bubbleColor, 'CCssCCCOL')
         return self.bubbleColor
 
-
+    def animateBubble(self, instance):
+        X = self.width
+        Y = self.height
+        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
+        threatAnimation.start(self)
+        self.parent.remove_widget(self)
+        
+    def removeBubble(self, instance):
+        self.parent.remove_widget(self)
