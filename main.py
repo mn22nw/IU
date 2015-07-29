@@ -91,8 +91,7 @@ class DbShooterWidget(Widget):
     lives = 5
     points = 0
     bubble = None
-    firstBubble = None
-    secondBubble = None
+    upcomingBubble = None
     bubbleList = []
     threatList = []
     threatListCopy = []
@@ -110,38 +109,29 @@ class DbShooterWidget(Widget):
         #create all the bubbles and threats for the startup
         self.createObsticles()
 
-        #create the upcoming bubbles for shooting
-        self.setUpcomingBubbles()
         #add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
 
 
-    def setUpcomingBubbles(self):
-        
-        if self.secondBubble:
-            self.secondBubble = self.firstBubble
-        else:
-            self.secondBubble = self.createBubble(0,0)
-
-        self.firstBubble = self.createBubble(0,0)
+    def changeUpcomingBubbleColor(self):
+        self.upcomingBubble.setRandomColor()
+        self.upcomingBubble.source = 'graphics/bubbles/' + self.upcomingBubble.getColor() + '.png'
 
 
     def addUpcomingBubbletoView(self):
         layout = self.ids.nextBubbleLayout
-        #remove the previous bubble
-        if self.secondBubble:            
-            layout.remove_widget(self.secondBubble)
-        self.secondBubble.x = 0
-        self.secondBubble.y = 0
-        self.secondBubble.pos_hint={'x': 0.55, 'center_y': .5}
+        self.upcomingBubble = self.createBubble(0,0)
+        self.upcomingBubble.x = 0
+        self.upcomingBubble.y = 0
+        self.upcomingBubble.pos_hint={'x': 0.55, 'center_y': .5}
         #add the upcomingBubble to the preview-window
-        layout.add_widget(self.secondBubble)
+        layout.add_widget(self.upcomingBubble)
         print (layout.children, 'CHIIIIIILD')
 
     def createShootingBullet(self):
         self.bubble = self.createBubble(50, 50)
         #set the shooting bubble to the same color as the upcoming previewd bubble
-        self.bubble.bubbleColor = self.secondBubble.getColor()
+        self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
 
     '''
@@ -162,11 +152,8 @@ class DbShooterWidget(Widget):
         # create a bubble, calculate the start position and fire it.
         self.createShootingBullet()
 
-        #set/reset the upcoming bubbles 
-        self.setUpcomingBubbles()
-
-        #add the upcoming bubble to the view
-        self.addUpcomingBubbletoView()
+        #change the color of the upcoming bubble
+        self.changeUpcomingBubbleColor()
 
         #get the angle in radians from the tower
         self.angle= radians(self.shooter.shooter_tower_angle) 
