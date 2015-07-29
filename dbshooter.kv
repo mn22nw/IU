@@ -61,12 +61,27 @@
 
 # Threat description:
 <Threat>:
+	id: threatId
 	size_hint: None, None
 	keep_data: True
     size:138,138
-    #pos_hint: {'center_x': .1, 'center_y': .1}
-    source: 'graphics/wolf.png'
-    opacity: .3
+	
+	p1: self.pos
+    p2: self.right, self.y
+    p3: self.center_x, self.top * 0.98
+
+    # draw something
+    canvas:
+        Color:
+            rgba: 1, 0, 0, 0
+        Triangle:
+            points: self.p1 + self.p2 + self.p3
+    Image:
+    	source:threatId.imageSrc
+    	size:threatId.size
+    	pos:threatId.pos
+
+	
 
 # Main widget description:
 <DbShooterWidget>:

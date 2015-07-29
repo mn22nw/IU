@@ -2,13 +2,14 @@
 import kivy
 kivy.require('1.9.0')
 
-from kivy.properties import NumericProperty, StringProperty
+from kivy.properties import NumericProperty, StringProperty, ListProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
 from kivy.graphics import Color, Point
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
+from kivy.uix.widget import Widget
 
 from kivy.utils import boundary
 from kivy.uix.popup import Popup
@@ -18,7 +19,39 @@ from kivy.uix.button import Button
 from functools import partial
 import random
 
-class Threat(Image):
+
+#custom triangle class for threat
+
+def point_inside_polygon(x, y, poly):
+    '''Taken from http://www.ariel.com.au/a/python-point-int-poly.html
+    '''
+    n = len(poly)
+    inside = False
+    p1x = poly[0]
+    p1y = poly[1]
+    for i in range(0, n + 2, 2):
+        p2x = poly[i % n]
+        p2y = poly[(i + 1) % n]
+        if y > min(p1y, p2y):
+            if y <= max(p1y, p2y):
+                if x <= max(p1x, p2x):
+                    if p1y != p2y:
+                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= xinters:
+                        inside = not inside
+        p1x, p1y = p2x, p2y
+    return inside
+
+
+
+
+class Threat(Widget):
+    #these are needed to calculate the correct collide point
+    p1 = ListProperty([0, 0])
+    p2 = ListProperty([0, 0])
+    p3 = ListProperty([0, 0])
+
+
     title = StringProperty()
     question = StringProperty()
     answers = []
@@ -28,6 +61,7 @@ class Threat(Image):
     colorList = ['blue', 'green', 'red', 'purple', 'yellow']
     exploding = False
     questionScreen = None
+    imageSrc = StringProperty()
         
     '''
     ####################################
@@ -46,8 +80,14 @@ class Threat(Image):
                             )
     # collide_point + on_touch_down taken from https://groups.google.com/forum/#!topic/kivy-users/LBdragxkYDA
 
-
+    
     def collide_point(self, x, y):
+        x, y = self.to_local(x, y)
+        return point_inside_polygon(x, y,
+                self.p1 + self.p2 + self.p3)
+
+
+        '''
         # Do not want to upset the read_pixel method, in case of a bound error
         try:
             color = self._coreimage.read_pixel(x - self.x, self.height - (y - self.y))
@@ -62,7 +102,7 @@ class Threat(Image):
             self.opacity = 1
         else:
             self.opacity = .3
-
+    '''
     def checkAnswer(self, instance):
         if instance.id == self.correctAnswer:
             print('HELT RÄÄÄTTT')

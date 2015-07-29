@@ -167,6 +167,13 @@ class Bubble(Image):
                         print('JOMENSeeATTE :' , bubble.getColor(), 'x', bubble.x, 'selfX', self.x)            
  
     def callbackPos(self, instance, pos):
+        #check if there's a collision with threatBox:
+        if not len(self.parent.threatListCopy) == 0:
+            for threat in self.parent.threatListCopy:
+                if self.collide_widget(threat):
+                    self.checkThreatCollision(threat)
+                    return
+                    
         # check here if the bubble collides with another bubble
         if not len(self.parent.bubbleList) == 0:
             for bubble in self.parent.bubbleList:
@@ -175,13 +182,7 @@ class Bubble(Image):
                     self.checkBubbleCollision(bubble)
                     return
         
-        #print('THREATLISTCOPYYYYYYYYYY', len(self.parent.threatListCopy))
-        # then check if there's a collision with threatBox:
-        if not len(self.parent.threatListCopy) == 0:
-            for threat in self.parent.threatListCopy:
-                if self.collide_widget(threat):
-                    self.checkThreatCollision(threat)
-                    return
+        
 
     def bubbleExplode(self):
         if self.exploding == True:

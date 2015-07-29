@@ -271,7 +271,7 @@ class DbShooterWidget(Widget):
         #setting procentual values for bubblesize, to be able to make the game responsive
         bubbleSizeX =  0.08333333333333 
         bubbleSizeY = 0.045
-        threatSizeY = bubbleSizeY
+        threatPosY = bubbleSizeY + bubbleSizeY *.25
         rowCount = 0
         numberOfBubbles = 12
         x = 0
@@ -300,10 +300,10 @@ class DbShooterWidget(Widget):
                         threatPosX += xOdd
 
                     #create a threat
-                    self.createThreat(threatPosX, threatSizeY)
+                    self.createThreat(threatPosX, threatPosY)
 
                     #increase the y-value for the threat position
-                    threatSizeY += bubbleSizeY * 3
+                    threatPosY += bubbleSizeY * 3
                 if (rowCount % 2 == 0): #even 
                     if i == 1:  #if row is even for every fourth row then add one bubble to left, and remove one right
                         bubblesLeft += 1
@@ -333,7 +333,7 @@ class DbShooterWidget(Widget):
                 threat.question = item['question']
                 threat.answers = item['answers']
                 threat.correctAnswer = str(item['correctAnswer'])
-                threat.source = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+                threat.imageSrc = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
                 #print('THREAT ANW', threat)
                 print(threat.question)
                 self.threatList.append(threat)
