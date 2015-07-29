@@ -8,6 +8,7 @@ from kivy.animation import Animation
 from kivy.graphics import Color, Point
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 
@@ -126,6 +127,7 @@ class Threat(Widget):
         Clock.schedule_once(self.animateThreat, 1.1)
         Clock.schedule_once(self.removeThreat, 2)
 
+
     def displayQuestionScreen(self):
         # display the question screen on a Popup
         
@@ -133,20 +135,20 @@ class Threat(Widget):
         image = Image(source='graphics/questionScreen.png')
         
         layout = BoxLayout(orientation = 'vertical')
-        l = Label(text= self.question)
-
-        btn1 = QuestionButton(id= '0', text='1)  ' + self.answers[0])
-        btn1.bind(on_press= self.checkAnswer)
-        btn2 = QuestionButton(id= '1', text='2)  ' + self.answers[1])
-        btn2.bind(on_press=self.checkAnswer)
-        btn3 = QuestionButton(id= '2', text='3)  ' +self.answers[2])
-        btn3.bind(on_press=self.checkAnswer)
-        
+        l = Label(text= self.question,  size_hint_y=0.3)
         layout.add_widget(l)
-        layout.add_widget(btn1)
-        layout.add_widget(btn2)
-        layout.add_widget(btn3)
-        
+        gridlayout = GridLayout(cols=2, size_hint_y=0.7)
+
+        for i in range(3):
+            image = Image(source='graphics/questions/'+ str(i)+'.png', size_hint_x=0.2)
+            btn = QuestionButton(id= str(i), text=self.answers[i], size_hint_x=0.8)
+            btn.bind(on_press= self.checkAnswer)
+            gridlayout.add_widget(image)
+            gridlayout.add_widget(btn)
+
+
+        layout.add_widget(gridlayout)
+
         self.questionScreen.title = self.title
         self.questionScreen.content = layout
 
