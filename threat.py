@@ -116,6 +116,8 @@ class Threat(Widget):
             #layout.add_widget(l)
             layout.add_widget(image)
             self.questionScreen.content = layout
+            self.parent.parent.points += 500
+            #self.parent.parent.changePoints()
             
         else:
             self.questionScreen.content = Label(text= 'Feeel')

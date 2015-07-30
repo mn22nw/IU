@@ -89,7 +89,7 @@ class DbShooterWidget(Widget):
     #app = ObjectProperty(None)
     level = 1
     lives = 5
-    points = 0
+    points = NumericProperty()
     bubble = None
     upcomingBubble = None
     bubbleList = []
@@ -112,6 +112,12 @@ class DbShooterWidget(Widget):
         #add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
 
+        #self.points.bind(value=self.updatePoints)
+
+    def updatePoints(self, instance, value):
+        pass
+        #self.updateLabel(self.ids.pointsLbl, value)
+        
 
     def changeUpcomingBubbleColor(self):
         self.upcomingBubble.setRandomColor()
@@ -165,6 +171,8 @@ class DbShooterWidget(Widget):
         #add the bubble to the canvas with a lower index than the rest of the images
         self.add_widget(self.bubble, -1)
         self.bubble.fire()
+        
+
      
     def setBubbleStartPosition(self):
         #get the tower widget from the canvas (to be able to calculate the correct position for the bubble)
@@ -206,7 +214,7 @@ class DbShooterWidget(Widget):
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
 
-    def update_label(self, label, text):
+    def updateLabel(self, label, text):
         label.text = str(text) 
 
     def createBubble(self, x, y):
@@ -363,7 +371,7 @@ class DbShooter(App):
         self.DbShooterWidget = DbShooterWidget(app=self)
         self.root = self.DbShooterWidget
 
-
+        self.root.bind(points=self.root.updatePoints)
         # load all other sounds:
         #self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
         #self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
