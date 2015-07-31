@@ -79,7 +79,7 @@ class Threat(Widget):
         #skapa grunden för popupen
         self.questionScreen = Popup( title=self.title, auto_dismiss=False,
                             attach_to=self,
-                            size_hint=(0.90, 0.5), pos_hint={'center_x': 0.5, 'center_y': .6}
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
                             )
     # collide_point + on_touch_down taken from https://groups.google.com/forum/#!topic/kivy-users/LBdragxkYDA
 
@@ -117,7 +117,9 @@ class Threat(Widget):
             layout.add_widget(image)
             self.questionScreen.content = layout
             self.parent.parent.points += 500
-            #self.parent.parent.changePoints()
+            #remove threat if success
+            Clock.schedule_once(self.animateThreat, 1.1)
+            Clock.schedule_once(self.removeThreat, 2)
             
         else:
             self.questionScreen.content = Label(text= 'Feeel')
@@ -125,9 +127,7 @@ class Threat(Widget):
         # dismiss window after 1 seconds
         Clock.schedule_once(self.questionScreen.dismiss, 1)
 
-        #remove threat if success
-        Clock.schedule_once(self.animateThreat, 1.1)
-        Clock.schedule_once(self.removeThreat, 2)
+        
 
 
     def displayQuestionScreen(self):

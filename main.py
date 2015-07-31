@@ -31,6 +31,7 @@ from threat import Threat
 #sätter storleken för huvudfönstret
 Window.size = 560, 836
 
+
 #Custom styles for Label
 class TableLabel(Label):  
     title = Label.text
@@ -95,7 +96,6 @@ class DbShooterWidget(Widget):
     bubbleList = []
     threatList = []
     threatListCopy = []
-    #goal_list = []
     angle = NumericProperty()
     
     
@@ -360,7 +360,7 @@ class DbShooter(App):
     def build(self):
 
         self.sound = {}
-        self.title = 'DB Shooter'
+        self.title = 'DB Shooter'      
 	    
         from kivy.base import EventLoop
         EventLoop.ensure_window()

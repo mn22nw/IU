@@ -1,3 +1,7 @@
+#:set containerWidth 0.669
+
+<Popup>:
+	size:app.window.height * containerWidth, app.window.width *0.5
 # Background description:
 <Background>:
 	source: self.source
@@ -42,6 +46,7 @@
 		do_translation: False
 		
 		Image:
+			id: 'tank_tower'
 			source: 'graphics/tank_tower.png'
 			size: 30, 210 
 			pos: self.pos
@@ -55,7 +60,7 @@
 
 # Bubble description:
 <Bubble>:
-	size:44,44
+	size:app.window.height * 0.05, app.window.height * 0.05
 	#size: 35 / (1200.0 / app.window.height), 35 / (1200.0 / app.window.height)
 	size_hint: None, None
 
@@ -64,7 +69,7 @@
 	id: threatId
 	size_hint: None, None
 	keep_data: True
-    size:138,138
+    size:(app.window.height * 0.05) * 3.1, (app.window.height * 0.05) * 3.1
 	
 	p1: self.pos
     p2: self.right, self.y
@@ -106,11 +111,11 @@
 	            size: self.size
 
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + 500
+		pos:(root.width-self.width)/2, root.y + app.window.height * 0.6
 	    #pos:(root.width-self.width)/2, (root.height-self.height)/2
 	    size_hint:None, None
 	    height: root.height
-	    width: root.height * 0.669
+	    width: root.height * containerWidth
 	#
 	#this defines the base on which the shooter stands (with level, table/database image etc) 
 	BoxLayout:
