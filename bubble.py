@@ -15,7 +15,6 @@ from kivy.vector import Vector
 import random
 
 class Bubble(Image):
-    radius = NumericProperty() 
     bubbleColor= StringProperty()
     angle = NumericProperty(0) # in radians!
     animation = None
@@ -32,8 +31,6 @@ class Bubble(Image):
     
     def __init__(self, **kwargs):
         super(Bubble, self).__init__(**kwargs)
-        #set radius to half the size of the bullet minus 2 pixels
-        self.radius = self.width *0.5 - 2
 
     def fire(self):
         #angle in radiants
@@ -51,8 +48,7 @@ class Bubble(Image):
         
         # start to track the position changes
         self.bind(pos=self.callbackPos)
-        
-        
+            
 
 
     def calculateOrigin(self):
@@ -96,22 +92,50 @@ class Bubble(Image):
 
     def animationComplete(self, animation, widget):
         print('COMPLETEOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD')
-        self.correctPlacementBubble()
+
+        #self.correctPlacementBubble()
 
         #this doesn't workediworki
-        #self.checkWidgetOverlap()
-        #add the new bubble to the list of bubbles
+        self.checkWidgetOverlap()
         self.parent.bubbleList.append(self)
+        #add the new bubble to the list of bubbles
+        
 
+    #TODO - calulate correctPlacement before calculating related colors
+    '''    
     def correctPlacementBubble(self):
         if not len(self.parent.bubbleList) == 0:
             for bubble in self.parent.bubbleList:
+                i = 0
+                
+                #if they collided
+                if self.checkBubbleDistance(bubble):
+                    i += 1
+                    print('TRUUUUUUUUUUEDISTANCEE')
+                    print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))   
+                    print(bubble.getColor())
 
+
+                if i == 1:
+                    a = Animation( center_x=(bubble.x ), duration=0.2)
+                    a.start(self)  
+                
+                
                 #Check if a point (x, y) is inside the widget’s axis aligned bounding
                 if bubble.collide_point(self.center_x , self.top):
+                    i += 1
                     print('TRUUUUUUUUUUE')
                     print(bubble.getColor())
-                '''
+                    #new position
+                    print(self.x)
+                  
+                if i == 1:
+                    a = Animation( center_x=(bubble.x ), duration=0.2)
+                    a.start(self)  
+
+                #sätt nya placemen till bubbelcolorns x center +....storlek? 
+
+                
                 if bubble.collide_widget(self):
 
 
@@ -124,15 +148,16 @@ class Bubble(Image):
                     X = bubble.center_x
                     Y = bubble.center_y
                     self.center = X - self.radius * 0.5, Y - self.radius * 2
-                '''
-   
+             
+        '''         
+
     def checkBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
         a = Vector(self.center)
         b = Vector(bubble.center)
         distance = int(Vector(a).distance(b))
 
-        diameter = int(self.radius + bubble.radius)
+        diameter = int(bubble.width)
 
         print('CENTER', distance, 'radi: ', diameter)
 
@@ -143,14 +168,13 @@ class Bubble(Image):
         if distance < diameter: 
             return True        
 
-        #if there is 2 of sam e color POP THEM and remove them from bubble_list
 
     def checkBubbleCollision(self, bubble):              
         if self.checkBubbleDistance(bubble):
             #stop animation on collide
             self.animation.stop(self)
             self.unbind(pos=self.callbackPos)
-            print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
+            #print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
 
 
     def checkThreatCollision(self, threat): 
@@ -162,12 +186,50 @@ class Bubble(Image):
         #Clock.schedule_once(self.animateBubble, 1.1)
         #  Clock.schedule_once(self.removeBubble, 2)
 
-    def checkWidgetOverlap(self):
+
+    def findColorMatch(self, bubble):
+        colorMatches = []
         if not len(self.parent.bubbleList) == 0:
-            for bubble in self.parent.bubbleList:
+            hitAreaRight = bubble.center_x + bubble.width * 0.5
+            hitAreaLeft = bubble.center_x - bubble.width * 0.5
+            hitAreaTop = bubble.center_y + bubble.width
+            hitAreaBottom = bubble.center_y - bubble.width
+            for b in self.parent.bubbleList:
+
+                if b.collide_point(hitAreaRight , hitAreaTop):
+                    print('TRUUUUUUUUUUEAREATOP')
+                    print(b.getColor())
+                    if b.getColor == self.getColor:
+                        print('SAME COLOR YOLO')
+                        colorMatches.append(b)
+
+                    #new position
+                    print(bubble.x)
+                if b.collide_point(hitAreaLeft , hitAreaTop):
+                        print('TRUUUUUUUUUUEBOTTOM')
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                        print(b.getColor(), 'nunnle', self.getColor())
+                        
+
+                #if bubble has the same color as the recently firered bubble return true
+                
+
+                '''
                 for i in range(int(self.width * 0.5)):
                     if int(bubble.x) + i == int(self.x):
-                        print('JOMENSeeATTE :' , bubble.getColor(), 'x', bubble.x, 'selfX', self.x)            
+                        print('JOMENSeeATTE :' , bubble.getColor(), 'x', bubble.x, 'selfX', self.x) 
+                '''           
+            return colorMatches
+
+    #TODO - this should be move outside of bubble class
+    def checkWidgetOverlap(self):
+        colorMatches = self.findColorMatch(self)
+
+        for bubble in colorMatches:
+            self.findColorMatch(bubble)
+
+    #now check every bubble for the matched color and calculate the sum of the same colors
  
     def callbackPos(self, instance, pos):
         # check if there's a collision with a threat
@@ -184,9 +246,10 @@ class Bubble(Image):
                 if bubble.collide_widget(self):
                     #check if it collides with a threat or bubble
                     self.checkBubbleCollision(bubble)
+                    #remove bubbles of the same color
                     return
              
-
+    '''            
     def bubbleExplode(self):
         if self.exploding == True:
             return
@@ -197,25 +260,7 @@ class Bubble(Image):
         self.animation.stop(self)
         
         #self.parent.bubble_exploding()
-
-    #TODO - flytta till threat!!!?!
-    def threatExplode(self):
-        if self.exploding == True:
-            return
-        self.exploding = True
-        
-        self.unbind(pos=self.callback_pos)
-        self.animation.unbind(on_complete=self.on_collision_with_edge)
-        self.animation.stop(self)
-        
-        self.parent.threat_exploding()
-        
-    def on_collision_with_edge(self, animation, widget):
-        self.bubbleExplode()
-
-        
-    def degreesToRadians(self,degrees):
-            return degrees * (math.pi / 180.0)
+    '''
     
     #returns a string with the color name  
     def setRandomColor(self):
