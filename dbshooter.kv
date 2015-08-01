@@ -25,44 +25,32 @@
 	valign:'middle'
 
 # Shooter description:
+
 <Shooter>:
-	shooter_tower_scatter: shooter_tower_scatter
-	size: 100, 100   
+    source: 'graphics/tank_tower.png'
+    pos: app.window.width *0.5 - 50 , app.window.height * 0.2 - (app.window.height * 0.2 * 0.15) #pos: self.parent.pos
+    size_hint: .5,.4
+    canvas.before:
+        PushMatrix
+        Rotate:
+            axis: 0,0,1
+            angle: self.shooterTowerAngle
+            origin: self.center
+    canvas:
+        Color:
+            rgba: 1,0,0,.5
+        Line:
+            rectangle: self.x, self.y, self.width, self.height
+    canvas.after:
+        PopMatrix
 
-	Image:
-		id: 'tank_image'
-		source: 'graphics/db.png'
-		size: 100, 100
-		pos: root.pos
-
-	Scatter:
-		id: shooter_tower_scatter
-		size_hint: None, None
-		size: 30, 210
-		pos:root.x + 35, root.y 
-		#center: root.center
-		do_rotation: False
-		do_scale: False
-		do_translation: False
-		
-		Image:
-			id: 'tank_tower'
-			source: 'graphics/tank_tower.png'
-			size: 30, 210 
-			pos: self.pos
-			rotate:90
-
-	Image:
-		id: 'tank_top'
-		source: 'graphics/tank_top.png'
-		size: 60, 30
-		pos: root.x + 20, root.y + 85
 
 # Bubble description:
 <Bubble>:
 	size:app.window.height * 0.05, app.window.height * 0.05
 	#size: 35 / (1200.0 / app.window.height), 35 / (1200.0 / app.window.height)
 	size_hint: None, None
+	pos: 50,50
 
 
 # Threat description:
@@ -193,9 +181,18 @@
 		       		         
 	Shooter:
 		id: shooter
-		tank_image_source: 'graphics/tank.png'
-		pos: root.width *0.5 - 50 , databaseWidget.height - (databaseWidget.height * 0.15)
+		
+	Image:
+		id: tank_image
+		source: 'graphics/db.png'
+		size: 100, 100
+		pos: self.parent.pos
 
+	Image:
+		id: tank_top
+		source: 'graphics/tank_top.png'
+		size: 60, 30
+		pos: self.parent.x+ 20, self.parent.y + 85
 
 <Button>:
 	font_size:43

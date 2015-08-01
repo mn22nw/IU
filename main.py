@@ -19,7 +19,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.animation import Animation
-from kivy.clock import Clock
 
 from math import sin
 from math import cos
@@ -162,10 +161,14 @@ class DbShooterWidget(Widget):
         self.changeUpcomingBubbleColor()
 
         #get the angle in radians from the tower
-        self.angle= radians(self.shooter.shooter_tower_angle) 
+
+        print('ANGLEEEE DEG', self.shooter.shootDirectionAngle)
+        
+        self.angle= radians(float(self.shooter.shootDirectionAngle))#self.shooter.shootDirectionAngle)) 
+        print('ANGLEEEE RAD', self.angle)
         #print('TOWER ANGLE FIRE BULLET = ', self.angle )
         #set the bubble angle to the same as tower angle (in radiant)
-        self.bubble.angle = self.angle
+        self.bubble.angle =  self.angle
 
         self.setBubbleStartPosition()
 
@@ -185,7 +188,7 @@ class DbShooterWidget(Widget):
      
     def setBubbleStartPosition(self):
         #get the tower widget from the canvas (to be able to calculate the correct position for the bubble)
-        tower = self.shooter.ids.shooter_tower_scatter
+        tower = self.shooter
         #defines the x and y value for the bubble's centered position
         bubblePosition = (self.shooter.center_x  + cos(self.angle) , self.shooter.center_y  + sin(self.angle) + tower.height * 0.25)
         self.bubble.center = bubblePosition 
