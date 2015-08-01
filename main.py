@@ -18,6 +18,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
+from kivy.animation import Animation
+from kivy.clock import Clock
 
 from math import sin
 from math import cos
@@ -132,8 +134,8 @@ class DbShooterWidget(Widget):
         layout.add_widget(self.upcomingBubble)
         print (layout.children, 'CHIIIIIILD')
 
-    def createShootingBullet(self):
-        self.bubble = self.createBubble(50, 50)
+    def createShootingBubble(self):
+        self.bubble = Bubble(pos=(500,500)) 
         #set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
@@ -154,7 +156,7 @@ class DbShooterWidget(Widget):
         ###
         '''
         # create a bubble, calculate the start position and fire it.
-        self.createShootingBullet()
+        self.createShootingBubble()
 
         #change the color of the upcoming bubble
         self.changeUpcomingBubbleColor()
@@ -164,15 +166,22 @@ class DbShooterWidget(Widget):
         #print('TOWER ANGLE FIRE BULLET = ', self.angle )
         #set the bubble angle to the same as tower angle (in radiant)
         self.bubble.angle = self.angle
-        
 
         self.setBubbleStartPosition()
-               
-        #add the bubble to the canvas with a lower index than the rest of the images
-        self.add_widget(self.bubble, -1)
-        self.bubble.fire()
-        
 
+        layout = self.ids.bubbleLayout2
+        print('LAYOUTYALL', layout)
+        #add_widget(threat)
+        #add the bubble to the canvas with a lower index than the rest of the images
+        #self.add_widget(self.bubble)
+        layout.add_widget(self.bubble)
+        
+        self.bubble.fire()
+
+    def animateBubble(self, instance):
+        print('IT SHOULD ANIMATE YO')
+        a = Animation( pos=(700,800), duration=1)
+        a.start(self.bubble)
      
     def setBubbleStartPosition(self):
         #get the tower widget from the canvas (to be able to calculate the correct position for the bubble)

@@ -56,17 +56,13 @@ class Bubble(Image):
         self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)
     
     def create_animation(self, speed, destination):
-        # create the animation
-        # t = s/v -> v from 1 to 10 / unit-less
-        # NOTE: THE DIFFERENCE BETWEEN TWO RENDERED ANIMATION STEPS
-        # MUST *NOT* EXCESS THE RADIUS OF THE BULLET! OTHERWISE I
-        # HAVE PROBLEMS DETECTING A COLLISION WITH A DEFLECTOR!!
+
         time = Vector(self.center).distance(destination) / (speed * +70.0)
         # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
     def calculateDestination(self, angle):
-
+        '''
         # calculate the path until the bullet hits the edge of the screen
         win = self.get_parent_window()
         # the following "magic numbers" are based on the dimensions of the
@@ -80,7 +76,7 @@ class Bubble(Image):
         bullet_x_to_left = left - self.center_x
         bullet_y_to_top = top - self.center_y
         bullet_y_to_bottom = bottom - self.center_y
-
+        '''
         #set a destination
         destination = 600
 
@@ -97,7 +93,7 @@ class Bubble(Image):
 
         #this doesn't workediworki
         self.checkWidgetOverlap()
-        self.parent.bubbleList.append(self)
+        self.parent.parent.bubbleList.append(self)
         #add the new bubble to the list of bubbles
         
 
@@ -189,30 +185,41 @@ class Bubble(Image):
 
     def findColorMatch(self, bubble):
         colorMatches = []
-        if not len(self.parent.bubbleList) == 0:
+        if not len(self.parent.parent.bubbleList) == 0:
             hitAreaRight = bubble.center_x + bubble.width * 0.5
             hitAreaLeft = bubble.center_x - bubble.width * 0.5
             hitAreaTop = bubble.center_y + bubble.width
             hitAreaBottom = bubble.center_y - bubble.width
-            for b in self.parent.bubbleList:
+            for b in self.parent.parent.bubbleList:
 
                 if b.collide_point(hitAreaRight , hitAreaTop):
-                    print('TRUUUUUUUUUUEAREATOP')
-                    print(b.getColor())
-                    if b.getColor == self.getColor:
+                    print('TRUUUUUUUUUUEAREA 1')
+                    #print(b.getColor(), 'nunnle', self.getColor())
+                    if b.getColor() == self.getColor():
                         print('SAME COLOR YOLO')
                         colorMatches.append(b)
 
-                    #new position
-                    print(bubble.x)
-                if b.collide_point(hitAreaLeft , hitAreaTop):
-                        print('TRUUUUUUUUUUEBOTTOM')
-                        if b.getColor() == self.getColor():
-                            colorMatches.append(b)
-                        print(b.getColor(), 'nunnle', self.getColor())
-                        
+                if b.collide_point(hitAreaRight , hitAreaBottom):
+                    print('TRUUUUUUUUUUEAREA 2')
+                   #print(b.getColor(), 'nunnle', self.getColor())
+                    if b.getColor() == self.getColor():
+                        print('SAME COLOR YOLO')
+                        colorMatches.append(b)
 
-                #if bubble has the same color as the recently firered bubble return true
+                if b.collide_point(hitAreaLeft , hitAreaTop):
+                    print('TRUUUUUUUUUUE 3')
+                    if b.getColor() == self.getColor():
+                        print('SAME COLOR YOLO')
+                        colorMatches.append(b)
+                    print(b.getColor(), 'nunnle', self.getColor())
+
+                if b.collide_point(hitAreaLeft , hitAreaBottom):
+                    print('TRUUUUUUUUUUE 4')
+                    if b.getColor() == self.getColor():
+                        print('SAME COLOR YOLO')
+                        colorMatches.append(b)
+                    print(b.getColor(), 'nunnle', self.getColor())
+ 
                 
 
                 '''
@@ -224,25 +231,34 @@ class Bubble(Image):
 
     #TODO - this should be move outside of bubble class
     def checkWidgetOverlap(self):
+        bubblesWithSameColor = 0
         colorMatches = self.findColorMatch(self)
+        print('COLORMATCHES', len(colorMatches), colorMatches)
 
+        if len(colorMatches) > 0:
+            bubblesWithSameColor += len(colorMatches) +1
+        
         for bubble in colorMatches:
-            self.findColorMatch(bubble)
+            moreMatches = self.findColorMatch(bubble)
+            bubblesWithSameColor += len(moreMatches)
 
+        print('BUBBLES WITH SAMECOLOR', bubblesWithSameColor)
+        print('COLORMATCHESAFTER', len(colorMatches), colorMatches)
+    
     #now check every bubble for the matched color and calculate the sum of the same colors
  
     def callbackPos(self, instance, pos):
         # check if there's a collision with a threat
-        if not len(self.parent.threatListCopy) == 0:
-            for threat in self.parent.threatListCopy:
+        if not len(self.parent.parent.threatListCopy) == 0:
+            for threat in self.parent.parent.threatListCopy:
                 if self.collide_widget(threat):
                     self.checkThreatCollision(threat)
                     #self.removeBubble()
                     return
 
         # check here if the bubble collides with another bubble
-        if not len(self.parent.bubbleList) == 0:
-            for bubble in self.parent.bubbleList:
+        if not len(self.parent.parent.bubbleList) == 0:
+            for bubble in self.parent.parent.bubbleList:
                 if bubble.collide_widget(self):
                     #check if it collides with a threat or bubble
                     self.checkBubbleCollision(bubble)

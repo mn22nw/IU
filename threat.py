@@ -129,7 +129,6 @@ class Threat(Widget):
 
         
 
-
     def displayQuestionScreen(self):
         # display the question screen on a Popup
         
