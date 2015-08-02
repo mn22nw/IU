@@ -95,10 +95,12 @@ class DbShooterWidget(Widget):
     bubble = None
     upcomingBubble = None
     bubbleList = []
+    bubblePositionList = []
     threatList = []
     threatListCopy = []
     angle = NumericProperty()
-    
+    rowspaceY = 0
+    bubbleSpaceX = 0
     
     #constructor, decides what happens when the class gets instanciated 
     def __init__(self, **kwargs):
@@ -108,7 +110,11 @@ class DbShooterWidget(Widget):
         self.getAllThreats()
 
         #create all the bubbles and threats for the startup
-        self.createObsticles()
+        #self.createObsticles()
+        
+        self.bubble = Bubble()
+
+        self.createBubbleGrid()
 
         #add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
@@ -241,6 +247,23 @@ class DbShooterWidget(Widget):
             self.bubbleList.append(b)
             x += bubbleSizeX
     
+    def createBubbleGridRow(self, numberOfBubbles):  
+        if (numberOfBubbles % 2 == 1): #odd
+            self.bubbleSpaceX = 0.041666666666665    
+        else:
+            self.bubbleSpaceX = 0
+
+        layout = self.ids.bubbleGrid
+        
+        #create bubbles to the left
+        for i in range(numberOfBubbles):
+            b = self.createBubble(self.bubbleSpaceX, self.rowspaceY)
+            layout.add_widget(b)
+            self.bubblePositionList.append(b)
+            self.bubbleSpaceX += self.bubble.bubbleSizeX
+        
+        self.rowspaceY +=self.bubble.bubbleSizeY
+           
     def createThreat(self, x, y):
         #get a random threat from the list
         threatIndex = random.randint(0, len(self.threatList)-1)
@@ -313,7 +336,30 @@ class DbShooterWidget(Widget):
                 bubblesRight += 1 
                 y+=bubbleSizeY
                 rowCount +=1 
-    
+     
+    def createBubbleGrid(self):    
+            #each block contains one threat and 3 rows of bubbles
+            numberOfBlocks = 7  
+            numberOfBubbles = 12
+            #the range is number of rows
+            for r in range(numberOfBlocks):
+                print('NUMBEROFBLOCKS', numberOfBlocks)
+                #set if the block should start with a row of 11 or 12 bubbles
+                if (numberOfBlocks % 2 == 0): #even 
+                    print('itswhaat, even' )
+                    #STARTONEVEN 
+                    self.createBubbleGridRow(numberOfBubbles)
+                    self.createBubbleGridRow(numberOfBubbles-1)
+                    self.createBubbleGridRow(numberOfBubbles)
+                else: #odd
+                    #STARTONODD
+                    self.createBubbleGridRow(numberOfBubbles-1)
+                    self.createBubbleGridRow(numberOfBubbles)
+                    self.createBubbleGridRow(numberOfBubbles-1)        
+
+                numberOfBlocks -= 1     
+
+
     def addThreats(self, subject, data):
         for item in data['level' + str(self.level)][subject]:
                 threat = Threat()

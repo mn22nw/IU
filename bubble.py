@@ -20,7 +20,9 @@ class Bubble(Image):
     animation = None
     colorList = ['blue', 'green', 'red', 'purple', 'yellow']
     exploding = False
-        
+    #setting procentual values for bubblesize, to be able to make the game responsive
+    bubbleSizeX =  0.08333333333333 
+    bubbleSizeY = 0.045
     '''
     ####################################
     ##

@@ -1,4 +1,5 @@
 #:set containerWidth 0.669
+#:set bubbleSizeY 0.045
 
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
@@ -99,6 +100,15 @@
 	    height: root.height
 	    width: root.height * containerWidth
 	
+	# the grid for all the bubbles
+	FloatLayout:
+		id: bubbleGrid
+		pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y + (root.height * (bubbleSizeY * 1.6))
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
+
 	# Widget where all the new bubbles will be added:
 	FloatLayout:
 		id: bubbleLayout2
@@ -107,7 +117,6 @@
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
-
 
 
 	#this defines the base on which the shooter stands (with level, table/database image etc) 
