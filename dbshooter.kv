@@ -88,24 +88,24 @@
 		id: bubbleLayout
 		canvas:
 			Color:
-	            rgba: 1, 1, 1, 0.25
+	            rgba: 1, 1, 1, 0.15
 	        Rectangle:
 	            pos: self.pos
 	            size: self.size
 
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 14.6)
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6) 
 	    #pos:(root.width-self.width)/2, (root.height-self.height)/2
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
-	
+		
 	# the grid for all the bubbles
 	FloatLayout:
 		opacity:0.2
 		id: bubbleGrid
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + (root.height * (bubbleSizeY * 4.6))
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
@@ -114,7 +114,7 @@
 	FloatLayout:
 		id: bubbleLayout2
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y#app.window.height 
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth

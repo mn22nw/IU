@@ -70,7 +70,7 @@ class Shooter(Image):
         
         #radians to degrees
         angle = angle * (180/pi);    
-        print('AAAAAAAAAAAAAAANGLEEEEEEEEE', angle)
+        #print('ANGLE', angle)
         
         #Limit a value between a minvalue and maxvalue, for how far the tower can rotate
         angle = boundary(angle, 0, 360)     #boundary(value, minvalue, maxvalue)  Limit a value between a minvalue and maxvalue.

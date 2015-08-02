@@ -286,8 +286,10 @@ class DbShooterWidget(Widget):
         rowCount = 0
         numberOfBubbles = 12
         x = 0
-        y = 0
+        y = bubbleSizeY * 10
         xOdd = 0.041666666666665
+
+
 
         #the range is number of rows
         for r in range(numberOfBlocks):
@@ -311,7 +313,7 @@ class DbShooterWidget(Widget):
                         threatPosX += xOdd
 
                     #create a threat
-                    self.createThreat(threatPosX, threatPosY)
+                    #self.createThreat(threatPosX, threatPosY)
 
                     #increase the y-value for the threat position
                     threatPosY += bubbleSizeY * 3

@@ -25,6 +25,7 @@ class Bubble(Image):
     bubbleSizeY = 0.045
     posTaken = False
     availableBubblePositions = []
+    distanceToClostestGridBubble = 0
     '''
     ####################################
     ##
@@ -115,7 +116,8 @@ class Bubble(Image):
             return False
 
         if distance < diameter: 
-            return True        
+            print('DISTANCE', distance, 'DIAMETER', diameter, 'COLOR', bubble.bubbleColor)
+            return True     
 
 
     def checkBubbleCollision(self, bubble):              
@@ -146,32 +148,30 @@ class Bubble(Image):
             for b in self.parent.parent.bubbleList:
 
                 if b.collide_point(hitAreaRight , hitAreaTop):
-                    print('TRUUUUUUUUUUEAREA 1')
-                    #print(b.getColor(), 'nunnle', self.getColor())
                     if b.getColor() == self.getColor():
-                        print('SAME COLOR YOLO')
+                        print('true 1 SAME COLOR YOLO')
+                        print('THE POS_HINT','colorMatch', b.pos_hint)
                         colorMatches.append(b)
 
                 if b.collide_point(hitAreaRight , hitAreaBottom):
-                    print('TRUUUUUUUUUUEAREA 2')
-                   #print(b.getColor(), 'nunnle', self.getColor())
                     if b.getColor() == self.getColor():
-                        print('SAME COLOR YOLO')
+                        print('true 2 SAME COLOR YOLO')
+                        print('THE POS_HINT','colorMatch', b.pos_hint)
                         colorMatches.append(b)
 
                 if b.collide_point(hitAreaLeft , hitAreaTop):
-                    print('TRUUUUUUUUUUE 3')
                     if b.getColor() == self.getColor():
-                        print('SAME COLOR YOLO')
+                        print(' true 3 SAME COLOR YOLO')
+                        print('THE POS_HINT','colorMatch', b.pos_hint)
                         colorMatches.append(b)
-                    print(b.getColor(), 'nunnle', self.getColor())
+                        
 
                 if b.collide_point(hitAreaLeft , hitAreaBottom):
-                    print('TRUUUUUUUUUUE 4')
                     if b.getColor() == self.getColor():
-                        print('SAME COLOR YOLO')
+                        print(' true 4SAME COLOR YOLO')
+                        print('THE POS_HINT','colorMatch', b.pos_hint)
                         colorMatches.append(b)
-                    print(b.getColor(), 'nunnle', self.getColor())
+                    
  
                 
 
@@ -182,6 +182,16 @@ class Bubble(Image):
                 '''           
             return colorMatches
 
+    def getGridBubbleDistance(self,bubble):
+        #calculate the distance between the centre of both bubbles
+        a = Vector(self.center)
+        b = Vector(bubble.center)
+        distance = int(Vector(a).distance(b))
+        diameter = int(bubble.width *0.8)
+
+        if distance < diameter: 
+            return distance
+        return 0  
 
     def calculateAvailableBubblePositions(self):
         self.availableBubblePositions = []
@@ -190,18 +200,45 @@ class Bubble(Image):
                 if not gridBubble.posTaken:
                     self.availableBubblePositions.append(gridBubble)
 
-
+    #move this outside of bubbleclass!!!
     def fitBubbleToGrid(self):
+        bubblesToCompareList = []
+        distancesToCompareList = []
         self.calculateAvailableBubblePositions()
         for b in self.availableBubblePositions:
-            if self.checkBubbleDistance(b):
-                self.center = b.center
+            #get the distance of the closest gridBubbles to the bubble
+            distance = self.getGridBubbleDistance(b)
+            b.distanceToClostestGridBubble = distance
+            
+            #if the distance is close enough we have a potential position for the bubble, so add this gridBubble to a list
+            if b.distanceToClostestGridBubble > 0: 
+                bubblesToCompareList.append(b)
+                distancesToCompareList.append(b.distanceToClostestGridBubble)
+
+
+        if not len(distancesToCompareList) == 0:
+            smallestDistance = min(distancesToCompareList)       
+            #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
+            for b in bubblesToCompareList:
+
+                if b.distanceToClostestGridBubble == smallestDistance:
+                    self.pos_hint = b.pos_hint              
+
+        #I need the bubble b!
+        '''        
+                self.pos_hint = b.pos_hint
+                #hintY = b.pos_hint['center_y'] / 14.6
+                #self.pos_hint['x'] = b.pos_hint['x']
+                #self.pos_hint['center_y'] = .6
+                print('It has collided with a POSITION THAT\'S AVAILABLE')
+                print('THE POS_HINT','self', self.pos_hint, 'grid', b.pos_hint, b.bubbleColor)
+                #self.pos_hint = b.pos_hint
                 
                 #set the bubble as taken! 
                 if b in self.parent.parent.bubbleGridList[::-1]:
                     print('iT*S INSEDE THE GRID YOOO')
                     b.posTaken = True
-                print('It has collided with a POSITION THAT\'S AVAILABLE')
+        '''       
 
         '''
         # check here if the bubble collides with another bubble
