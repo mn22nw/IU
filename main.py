@@ -95,7 +95,7 @@ class DbShooterWidget(Widget):
     bubble = None
     upcomingBubble = None
     bubbleList = []
-    bubblePositionList = []
+    bubbleGridList = []
     threatList = []
     threatListCopy = []
     angle = NumericProperty()
@@ -259,7 +259,7 @@ class DbShooterWidget(Widget):
         for i in range(numberOfBubbles):
             b = self.createBubble(self.bubbleSpaceX, self.rowspaceY)
             layout.add_widget(b)
-            self.bubblePositionList.append(b)
+            self.bubbleGridList.append(b)
             self.bubbleSpaceX += self.bubble.bubbleSizeX
         
         self.rowspaceY +=self.bubble.bubbleSizeY
@@ -342,8 +342,8 @@ class DbShooterWidget(Widget):
             numberOfBlocks = 6  
             numberOfBubbles = 12
             #the range is number of rows
-            for r in range(numberOfBlocks):
-                print('NUMBEROFBLOCKS', numberOfBlocks)
+            for i in range(numberOfBlocks):
+
                 #set if the block should start with a row of 11 or 12 bubbles
                 if (numberOfBlocks % 2 == 0): #even 
                     print('itswhaat, even' )
@@ -358,6 +358,13 @@ class DbShooterWidget(Widget):
                     self.createBubbleGridRow(numberOfBubbles-1)        
 
                 numberOfBlocks -= 1     
+            #reverse the bubblegridList and set all the bubblepositions on the 'first' eight rows to taken (since they will be taken by the default bubbles)
+            
+            numberUnTakenPositions = 115
+            for gridBubble in self.bubbleGridList[numberUnTakenPositions:]:
+                gridBubble.posTaken = True
+                gridBubble.opacity= 0
+
 
 
     def addThreats(self, subject, data):
