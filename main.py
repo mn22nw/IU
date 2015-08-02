@@ -170,11 +170,9 @@ class DbShooterWidget(Widget):
 
         #set the bubble angle to the same as tower angle (in radiant)
         self.bubble.angle =  self.angle
-
         self.setBubbleStartPosition()
-
+        #add the bullet to the correct layout
         layout = self.ids.bubbleLayout2
-
         layout.add_widget(self.bubble)
         
         self.bubble.fire()

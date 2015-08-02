@@ -92,31 +92,27 @@ class Bubble(Image):
         return (destinationX, destinationY)
 
     def animationComplete(self, animation, widget):
-        #print('COMPLETEOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD')
+        print('COMPLETEOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD')
 
         self.fitBubbleToGrid()
         #Check colors
-        self.checkWidgetOverlap()
-        self.parent.parent.bubbleList.append(self)
-        #add the new bubble to the list of bubbles
+        #self.checkColorMatches()
         
-
-   
+        #add the new bubble to the list of bubbles
+        self.parent.parent.bubbleList.append(self)
 
     def checkBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
         a = Vector(self.center)
         b = Vector(bubble.center)
         distance = int(Vector(a).distance(b))
-
-        diameter = int(bubble.width)
+        diameter = int(bubble.width *.9)
 
         #if for some reason the distance is 0 return false
         if distance == 0:
             return False
 
         if distance < diameter: 
-            print('DISTANCE', distance, 'DIAMETER', diameter, 'COLOR', bubble.bubbleColor)
             return True     
 
 
@@ -172,9 +168,6 @@ class Bubble(Image):
                         print('THE POS_HINT','colorMatch', b.pos_hint)
                         colorMatches.append(b)
                     
- 
-                
-
                 '''
                 for i in range(int(self.width * 0.5)):
                     if int(bubble.x) + i == int(self.x):
@@ -187,8 +180,9 @@ class Bubble(Image):
         a = Vector(self.center)
         b = Vector(bubble.center)
         distance = int(Vector(a).distance(b))
-        diameter = int(bubble.width *0.8)
-
+        diameter = int(bubble.width*1.5)
+        
+        #print('DISTANCE', distance)
         if distance < diameter: 
             return distance
         return 0  
@@ -196,11 +190,11 @@ class Bubble(Image):
     def calculateAvailableBubblePositions(self):
         self.availableBubblePositions = []
         if not len(self.parent.parent.bubbleGridList) == 0:
-            for gridBubble in self.parent.parent.bubbleGridList[::-1]:
+            for gridBubble in self.parent.parent.bubbleGridList[::-1]: #start from the last added bubble
                 if not gridBubble.posTaken:
                     self.availableBubblePositions.append(gridBubble)
 
-    #move this outside of bubbleclass!!!
+    #TODO-move this outside of bubbleclass!!!
     def fitBubbleToGrid(self):
         bubblesToCompareList = []
         distancesToCompareList = []
@@ -215,50 +209,23 @@ class Bubble(Image):
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
 
-
+        #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
         if not len(distancesToCompareList) == 0:
+            print('DISTANCELENGHT', len(distancesToCompareList))
             smallestDistance = min(distancesToCompareList)       
-            #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
+            print('smallestDistance', smallestDistance)
             for b in bubblesToCompareList:
 
                 if b.distanceToClostestGridBubble == smallestDistance:
                     self.pos_hint = b.pos_hint              
 
-        #I need the bubble b!
-        '''        
-                self.pos_hint = b.pos_hint
-                #hintY = b.pos_hint['center_y'] / 14.6
-                #self.pos_hint['x'] = b.pos_hint['x']
-                #self.pos_hint['center_y'] = .6
-                print('It has collided with a POSITION THAT\'S AVAILABLE')
-                print('THE POS_HINT','self', self.pos_hint, 'grid', b.pos_hint, b.bubbleColor)
-                #self.pos_hint = b.pos_hint
-                
-                #set the bubble as taken! 
-                if b in self.parent.parent.bubbleGridList[::-1]:
-                    print('iT*S INSEDE THE GRID YOOO')
-                    b.posTaken = True
-        '''       
+                    #set the bubble as taken! 
+                    if b in self.parent.parent.bubbleGridList[::-1]:
+                        print('iT*S INSEDE THE GRID YOOO')
+                        b.posTaken = True
 
-        '''
-        # check here if the bubble collides with another bubble
-        if not len(self.parent.parent.bubbleGridList) == 0:
-           
-            for bubble in self.parent.parent.bubbleGridList[::-1]:  #reverse the bubblegridList with slices
-                if bubble.collide_widget(self):
-                    #check if it collides with a gridplace
-                    if self.checkBubbleDistance(bubble):
-                        self.pos = bubble.pos
-                        
-                        print('IT COLLIDED WITH THE GRID AT A BUBBLE WITH', bubble.getColor())
-                    print('OTHER BUBBLE', bubble.getColor())
-                    #self.checkBubbleCollision(bubble)
-                    #remove bubbles of the same color
-                    return
-           
-        '''
     #TODO - this should be move outside of bubble class
-    def checkWidgetOverlap(self):
+    def checkColorMatches(self):
         bubblesWithSameColor = 0
         colorMatches = self.findColorMatch(self)
         print('COLORMATCHES', len(colorMatches), colorMatches)
@@ -280,6 +247,7 @@ class Bubble(Image):
         if not len(self.parent.parent.threatListCopy) == 0:
             for threat in self.parent.parent.threatListCopy:
                 if self.collide_widget(threat):
+                    #check if it collides with a threat
                     self.checkThreatCollision(threat)
                     #self.removeBubble()
                     return
@@ -288,9 +256,8 @@ class Bubble(Image):
         if not len(self.parent.parent.bubbleList) == 0:
             for bubble in self.parent.parent.bubbleList:
                 if bubble.collide_widget(self):
-                    #check if it collides with a threat or bubble
+                    #check if it collides with a bubble
                     self.checkBubbleCollision(bubble)
-                    #remove bubbles of the same color
                     return
     
     def __eq__(self, other):

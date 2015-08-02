@@ -39,7 +39,7 @@ class Shooter(Image):
             return True
         '''   
     def on_touch_up(self, touch):
-        print('touched Y\'ALL X', touch.x, '<---x')
+        #print('touched Y\'ALL X', touch.x, '<---x')
         
         self.changeAngle(touch)
         #shooot a bubble muhahah
