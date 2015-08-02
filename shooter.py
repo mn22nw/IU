@@ -44,7 +44,7 @@ class Shooter(Image):
         self.changeAngle(touch)
         #shooot a bubble muhahah
         if not touch.is_mouse_scrolling:
-            self.parent.fireBubble()
+            self.parent.parent.fireBubble()
         
         
     '''

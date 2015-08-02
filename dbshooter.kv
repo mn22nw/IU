@@ -1,7 +1,7 @@
 #:set containerWidth 0.669
 
 <Popup>:
-	size:app.window.height * containerWidth, app.window.width *0.5
+	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
 # Background description:
 <Background>:
 	source: self.source
@@ -27,20 +27,13 @@
 # Shooter description:
 
 <Shooter>:
-    source: 'graphics/tank_tower.png'
-    pos: app.window.width *0.5 - 50 , app.window.height * 0.2 - (app.window.height * 0.2 * 0.15) #pos: self.parent.pos
-    size_hint: .5,.4
+    source: 'graphics/shooter.png'
     canvas.before:
         PushMatrix
         Rotate:
             axis: 0,0,1
             angle: self.shooterTowerAngle
             origin: self.center
-    canvas:
-        Color:
-            rgba: 1,0,0,.5
-        Line:
-            rectangle: self.x, self.y, self.width, self.height
     canvas.after:
         PopMatrix
 
@@ -109,13 +102,6 @@
 	# Widget where all the new bubbles will be added:
 	FloatLayout:
 		id: bubbleLayout2
-		canvas:
-			Color:
-	            rgba: 1, 1, 1, .5
-	        Rectangle:
-	            pos: self.pos
-	            size: self.size
-
 		pos_hint:None, None
 		pos:(root.width-self.width)/2, root.y#app.window.height 
 	    size_hint:None, None
@@ -178,21 +164,25 @@
 	    		text: 'Level'
 		    TableLabel:
 		        text: str(root.level)
-		       		         
-	Shooter:
-		id: shooter
-		
-	Image:
-		id: tank_image
-		source: 'graphics/db.png'
-		size: 100, 100
-		pos: self.parent.pos
+	FloatLayout:
+		id: shooterLayout
+		pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y 
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
 
-	Image:
-		id: tank_top
-		source: 'graphics/tank_top.png'
-		size: 60, 30
-		pos: self.parent.x+ 20, self.parent.y + 85
+		Shooter:
+			id: shooter
+			pos_hint: {'center_x':0.5, 'center_y':0.29}
+			size_hint:0.14,0.14
+
+		Image:
+			id: db
+			source: 'graphics/db.png'
+			size_hint:0.18,0.18
+			pos_hint: {'center_x':0.5, 'center_y':0.24}
+
 
 <Button>:
 	font_size:43

@@ -160,38 +160,21 @@ class DbShooterWidget(Widget):
         #change the color of the upcoming bubble
         self.changeUpcomingBubbleColor()
 
-        #get the angle in radians from the tower
+        self.angle= radians(float(self.shooter.shootDirectionAngle))
 
-        print('ANGLEEEE DEG', self.shooter.shootDirectionAngle)
-        
-        self.angle= radians(float(self.shooter.shootDirectionAngle))#self.shooter.shootDirectionAngle)) 
-        print('ANGLEEEE RAD', self.angle)
-        #print('TOWER ANGLE FIRE BULLET = ', self.angle )
         #set the bubble angle to the same as tower angle (in radiant)
         self.bubble.angle =  self.angle
 
         self.setBubbleStartPosition()
 
         layout = self.ids.bubbleLayout2
-        print('LAYOUTYALL', layout)
-        #add_widget(threat)
-        #add the bubble to the canvas with a lower index than the rest of the images
-        #self.add_widget(self.bubble)
+
         layout.add_widget(self.bubble)
         
         self.bubble.fire()
-
-    def animateBubble(self, instance):
-        print('IT SHOULD ANIMATE YO')
-        a = Animation( pos=(700,800), duration=1)
-        a.start(self.bubble)
      
     def setBubbleStartPosition(self):
-        #get the tower widget from the canvas (to be able to calculate the correct position for the bubble)
-        tower = self.shooter
-        #defines the x and y value for the bubble's centered position
-        bubblePosition = (self.shooter.center_x  + cos(self.angle) , self.shooter.center_y  + sin(self.angle) + tower.height * 0.25)
-        self.bubble.center = bubblePosition 
+        self.bubble.center = self.shooter.center
 
     def bubble_exploding(self):
         #self.app.sound['pop'].play()
