@@ -109,11 +109,11 @@ class DbShooterWidget(Widget):
         #get all the questions and answers and make threats out of them
         self.getAllThreats()
 
-        #create all the bubbles and threats for the startup
-        #self.createObsticles()
-        
         self.bubble = Bubble()
 
+        #create all the bubbles and threats for the startup
+        self.createObsticles()
+        
         self.createBubbleGrid()
 
         #add the first upcoming bubble to the view
@@ -339,7 +339,7 @@ class DbShooterWidget(Widget):
      
     def createBubbleGrid(self):    
             #each block contains one threat and 3 rows of bubbles
-            numberOfBlocks = 7  
+            numberOfBlocks = 6  
             numberOfBubbles = 12
             #the range is number of rows
             for r in range(numberOfBlocks):

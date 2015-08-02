@@ -94,7 +94,7 @@
 	            size: self.size
 
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + app.window.height * 0.6
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 14.6)
 	    #pos:(root.width-self.width)/2, (root.height-self.height)/2
 	    size_hint:None, None
 	    height: root.height
@@ -102,9 +102,10 @@
 	
 	# the grid for all the bubbles
 	FloatLayout:
+		opacity:0.2
 		id: bubbleGrid
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + (root.height * (bubbleSizeY * 1.6))
+		pos:(root.width-self.width)/2, root.y + (root.height * (bubbleSizeY * 4.6))
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
@@ -191,7 +192,6 @@
 			source: 'graphics/db.png'
 			size_hint:0.18,0.18
 			pos_hint: {'center_x':0.5, 'center_y':0.24}
-
 
 <Button>:
 	font_size:43
