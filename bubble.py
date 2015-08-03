@@ -47,6 +47,7 @@ class Bubble(Image):
         
         # start to track the position changes
         self.bind(pos=self.callbackPos)
+        self.bind(pos=self.callbackPosWallCollision)
             
 
     def startAnimation(self, angle):
@@ -102,12 +103,12 @@ class Bubble(Image):
         if distance < diameter: 
             return True     
 
-    def onWallCollision(self):
+    def onWallCollision(self, anglechange):
         self.animation.stop(self)
         print('self.angle', self.angle, self.angle + math.radians(90))
-        self.startAnimation(self.angle - math.radians(90))
+        self.startAnimation(self.angle - math.radians(anglechange))
         #needs to send ranians
-        self.unbind(pos=self.callbackPos)
+        self.unbind(pos=self.callbackPosWallCollision)
         #threatAnimation = Animation( pos=(600, 500), opacity = 0.5, duration=0.2)
         #threatAnimation.start(self)
         #change the angle with 90degrees
@@ -239,16 +240,19 @@ class Bubble(Image):
         print('COLORMATCHESAFTER', len(colorMatches), colorMatches)
     
     #now check every bubble for the matched color and calculate the sum of the same colors
- 
-    def callbackPos(self, instance, pos):
-
+    def callbackPosWallCollision(self, instance, pos):
         #check if collision with wall
         leftWall = self.parent.parent.ids.leftWall
-        
+        rightWall = self.parent.parent.ids.rightWall
         #only do this once....hmmm
         if self.collide_widget(leftWall):
-            self.onWallCollision()
+            self.onWallCollision(90)
 
+        if self.collide_widget(rightWall):
+            self.onWallCollision(-90)
+
+            
+    def callbackPos(self, instance, pos):
 
         # check if there's a collision with a threat
         if not len(self.parent.parent.threatListCopy) == 0:

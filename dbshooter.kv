@@ -110,10 +110,14 @@
 	    width: root.height * containerWidth
 	
 	#the walls!!
-	Button:
+	Image:
 		id:leftWall
 		size:50, root.height
 		pos:bubbleLayout.x - self.width, root.y		
+	Image:
+		id:rightWall
+		size:50, root.height
+		pos:bubbleLayout.x + bubbleLayout.width, root.y	
 
 	#wall to the right
 
