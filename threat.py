@@ -46,8 +46,6 @@ def point_inside_polygon(x, y, poly):
     return inside
 
 
-
-
 class Threat(Widget):
     #these are needed to calculate the correct collide point
     p1 = ListProperty([0, 0])
@@ -81,7 +79,7 @@ class Threat(Widget):
                             attach_to=self,
                             size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
                             )
-    # collide_point + on_touch_down taken from https://groups.google.com/forum/#!topic/kivy-users/LBdragxkYDA
+    # collide_point taken fromkivys own examples https://github.com/kivy/kivy/blob/master/examples/widgets/customcollide.py
 
     
     def collide_point(self, x, y):
@@ -89,23 +87,6 @@ class Threat(Widget):
         return point_inside_polygon(x, y,
                 self.p1 + self.p2 + self.p3)
 
-
-        '''
-        # Do not want to upset the read_pixel method, in case of a bound error
-        try:
-            color = self._coreimage.read_pixel(x - self.x, self.height - (y - self.y))
-        except:
-            color = 0, 0, 0, 0
-        if color[-1] > 0:
-            return True
-        return False
-
-    def on_touch_down(self, touch):
-        if self.collide_point(touch.x, touch.y):
-            self.opacity = 1
-        else:
-            self.opacity = .3
-    '''
     def checkAnswer(self, instance):
         layout = BoxLayout(orientation = 'vertical')
         l = Label(text= self.question)
@@ -126,8 +107,7 @@ class Threat(Widget):
 
         # dismiss window after 1 seconds
         Clock.schedule_once(self.questionScreen.dismiss, 1)
-
-        
+     
 
     def displayQuestionScreen(self):
         # display the question screen on a Popup
@@ -166,28 +146,6 @@ class Threat(Widget):
         #first remove it from the threat list!
         self.parent.parent.threatListCopy.remove(self)
         self.parent.remove_widget(self)
-
-    #TODO - Do I use this?!?
-    def create_animation(self, speed, destination):
-        # create the animation
-        time = Vector(self.center).distance(destination) / (speed * +70.0)
-        # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
-        return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
-        
-
-
-    #TODO - flytta till threat!!!?!
-    def threat_explode(self):
-        if self.exploding == True:
-            return
-        self.exploding = True
-        
-        self.unbind(pos=self.callback_pos)
-        self.animation.unbind(on_complete=self.on_collision_with_edge)
-        self.animation.stop(self)
-        
-        self.parent.threat_exploding()
-        
     
     #returns a string with the color name  
     def setRandomColor(self):
