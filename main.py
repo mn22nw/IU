@@ -174,9 +174,6 @@ class DbShooterWidget(Widget):
         #add the bullet to the correct layout
         layout = self.ids.bubbleLayout
         layout.add_widget(self.bubble)
-        
-        
-        
         self.bubble.fire()
      
     def setBubbleStartPosition(self):

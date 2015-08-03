@@ -83,14 +83,15 @@ class Bubble(Image):
         self.fitBubbleToGrid()
 
         #check if it targeted the same colors and if so, remove the bubble itself. 
+
+
         if self.findColorMatches():
             layout = self.parent.parent.ids.bubbleLayout
             layout.remove_widget(self)
+
         else: 
             #add bubble to the list of bubbles 
             self.parent.parent.bubbleList.append(self)
-
-        
 
     def checkBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
@@ -167,7 +168,7 @@ class Bubble(Image):
             distance = self.getGridBubbleDistance(b)
             b.distanceToClostestGridBubble = distance
             
-            #if the distance is close enough we have a potential position for the bubble, so add this gridBubble to a list
+            #if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
             if b.distanceToClostestGridBubble > 0: 
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
@@ -185,57 +186,110 @@ class Bubble(Image):
                         print('iT*S INSEDE THE GRID YOOO')
                         b.posTaken = True
 
-    #TODO - this should be move outside of bubble class
+    #TODO - this should be move outside of bubble class - and refactor it to remove DRY
     def findColorMatch(self, bubble):
         print('triesTOfindCOlorMatch')
         colorMatches = []
         if not len(self.parent.parent.bubbleList) == 0:
             hitAreaRight = bubble.center_x + bubble.width * 0.5
             hitAreaLeft = bubble.center_x - bubble.width * 0.5
-            hitAreaTop = bubble.center_y + bubble.width
-            hitAreaBottom = bubble.center_y - bubble.width
+            hitAreaTop = bubble.center_y + bubble.width * 0.85
+            hitAreaBottom = bubble.center_y - bubble.width * 0.85
             for b in self.parent.parent.bubbleList:
 
+                #Top right bubble
                 if b.collide_point(hitAreaRight , hitAreaTop):
-                    if b.getColor() == self.getColor():
+                    if b.getColor() == bubble.getColor():
                         colorMatches.append(b)
 
+                #Bottom right bubble
                 if b.collide_point(hitAreaRight , hitAreaBottom):
-                    if b.getColor() == self.getColor():
+                    if b.getColor() == bubble.getColor():
                         colorMatches.append(b)
-
+                #Top left bubble
                 if b.collide_point(hitAreaLeft , hitAreaTop):
-                    if b.getColor() == self.getColor():
+                    if b.getColor() == bubble.getColor():
                         colorMatches.append(b)
                         
-
+                #Bottom left bubble
                 if b.collide_point(hitAreaLeft , hitAreaBottom):
-                    if b.getColor() == self.getColor():
+                    if b.getColor() == bubble.getColor():
+                        colorMatches.append(b)
+
+                #Right bubble
+                if b.collide_point(bubble.center_x + bubble.width , bubble.center_y):
+                    if b.getColor() == bubble.getColor():
+                        colorMatches.append(b)
+
+                #Left bubble
+                if b.collide_point(bubble.center_x - bubble.width , bubble.center_y):
+                    if b.getColor() == bubble.getColor():
                         colorMatches.append(b)
                            
             return colorMatches
+   
+    #this function first removes the colormatch, the returns the related new colormatches for the removed colormatch bubble
+    def removeBubbleAndFindClosestColorMatch(self, bubble):
+        layout = self.parent.parent.ids.bubbleLayout
+        bubble.posTaken = False
+        #add bubble to gridList 
+        self.parent.parent.bubbleGridList.append(bubble)
+        layout.remove_widget(bubble)
+       
+        self.parent.parent.bubbleList.remove(bubble)
+        #find closest bubbleMatch      
+        colorMatchesList = self.findColorMatch(bubble)
+
+        return colorMatchesList
+        
+
     #TODO - this should be move outside of bubble class
     def findColorMatches(self):
         bubblesWithSameColor = 0
         colorMatchesList = self.findColorMatch(self)
         moreMatchesList = []
-    
+        totalColorMatchesList = []
+
+        print('colorMatchesList', len(colorMatchesList))
+        
         for bubble in colorMatchesList:
+            print(bubble.getColor())
             moreMatchesList = self.findColorMatch(bubble)
             #bubblesWithSameColor += len(colorMatchesList)
 
-        totalList = colorMatchesList + moreMatchesList
+        
+        print('moreMatchesList',  len(moreMatchesList))
+        totalColorMatchesList = colorMatchesList + moreMatchesList
+        totalColorMatchesList.append(self)
+        
         #if there is 3 or more of the same color pop them and remove the recently fired bubble
-        if len(totalList) + 1 >= 3:
-            for b in totalList:
-                layout = self.parent.parent.ids.bubbleLayout
-                b.posTaken = False
-                #add bubble to gridList 
-                self.parent.parent.bubbleGridList.append(b)
-                layout.remove_widget(b)
+        if len(totalColorMatchesList)>= 3:
+            
+            while True: 
+                for bubble in colorMatchesList:
+                    colorMatchesList.remove(bubble)
+                    #start with removing the first colorMatch the shooting bubble had. 
+                    #then remove every bubble that's related to that one
+                    while True:
+                        if bubble in self.parent.parent.bubbleList:
+                            bList= self.removeBubbleAndFindClosestColorMatch(bubble)
+                            if len(bList) == 0:
+                                break
+                            
+                            if len(bList) > 1:
+                                bubble = bList[0]
+                                bList.remove(bubble)
+                                for b in bList:
+                                    colorMatchesList.append(b)
+                                #save list and do same operation again? 
+                            else:
+                                bubble = bList[0]  
+                        else:
+                            break
+                if len(colorMatchesList) == 0:
+                    break
+                
             return True
-            print('Pop them!') 
-            #then look if the last popped bubble has a bubble of same color near it? 
 
         return False
         #print('COLORMATCHESAFTER', len(colorMatches), colorMatches)
@@ -271,9 +325,7 @@ class Bubble(Image):
                     #check if it collides with a bubble
                     self.checkBubbleCollision(bubble)
                     return
-    
-    def __eq__(self, other):
-        return self.pos == other.pos       
+       
     '''            
     def bubbleExplode(self):
         if self.exploding == True:
