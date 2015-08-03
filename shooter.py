@@ -75,7 +75,7 @@ class Shooter(Image):
         #Limit a value between a minvalue and maxvalue, for how far the tower can rotate
         angle = boundary(angle, 0, 360)     #boundary(value, minvalue, maxvalue)  Limit a value between a minvalue and maxvalue.
         
-        if angle < 149 and angle > 29:
+        if angle < 155 and angle > 25:
             
             self.shooterTowerAngle = angle  - 90
             self.shootDirectionAngle = angle

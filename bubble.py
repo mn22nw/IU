@@ -9,6 +9,7 @@ from kivy.animation import Animation
 from kivy.graphics import Color, Point
 from kivy.clock import Clock
 
+
 from kivy.utils import boundary
 import math
 from kivy.vector import Vector
@@ -26,6 +27,7 @@ class Bubble(Image):
     posTaken = False
     availableBubblePositions = []
     distanceToClostestGridBubble = 0
+    collidedWithWall = False
     '''
     ####################################
     ##
@@ -38,61 +40,46 @@ class Bubble(Image):
         super(Bubble, self).__init__(**kwargs)
 
     def fire(self):
-        #angle in radiants
-        destination = self.calculateDestination(self.angle)
-
-        app = App.get_running_app()  # maybe change this??!
-        speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
-        self.animation = self.create_animation(speed, destination)
-        
-        # start the animation
-        self.animation.start(self)
-       
+        #angle is in radians
+        self.startAnimation(self.angle)
         #when animation is completed/stopped run this function
-        self.animation.bind(on_complete=self.animationComplete)
+        #self.animation.bind(on_complete=self.animationComplete)
         
         # start to track the position changes
         self.bind(pos=self.callbackPos)
             
+
+    def startAnimation(self, angle):
+        destination = self.calculateDestination(angle)
+        app = App.get_running_app()  # maybe change this??!
+        speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
+        self.animation = self.createAnimation(speed, destination)
+        
+        # start the animation
+        self.animation.start(self)
 
 
     def calculateOrigin(self):
         self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
         self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)
     
-    def create_animation(self, speed, destination):
-
+    def createAnimation(self, speed, destination):
+        print('DESTIONATION', destination)
         time = Vector(self.center).distance(destination) / (speed * +70.0)
-        # the splitting of the position animation in (x,y) is a work-around for the kivy issue #2667 for version < 1.9.0
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
         
     def calculateDestination(self, angle):
-        '''
-        # calculate the path until the bullet hits the edge of the screen
-        win = self.get_parent_window()
-        # the following "magic numbers" are based on the dimensions of the
-        # cutting of the image 'overlay.png'
-        left = 150.0 * win.width / 1920.0
-        right = win.width - 236.0 * win.width / 1920.0
-        top = win.height - 50.0 * win.height / 1920.0
-        bottom = 96.0 * win.height / 1920.0
-        
-        bullet_x_to_right = right - self.center_x
-        bullet_x_to_left = left - self.center_x
-        bullet_y_to_top = top - self.center_y
-        bullet_y_to_bottom = bottom - self.center_y
-        '''
         #set a destination
         destination = 600
 
         #set angle and distance from the correct position (x, y).
-        destinationX = destination* math.cos(self.angle) + self.center_x 
-        destinationY = destination* math.sin(self.angle) + self.center_y
+        destinationX = destination* math.cos(angle) + self.center_x 
+        destinationY = destination* math.sin(angle) + self.center_y
 
         return (destinationX, destinationY)
 
-    def animationComplete(self, animation, widget):
-        print('COMPLETEOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOD')
+    def animationComplete(self):
+        #print('Completed animation')
 
         self.fitBubbleToGrid()
         #Check colors
@@ -106,7 +93,7 @@ class Bubble(Image):
         a = Vector(self.center)
         b = Vector(bubble.center)
         distance = int(Vector(a).distance(b))
-        diameter = int(bubble.width *.9)
+        diameter = int(bubble.width *.9) 
 
         #if for some reason the distance is 0 return false
         if distance == 0:
@@ -115,11 +102,21 @@ class Bubble(Image):
         if distance < diameter: 
             return True     
 
+    def onWallCollision(self):
+        self.animation.stop(self)
+        print('self.angle', self.angle, self.angle + math.radians(90))
+        self.startAnimation(self.angle - math.radians(90))
+        #needs to send ranians
+        self.unbind(pos=self.callbackPos)
+        #threatAnimation = Animation( pos=(600, 500), opacity = 0.5, duration=0.2)
+        #threatAnimation.start(self)
+        #change the angle with 90degrees
 
     def checkBubbleCollision(self, bubble):              
         if self.checkBubbleDistance(bubble):
             #stop animation on collide
             self.animation.stop(self)
+            self.animationComplete()
             self.unbind(pos=self.callbackPos)
             #print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
 
@@ -128,6 +125,7 @@ class Bubble(Image):
         #find threats in parent threat list
         print('threeaaat COLLIIIIIISSISOSIon')
         self.animation.stop(self)
+        self.animationComplete()
         self.unbind(pos=self.callbackPos)
         threat.displayQuestionScreen()
         #Clock.schedule_once(self.animateBubble, 1.1)
@@ -180,7 +178,7 @@ class Bubble(Image):
         a = Vector(self.center)
         b = Vector(bubble.center)
         distance = int(Vector(a).distance(b))
-        diameter = int(bubble.width*1.5)
+        diameter = int(bubble.width*1.4)
         
         #print('DISTANCE', distance)
         if distance < diameter: 
@@ -243,6 +241,15 @@ class Bubble(Image):
     #now check every bubble for the matched color and calculate the sum of the same colors
  
     def callbackPos(self, instance, pos):
+
+        #check if collision with wall
+        leftWall = self.parent.parent.ids.leftWall
+        
+        #only do this once....hmmm
+        if self.collide_widget(leftWall):
+            self.onWallCollision()
+
+
         # check if there's a collision with a threat
         if not len(self.parent.parent.threatListCopy) == 0:
             for threat in self.parent.parent.threatListCopy:

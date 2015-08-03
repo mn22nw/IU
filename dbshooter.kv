@@ -1,6 +1,15 @@
 #:set containerWidth 0.669
 #:set bubbleSizeY 0.045
 
+<Wall@Widget>:
+	size_hint:1,1
+	canvas.before:
+	    Color:
+	    	rgb: 1,1,1
+		Rectangle:
+			size: self.size
+			pos:self.size
+
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
 # Background description:
@@ -81,8 +90,8 @@
         allow_stretch: True
         keep_ratio: False
         size: app.window.size
+   
 
-	
 	# Widget where all the obsticles (bubbles, threats) will be:
 	FloatLayout:
 		id: bubbleLayout
@@ -99,7 +108,15 @@
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
-		
+	
+	#the walls!!
+	Button:
+		id:leftWall
+		size:50, root.height
+		pos:bubbleLayout.x - self.width, root.y		
+
+	#wall to the right
+
 	# the grid for all the bubbles
 	FloatLayout:
 		opacity:0.2
