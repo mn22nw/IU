@@ -42,6 +42,10 @@ Window.size = 560, 836
 ####################################
 '''
 class MyView(Widget):
+    #properties that has to be accessed in the .kv file are placed outside of the constructor
+    lives = 5
+    points = NumericProperty(0)
+
     #def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
         super(MyView, self).__init__(**kwargs)
@@ -51,21 +55,19 @@ class MyView(Widget):
             #self.first_arg = kwargs.pop('parent')
             parent = self.first_arg = kwargs.pop('parent')
             super(MyView, self).__init__(*args, **kwargs)
-        '''
-        
+        '''      
         #properties of the view 
         self.vc = vc
-        self.lives = 5
-        self.points = NumericProperty()
         self.bubble = None
         self.upcomingBubble = None
+        self.angle = NumericProperty()
+        self.rowspaceY = 0
+        self.bubbleSpaceX = 0
         self.bubbleList = []
         self.bubbleGridList = []
         self.threatList = []
         self.threatListCopy = []
-        self.angle = NumericProperty()
-        self.rowspaceY = 0
-        self.bubbleSpaceX = 0
+        
     
     #loading the view (called in the controller)
     def loadView(self):
@@ -102,15 +104,16 @@ class MyView(Widget):
         return self.bubble
     
 
-    #setters and getters for the properties   TODO - put all the setters and getters here
+    #setters and getters for the properties  
     def setLabelText(self,label, text):
         #self.labelText.set(newText)
         label.text = str(text) 
     #def getLabelText(self):
     #    return self.labelText.get()
      
-    def updatePoints(self, instance, value):
-        pass
+    def setPoints(self, value):
+        self.points += str(value)
+        #pass
         #self.updateLabel(self.ids.pointsLbl, value)
 
      

@@ -72,13 +72,14 @@
 	bubbleLayout: bubbleLayout
 	bubbleGridLayout: bubbleGridLayout
 	nextBubbleLayout: nextBubbleLayout
+	
+	# describes the background for the app
 	Image:
 	    source: 'graphics/background.jpg'
         allow_stretch: True
         keep_ratio: False
         size: app.window.size
    
-
 	# Widget where all the obsticles (bubbles, threats) will be and where all the new bubbles will be added::
 	FloatLayout:
 		id: bubbleLayout
@@ -99,11 +100,13 @@
 	Wall:
 		id:leftWall
 		size:50, root.height
-		pos:bubbleLayout.x - self.width, root.y		
+		pos:bubbleLayout.x - self.width, root.y	
+		opacity:0	
 	Wall:
 		id:rightWall
 		size:50, root.height
 		pos:bubbleLayout.x + bubbleLayout.width, root.y	
+		opacity:0
 
 
 	# the grid for all the bubbles
@@ -153,8 +156,7 @@
 	    	spacing:10,10
 	    	#lives
 	    	TableLabel:
-	    		text: 'Lives'
-	    		
+	    		text: 'Lives'	    		
 	    	TableLabel:
 				id: livesLbl
 		        text:'hey' #str(MyView.lives)
@@ -163,8 +165,7 @@
 	    		text: 'Points'
 		    TableLabel:
 		        id: pointsLbl
-		        text:'hey' # str(MyView.points) #str(MyView.lives)
-
+		        text:str(MyView.points)
 		    #level
 		    TableLabel:
 	    		text: 'Level'
