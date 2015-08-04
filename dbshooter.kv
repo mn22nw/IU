@@ -68,8 +68,8 @@
 	
 
 # Main widget description:
-<DbShooterWidget>:
-	id: DbShooterWidget
+<MyView>:
+	id: MyView
 	shooter: shooter
 
 	Image:
@@ -109,7 +109,7 @@
 	# the grid for all the bubbles
 	FloatLayout:
 		opacity:0.2
-		id: bubbleGrid
+		id: bubbleGridLayout
 		pos_hint:None, None
 		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
 	    size_hint:None, None
@@ -157,19 +157,19 @@
 	    		
 	    	TableLabel:
 				id: livesLbl
-		        text: str(DbShooterWidget.lives)
+		        text:'hey' #str(MyView.lives)
 		    #points
 		    TableLabel:
 	    		text: 'Points'
 		    TableLabel:
 		        id: pointsLbl
-		        text:  str(DbShooterWidget.points) #str(DbShooterWidget.lives)
+		        text:'hey' # str(MyView.points) #str(MyView.lives)
 
 		    #level
 		    TableLabel:
 	    		text: 'Level'
 		    TableLabel:
-		        text: str(root.level)
+		        text: 'level'##str(root.level)
 	FloatLayout:
 		id: shooterLayout
 		pos_hint:None, None

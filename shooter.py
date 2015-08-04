@@ -39,7 +39,7 @@ class Shooter(Image):
         self.changeAngle(touch)
         #prevent from shooting bubbles when scrolling mouse wheel
         if not touch.is_mouse_scrolling:
-            self.parent.parent.fireBubble()
+            self.parent.parent.vc.fireBubble()
               
     '''
     ####################################

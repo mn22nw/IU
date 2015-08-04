@@ -29,7 +29,7 @@ from shooter import Shooter
 from bubble import Bubble
 from threat import Threat
 
-#sätter storleken för huvudfönstret
+#sätter storleken för huvudfönstret:
 Window.size = 560, 836
 
 
@@ -37,77 +37,48 @@ Window.size = 560, 836
 class TableLabel(Label):  
     title = Label.text
 
+class MyView(Widget):
+    
+    #def __init__(self,vc):
+    def __init__(self, vc=None, **kwargs):
+        super(MyView, self).__init__(**kwargs)
+    
+        '''
+        def __init__(self, *args, **kwargs):
+            #self.first_arg = kwargs.pop('parent')
+            parent = self.first_arg = kwargs.pop('parent')
+            super(MyView, self).__init__(*args, **kwargs)
+        '''
+        self.vc = vc
+        #properties of the view 
+        self.level = vc.level
 
-'''
-####################################
-##
-##   Setting Dialog Class
-##
-####################################
-'''
-class SettingDialog(BoxLayout):
-    music_slider = ObjectProperty(None)
-    sound_slider = ObjectProperty(None)
-    speed_slider = ObjectProperty(None)
-    
-    root = ObjectProperty(None)
-    
-    def __init__(self, **kwargs):
-        super(SettingDialog, self).__init__(**kwargs)
-        
-        self.music_slider.bind(value=self.update_music_volume)
-        self.sound_slider.bind(value=self.update_sound_volume)
-        self.speed_slider.bind(value=self.update_speed)
-    
-    def update_music_volume(self, instance, value):
-        # write to app configs
-        self.root.app.config.set('General', 'Music', str(int(value)))
-        self.root.app.config.write()
-        self.root.app.music.volume = value / 100.0
-    
-    def update_sound_volume(self, instance, value):
-        # write to app configs
-        self.root.app.config.set('General', 'Sound', str(int(value)))
-        self.root.app.config.write()
-        for item in self.root.app.sound:
-            self.root.app.sound[item].volume = value / 100.0
-    
-    def update_speed(self, instance, value):
-        # write to app configs
-        self.root.app.config.set('GamePlay', 'BulletSpeed', str(int(value)))
-        self.root.app.config.write()
-    
-    def display_help_screen(self):
-        self.root.setting_popup.dismiss()
-        self.root.display_help_screen()
-    
-    def dismiss_parent(self):
-        self.root.setting_popup.dismiss()
+        self.lives = 5
+        self.points = NumericProperty()
+        self.bubble = None
+        self.upcomingBubble = None
+        self.bubbleList = []
+        self.bubbleGridList = []
+        self.threatList = []
+        self.threatListCopy = []
+        self.angle = NumericProperty()
+        self.rowspaceY = 0
+        self.bubbleSpaceX = 0
+        self.shooter = self.shooter
+        #layout propoerties
+        self.bubbleLayout = self.ids.bubbleLayout
 
-
-
-# huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
-class DbShooterWidget(Widget):
-    #app = ObjectProperty(None)
-    level = 1
-    lives = 5
-    points = NumericProperty()
-    bubble = None
-    upcomingBubble = None
-    bubbleList = []
-    bubbleGridList = []
-    threatList = []
-    threatListCopy = []
-    angle = NumericProperty()
-    rowspaceY = 0
-    bubbleSpaceX = 0
+        #print('BUBBLELAYOUT', vc.bubbleLayout)
+        self.bubbleGridLayout = self.ids.bubbleGridLayout
+        self.nextBubbleLayout = self.ids.nextBubbleLayout
+        #load the view
+        self.loadView(self.level)
+#       self.makeStyle()
     
-    #constructor, decides what happens when the class gets instanciated 
-    def __init__(self, **kwargs):
-        super(DbShooterWidget, self).__init__(**kwargs)
-
+    #loading the view
+    def loadView(self, level):
         #get all the questions and answers and make threats out of them
-        self.getAllThreats()
+        self.getAllThreats() #TODO .move to controller
 
         self.bubble = Bubble()
 
@@ -122,10 +93,6 @@ class DbShooterWidget(Widget):
 
         #self.points.bind(value=self.updatePoints)
 
-    def updatePoints(self, instance, value):
-        pass
-        #self.updateLabel(self.ids.pointsLbl, value)
-        
 
     def changeUpcomingBubbleColor(self):
         self.upcomingBubble.setRandomColor()
@@ -133,49 +100,27 @@ class DbShooterWidget(Widget):
 
 
     def addUpcomingBubbletoView(self):
-        layout = self.ids.nextBubbleLayout
         self.upcomingBubble = self.createBubble(0,0)
         self.upcomingBubble.pos_hint={'x': 0.55, 'center_y': .5}
         #add the upcomingBubble to the preview-window
-        layout.add_widget(self.upcomingBubble)
-        print (layout.children, 'CHIIIIIILD')
+        self.nextBubbleLayout.add_widget(self.upcomingBubble)
 
     def createShootingBubble(self):
         self.bubble = Bubble(pos=(500,500)) 
         #set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
+    
 
-    '''
-    ####################################
-    ##
-    ##   Game Play Functions
-    ##
-    ####################################
-    '''
-    def fireBubble(self):
+    #setters and getters for the properties   TODO - put all the setters and getters here
+    def setLabelText(self,label, text):
+        #self.labelText.set(newText)
+        label.text = str(text) 
+    #def getLabelText(self):
+    #    return self.labelText.get()
+     
 
-        print('FIREEEE')
-        '''
-        #hej = App.get_running_app()
-        #hej.sound['bullet_start'].play()
-        ###
-        '''
-        # create a bubble, calculate the start position and fire it.
-        self.createShootingBubble()
 
-        #change the color of the upcoming bubble
-        self.changeUpcomingBubbleColor()
-
-        self.angle= radians(float(self.shooter.shootDirectionAngle))
-
-        #set the bubble angle to the same as tower angle (in radiant)
-        self.bubble.angle =  self.angle
-        self.setBubbleStartPosition()
-        #add the bullet to the correct layout
-        layout = self.ids.bubbleLayout
-        layout.add_widget(self.bubble)
-        self.bubble.fire()
      
     def setBubbleStartPosition(self):
         self.bubble.center = self.shooter.center
@@ -213,8 +158,7 @@ class DbShooterWidget(Widget):
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
 
-    def updateLabel(self, label, text):
-        label.text = str(text) 
+    
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 
@@ -224,12 +168,11 @@ class DbShooterWidget(Widget):
 
     def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
         bubbleSizeX =  0.08333333333333 
-        layout = self.ids.bubbleLayout
         
         #create bubbles to the left
         for i in range(bubblesLeft):
             b = self.createBubble(x, y)
-            layout.add_widget(b)
+            self.bubbleLayout.add_widget(b)
             self.bubbleList.append(b)
             x += bubbleSizeX
         
@@ -239,7 +182,7 @@ class DbShooterWidget(Widget):
         #create bubbles to right
         for i in range(bubblesRight):
             b = self.createBubble(x, y)
-            layout.add_widget(b)
+            self.bubbleLayout.add_widget(b)
             self.bubbleList.append(b)
             x += bubbleSizeX
     
@@ -248,13 +191,11 @@ class DbShooterWidget(Widget):
             self.bubbleSpaceX = 0.041666666666665    
         else:
             self.bubbleSpaceX = 0
-
-        layout = self.ids.bubbleGrid
         
         #create bubbles to the left
         for i in range(numberOfBubbles):
             b = self.createBubble(self.bubbleSpaceX, self.rowspaceY)
-            layout.add_widget(b)
+            self.bubbleGridLayout.add_widget(b)
             self.bubbleGridList.append(b)
             self.bubbleSpaceX += self.bubble.bubbleSizeX
         
@@ -265,14 +206,15 @@ class DbShooterWidget(Widget):
         threatIndex = random.randint(0, len(self.threatList)-1)
         
         threat = self.threatList.pop(threatIndex)
-        layout = self.ids.bubbleLayout
+        
         
         threat.pos_hint={'x': x, 'center_y': y}
         #b.setRandomColor()
         #t.setQuestion()
-        layout.add_widget(threat)
+        self.bubbleLayout.add_widget(threat)
 
     def createObsticles(self):    
+
         #each block contains one threat and 3 rows of bubbles
         numberOfBlocks = 4  
         #setting procentual values for bubblesize, to be able to make the game responsive
@@ -282,11 +224,8 @@ class DbShooterWidget(Widget):
         y = bubbleSizeY * 10
         threatPosY = y + bubbleSizeY *1.3
         rowCount = 0
-        numberOfBubbles = 12
-        
+        numberOfBubbles = 12        
         xOdd = 0.041666666666665
-
-
 
         #the range is number of rows
         for r in range(numberOfBlocks):
@@ -310,6 +249,7 @@ class DbShooterWidget(Widget):
                         threatPosX += xOdd
 
                     #create a threat
+
                     self.createThreat(threatPosX, threatPosY)
 
                     #increase the y-value for the threat position
@@ -406,6 +346,79 @@ class DbShooterWidget(Widget):
 
 Factory.register("Shooter", Shooter)
 
+class MyViewController(Widget):
+    
+    def __init__(self, **kwargs):
+        super(MyViewController, self).__init__(**kwargs)
+
+        self.level = 1
+#instantiation of 
+        myView = MyView(vc=self)
+        self.view = myView
+
+
+
+#Game functions
+    def fireBubble(self):
+
+        print('FIREEEE')
+        '''
+        #hej = App.get_running_app()
+        #hej.sound['bullet_start'].play()
+        ###
+        '''
+        # create a bubble, calculate the start position and fire it.
+        self.view.createShootingBubble()
+
+        #change the color of the upcoming bubble
+        self.view.changeUpcomingBubbleColor()
+
+        self.view.angle= radians(float(self.view.shooter.shootDirectionAngle))
+
+        #set the bubble angle to the same as tower angle (in radiant)
+        self.view.bubble.angle =  self.view.angle
+        self.view.setBubbleStartPosition()
+        #add the bullet to the correct layoutt
+        self.view.bubbleLayout.add_widget(self.view.bubble)
+        self.view.bubble.fire()
+'''
+#Handlers -- target action
+    def addPressed(self):
+#(7a) Change getters and setters for the view
+        self.view.setLabelText(self.view.getPenguinType()+ ' Penguin '+ self.view.getPenguinAction() + ' Added')
+         
+    def quitPressed(self):
+#(7b) Change getters and setters for the view
+        self.view.setLabelText('Quitting')
+        answer = messagebox.askokcancel('Ok to Quit','This will quit the program. \n Ok to quit?')
+        if answer==True:
+            self.parent.destroy()
+
+
+# huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
+class DbShooterWidget(Widget):
+    #app = ObjectProperty(None)
+    
+    
+    points = NumericProperty()
+    bubble = None
+    
+    angle = NumericProperty()
+    
+    
+    #constructor, decides what happens when the class gets instanciated 
+    def __init__(self, **kwargs):
+        super(DbShooterWidget, self).__init__(**kwargs)
+
+        
+        #self.points.bind(value=self.updatePoints)
+
+    def updatePoints(self, instance, value):
+        pass
+        #self.updateLabel(self.ids.pointsLbl, value)
+        
+'''  
+
 #Huvudklassen som bygger applicationen och returnerar MainWidget
 class DbShooter(App):
 	
@@ -418,17 +431,23 @@ class DbShooter(App):
         EventLoop.ensure_window()
         self.window = EventLoop.window
 
-
+        '''
         # create the root widget and give it a reference of the application instance (so it can access the application settings)
         self.DbShooterWidget = DbShooterWidget(app=self)
         self.root = self.DbShooterWidget
+        '''
 
-        self.root.bind(points=self.root.updatePoints)
+        self.MyViewController = MyViewController(app=self)
+        
+        self.root = self.MyViewController.view
+        #self.root.bind(points=self.root.updatePoints)
+        
+
         # load all other sounds:
         #self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
         #self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
         
-        self.welcome_screen()
+        #self.welcome_screen()
 
      
     def build_config(self, config):
