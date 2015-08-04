@@ -97,7 +97,8 @@ class Threat(Widget):
             #layout.add_widget(l)
             layout.add_widget(image)
             self.questionScreen.content = layout
-            self.parent.parent.points += 500
+            #TODO increase points
+            #self.parent.parent.points += 500
             #remove threat if success
             Clock.schedule_once(self.animateThreat, 1.1)
             Clock.schedule_once(self.removeThreat, 2)

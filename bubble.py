@@ -15,76 +15,67 @@ import math
 from kivy.vector import Vector
 import random
 
-class Bubble(Image):
-    bubbleColor= StringProperty()
-    angle = NumericProperty(0) # in radians!
-    animation = None
-    colorList = ['blue', 'green', 'red', 'purple', 'yellow']
-    exploding = False
-    #setting procentual values for bubblesize, to be able to make the game responsive
-    bubbleSizeX =  0.08333333333333 
-    bubbleSizeY = 0.045
-    posTaken = False
-    distanceToClostestGridBubble = 0
-    collidedWithWall = False
-    colorMatchesList = []
-    pointList = []
+'''
+    ####################################
+    ##
+    ##   Bubble Class
+    ##
+    ####################################
+'''
 
-    '''
-    ####################################
-    ##
-    ##   Bubble Behavioral
-    ##
-    ####################################
-    '''
-    
+class Bubble(Image):
+        
     def __init__(self, **kwargs):
         super(Bubble, self).__init__(**kwargs)
+        #properties
+        self.bubbleColor= StringProperty()
+        self.angle = NumericProperty(0) # in radians!
+        self.colorList = ['blue', 'green', 'red', 'purple', 'yellow']
+        self.animation = None       
+        self.bubbleSizeX =  0.08333333333333 #setting procentual values for bubblesize, to be able to make the game responsive
+        self.bubbleSizeY = 0.045
+        self.posTaken = False
+        self.distanceToClostestGridBubble = 0
+        self.collidedWithWall = False
+        self.colorMatchesList = []
 
     def fire(self):
         #angle is in radians
         self.startAnimation(self.angle)
-        #when animation is completed/stopped run this function
-        #self.animation.bind(on_complete=self.animationComplete)
-        
         # start to track the position changes
         self.bind(pos=self.callbackPos)
         self.bind(pos=self.callbackPosWallCollision)
-            
+     
+    def calculateOrigin(self):
+        self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
+        self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)    
+    
+    def calculateDestination(self, angle):
+        #set a destination
+        destination = 600
+        #set angle and distance from the correct position (x, y).
+        destinationX = destination* math.cos(angle) + self.center_x 
+        destinationY = destination* math.sin(angle) + self.center_y
+        return (destinationX, destinationY)       
+
 
     def startAnimation(self, angle):
         destination = self.calculateDestination(angle)
         app = App.get_running_app()  # maybe change this??!
         speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
-        self.animation = self.createAnimation(speed, destination)
-        
+        self.animation = self.createAnimation(speed, destination)      
         # start the animation
         self.animation.start(self)
 
     def animationComplete(self):
-        self.unbind(pos=self.callbackPosWallCollision)
-    
-
-        
-    def calculateOrigin(self):
-        self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
-        self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)
+        self.unbind(pos=self.callbackPosWallCollision)      
+        self.parent.parent.vc.fitBubbleToGrid()
+        self.parent.parent.vc.removeOrKeepBubbles() 
     
     def createAnimation(self, speed, destination):
         time = Vector(self.center).distance(destination) / (speed * +70.0)
         return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
-        
-    def calculateDestination(self, angle):
-        #set a destination
-        destination = 600
-
-        #set angle and distance from the correct position (x, y).
-        destinationX = destination* math.cos(angle) + self.center_x 
-        destinationY = destination* math.sin(angle) + self.center_y
-
-        return (destinationX, destinationY)
-
-
+    
     def onWallCollision(self, anglechange):
         self.animation.stop(self)
         print('self.angle', self.angle, self.angle + math.radians(90))
@@ -93,9 +84,7 @@ class Bubble(Image):
         self.unbind(pos=self.callbackPosWallCollision)
         #threatAnimation = Animation( pos=(600, 500), opacity = 0.5, duration=0.2)
         #threatAnimation.start(self)
-        #change the angle with 90degrees
-
-    
+        #change the angle with 90degrees 
 
     def getGridBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
@@ -109,8 +98,6 @@ class Bubble(Image):
             return distance
         return 0  
 
-
-    #TODO - this should be move outside of bubble class - and refactor it to remove DRY
     def findColorMatch(self, bubble):
         print('triesTOfindCOlorMatch')
         colorMatches = []
@@ -152,33 +139,20 @@ class Bubble(Image):
                            
             return colorMatches
 
-    
-
-    def removeBubble(self, bubble): 
-
-        layout = self.parent.parent.ids.bubbleLayout
-        #Clock.schedule_once(self.animateBubble, 1.1)
-        b = Bubble()
-        b.source = 'graphics/points.png'
-        b.pos_hint = bubble.pos_hint
-        layout.add_widget(b) 
-        self.pointList.append(bubble)
-        layout.remove_widget(bubble)
-        self.parent.parent.bubbleList.remove(bubble)
-
     #this function first removes the colormatch, the returns the related new colormatches for the removed colormatch bubble
     def removeBubbleAndFindClosestColorMatch(self, bubble):
+        layout = self.parent.parent.bubbleLayout
         bubble.posTaken = False
         #add bubble to gridList 
         self.parent.parent.bubbleGridList.append(bubble)
-        self.removeBubble(bubble)
+        layout.remove_widget(bubble)
+       
+        self.parent.parent.bubbleList.remove(bubble)
         #find closest bubbleMatch      
         colorMatchesList = self.findColorMatch(bubble)
 
         return colorMatchesList
         
-
-    #TODO - this should be move outside of bubble class
     def findColorMatches(self):
         bubblesWithSameColor = 0
         self.colorMatchesList = self.findColorMatch(self)
@@ -282,18 +256,6 @@ class Bubble(Image):
                 if self.checkBubbleCollision(bubble):
                     return
        
-    '''            
-    def bubbleExplode(self):
-        if self.exploding == True:
-            return
-        self.exploding = True
-        
-        self.unbind(pos=self.callback_pos)
-        self.animation.unbind(on_complete=self.on_collision_with_edge)
-        self.animation.stop(self)
-        
-        #self.parent.bubble_exploding()
-    '''
     
     #returns a string with the color name  
     def setRandomColor(self):
@@ -312,7 +274,9 @@ class Bubble(Image):
         threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
         threatAnimation.start(self)
         self.parent.remove_widget(self)
-    '''    
-    def removeBubble(self, instance):
-        self.parent.remove_widget(self)
-    '''
+      
+
+    def removeBubble(self):
+        self.parent.parent.bubbleLayout.remove_widget(self)
+
+    

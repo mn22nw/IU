@@ -19,6 +19,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.animation import Animation
+from kivy.clock import Clock
 
 from math import sin
 from math import cos
@@ -58,7 +59,6 @@ class MyView(Widget):
         '''
         
         #properties of the view 
-        self.level = vc.level
         self.vc = vc
         self.lives = 5
         self.points = NumericProperty()
@@ -71,15 +71,9 @@ class MyView(Widget):
         self.angle = NumericProperty()
         self.rowspaceY = 0
         self.bubbleSpaceX = 0
-        
-        #load the view
-        self.loadView(self.level)
-#       self.makeStyle()
     
-    #loading the view
-    def loadView(self, level):
-        #get all the questions and answers and make threats out of them
-        self.getAllThreats() #TODO .move to controller
+    #loading the view (called in the controller)
+    def loadView(self):
 
         self.bubble = Bubble()
 
@@ -91,8 +85,6 @@ class MyView(Widget):
 
         #add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
-
-        #self.points.bind(value=self.updatePoints)
 
 
     def changeUpcomingBubbleColor(self):
@@ -111,6 +103,8 @@ class MyView(Widget):
         #set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
+
+        return self.bubble
     
 
     #setters and getters for the properties   TODO - put all the setters and getters here
@@ -125,30 +119,18 @@ class MyView(Widget):
         #self.updateLabel(self.ids.pointsLbl, value)
 
      
-    def setBubbleStartPosition(self):
-        self.bubble.center = self.shooter.center
-
+    def setBubbleStartPosition(self, bubble):
+        bubble.center = self.shooter.center
+    '''
     def bubble_exploding(self):
         #self.app.sound['pop'].play()
-    
-        # create an animation on the old bullets position:
-        # bug: gif isn't transparent
-        #old_pos = self.bullet.center
-        #self.bullet.anim_delay = 0.1
-        #self.bullet.size = 96, 96
-        #self.bullet.center = old_pos
-        #self.bullet.source = 'graphics/explosion.gif'
-        #Clock.schedule_once(self.bullet_exploded, 1)
-        
-        self.remove_widget(self.bubble)
-        self.bubble = None
         
         self.lives -= 1
         self.update_label(self.ids.livesLbl, self.lives)
         print(self.lives , 'LIIIIVES')
         #if self.lives == 0:
             #self.reset_level()
-
+    '''
 
     def display_help_screen(self):
         # display the help screen on a Popup
@@ -312,38 +294,8 @@ class MyView(Widget):
                         gridBubble.opacity= 0
 
             
-
-    def addThreats(self, subject, data):
-        for item in data['level' + str(self.level)][subject]:
-                threat = Threat()
-                threat.title = subject
-                threat.question = item['question']
-                threat.answers = item['answers']
-                threat.correctAnswer = str(item['correctAnswer'])
-                threat.imageSrc = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
-                #print('THREAT ANW', threat)
-                print(threat.question)
-                self.threatList.append(threat)
           
-    def getAllThreats(self):
-
-        import json
-        #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
-        try:
-            #get the json-file were the questions are stored
-            with open('questions.json', "r") as f:
-                data = json.loads(f.read())
-
-            #get all CSRF questions
-            self.addThreats('CSRF', data)
-            
-            #get all SQL-Injection questions
-            self.addThreats('SQL-Injection', data)
-            
-            #need a copy of the threatList to be able to check for collision later (the original threatList is manipulated later)
-            self.threatListCopy = list(self.threatList)
-        except (ValueError, KeyError, TypeError):
-            print "JSON format error"
+    
     
 
 Factory.register("Shooter", Shooter)
@@ -365,9 +317,18 @@ class MyViewController(Widget):
         #properties of the controller 
         self.level = 1
         self.availableBubblePositions = []
+        self.pointList = []
+
         #instantiation of view
         self.view = MyView(vc=self)
-
+        
+        #get all the Questions for the game
+        self.getAllQuestions() 
+        
+        #load the view (this needs to be called after getting the questions)
+        self.view.loadView()
+        
+    
 
 #Game functions
     def fireBubble(self):
@@ -379,7 +340,8 @@ class MyViewController(Widget):
         ###
         '''
         # create a bubble, calculate the start position and fire it.
-        self.view.createShootingBubble()
+        #TODO- maybe return the bubble instead
+        self.bubble = self.view.createShootingBubble()
 
         #change the color of the upcoming bubble
         self.view.changeUpcomingBubbleColor()
@@ -387,41 +349,77 @@ class MyViewController(Widget):
         self.view.angle= radians(float(self.view.shooter.shootDirectionAngle))
 
         #set the bubble angle to the same as tower angle (in radiant)
-        self.view.bubble.angle =  self.view.angle
-        self.view.setBubbleStartPosition()
-        #add the bullet to the correct layoutt
-        self.view.bubbleLayout.add_widget(self.view.bubble)
-        self.view.bubble.fire()
+        self.bubble.angle =  self.view.angle
+        
+        self.view.setBubbleStartPosition(self.bubble)
 
-        #fit the bubble to the grid before checking for colormatches
-        self.fitBubbleToGrid()
+        #add the bullet to the correct layout
+        self.view.bubbleLayout.add_widget(self.bubble)
 
-
-        self.removeOrKeepBubbles()
+        self.bubble.fire()
 
     
     def removePoints(self,instance):
         for point in self.pointList:
-            layout = self.parent.parent.ids.bubbleLayout
-            layout.remove_widget
+            print('remove point')
+            self.view.bubbleLayout.remove_widget(point)
 
+    
+    #get all the questions from a json file 
+    def getAllQuestions(self):
+
+        import json
+        #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
+        try:
+            #get the json-file were the questions are stored
+            with open('questions.json', "r") as f:
+                data = json.loads(f.read())
+
+            #get all CSRF questions
+            self.addQuestionsToThreats('CSRF', data)
+            
+            #get all SQL-Injection questions
+            self.addQuestionsToThreats('SQL-Injection', data)
+            
+            #need a copy of the threatList to be able to check for collision later (the original threatList is manipulated later)
+            self.view.threatListCopy = list(self.view.threatList)
+        except (ValueError, KeyError, TypeError):
+            print "JSON format error"
+
+    def addQuestionsToThreats(self, subject, data):
+        for item in data['level' + str(self.level)][subject]:
+                threat = Threat()
+                threat.title = subject
+                threat.question = item['question']
+                threat.answers = item['answers']
+                threat.correctAnswer = str(item['correctAnswer'])
+                threat.imageSrc = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+                print(threat.question)
+                self.view.threatList.append(threat)
 
     def removeOrKeepBubbles(self):
         #check if it targeted the same color/s and if so, remove the bubble itself.
-        matches = self.view.bubble.findColorMatches()
+        matches = self.bubble.findColorMatches()
         if len(matches) >= 3:
             self.bubble.removeColorMatches()
             #set the bubblespace in grid to available
             self.posTaken = False
             #add bubble to gridList 
             self.view.bubbleGridList.append(self)               
-            self.view.bubbleLayout.remove_widget(self)
 
-            Clock.schedule_once(self.removePoints, 2)
-
+            for bubble in matches:
+                b = Bubble()
+                b.source = 'graphics/points.png'
+                b.pos_hint = bubble.pos_hint
+                self.view.bubbleLayout.add_widget(b) 
+                self.pointList.append(b)
+            
+            #delete the recently fired bubble
+            self.view.bubbleLayout.remove_widget(self.bubble) 
+            Clock.schedule_once(self.removePoints, 0.2)
         else: 
             #add bubble to the list of bubbles 
-            self.view.bubbleList.append(self)
+            self.view.bubbleList.append(self.bubble)
 
     def calculateAvailableBubblePositions(self):
         self.availableBubblePositions = []
@@ -432,16 +430,18 @@ class MyViewController(Widget):
 
     
     def fitBubbleToGrid(self):
+        print('FIIINTTTIING?!?!?!?')
         bubblesToCompareList = []
         distancesToCompareList = []
         self.calculateAvailableBubblePositions()
         for b in self.availableBubblePositions:
             #get the distance of the closest gridBubbles to the bubble
-            distance = self.view.bubble.getGridBubbleDistance(b)
+            distance = self.bubble.getGridBubbleDistance(b)
             b.distanceToClostestGridBubble = distance
             
             #if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
             if b.distanceToClostestGridBubble > 0: 
+
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
 
@@ -451,7 +451,9 @@ class MyViewController(Widget):
             for b in bubblesToCompareList:
 
                 if b.distanceToClostestGridBubble == smallestDistance:
-                    self.pos_hint = b.pos_hint              
+
+                    print(b.pos_hint , 'b.pos_hint ')
+                    self.bubble.pos_hint = b.pos_hint              
 
                     #set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
