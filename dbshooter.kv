@@ -1,13 +1,11 @@
 #:set containerWidth 0.669
 #:set bubbleSizeY 0.045
 
-<Wall@Image>:
-
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
 
-# Sets the styling for the labels that contains lives, points and  level
-<TableLabel>:
+# Custom Label,  defines the styling for the labels that contains lives, points and  level
+<TableLabel@Label>:
 	canvas.before:
 	    Color:
 	    	rgb: 1,1,1
@@ -20,9 +18,10 @@
 	bold: True
 	text_size: self.size
 	valign:'middle'
+# Custom image , which will be the walls
+<Wall@Image>:
 
 # Shooter description:
-
 <Shooter>:
     source: 'graphics/shooter.png'
     canvas.before:
@@ -33,7 +32,6 @@
             origin: self.center
     canvas.after:
         PopMatrix
-
 
 # Bubble description:
 <Bubble>:

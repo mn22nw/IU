@@ -34,11 +34,6 @@ from threat import Threat
 Window.size = 560, 836
 
 
-#Custom styles for Label
-class TableLabel(Label):  
-    title = Label.text
-
-
 '''
 ####################################
 ##
