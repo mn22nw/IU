@@ -28,6 +28,8 @@ class Bubble(Image):
     availableBubblePositions = []
     distanceToClostestGridBubble = 0
     collidedWithWall = False
+    colorMatchesList = []
+
     '''
     ####################################
     ##
@@ -59,6 +61,28 @@ class Bubble(Image):
         # start the animation
         self.animation.start(self)
 
+    def animationComplete(self):
+        self.unbind(pos=self.callbackPosWallCollision)
+        
+        self.fitBubbleToGrid()
+
+        #check if it targeted the same colors and if so, remove the bubble itself. 
+
+        matches = self.findColorMatches()
+        if len(matches) >= 3:
+            self.removeColorMatches()
+            layout = self.parent.parent.ids.bubbleLayout
+
+            #set the bubblespace in grid to available
+            self.posTaken = False
+            #add bubble to gridList 
+            self.parent.parent.bubbleGridList.append(self)
+                
+            layout.remove_widget(self)
+
+        else: 
+            #add bubble to the list of bubbles 
+            self.parent.parent.bubbleList.append(self)
 
     def calculateOrigin(self):
         self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
@@ -78,20 +102,7 @@ class Bubble(Image):
 
         return (destinationX, destinationY)
 
-    def animationComplete(self):
-        self.unbind(pos=self.callbackPosWallCollision)
-        self.fitBubbleToGrid()
-
-        #check if it targeted the same colors and if so, remove the bubble itself. 
-
-
-        if self.findColorMatches():
-            layout = self.parent.parent.ids.bubbleLayout
-            layout.remove_widget(self)
-
-        else: 
-            #add bubble to the list of bubbles 
-            self.parent.parent.bubbleList.append(self)
+    
 
     def checkBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
@@ -246,28 +257,26 @@ class Bubble(Image):
     #TODO - this should be move outside of bubble class
     def findColorMatches(self):
         bubblesWithSameColor = 0
-        colorMatchesList = self.findColorMatch(self)
+        self.colorMatchesList = self.findColorMatch(self)
         moreMatchesList = []
         totalColorMatchesList = []
-
-        print('colorMatchesList', len(colorMatchesList))
         
-        for bubble in colorMatchesList:
+        for bubble in  self.colorMatchesList:
             print(bubble.getColor())
             moreMatchesList = self.findColorMatch(bubble)
             #bubblesWithSameColor += len(colorMatchesList)
 
-        
         print('moreMatchesList',  len(moreMatchesList))
-        totalColorMatchesList = colorMatchesList + moreMatchesList
+        totalColorMatchesList =  self.colorMatchesList + moreMatchesList
         totalColorMatchesList.append(self)
         
-        #if there is 3 or more of the same color pop them and remove the recently fired bubble
-        if len(totalColorMatchesList)>= 3:
-            
+        return totalColorMatchesList
+        
+    def removeColorMatches(self):
+        #if there is three or more of the same color pop them and remove them 
             while True: 
-                for bubble in colorMatchesList:
-                    colorMatchesList.remove(bubble)
+                for bubble in self.colorMatchesList:
+                    self.colorMatchesList.remove(bubble)
                     #start with removing the first colorMatch the shooting bubble had. 
                     #then remove every bubble that's related to that one
                     while True:
@@ -280,20 +289,15 @@ class Bubble(Image):
                                 bubble = bList[0]
                                 bList.remove(bubble)
                                 for b in bList:
-                                    colorMatchesList.append(b)
-                                #save list and do same operation again? 
+                                    self.colorMatchesList.append(b)
                             else:
                                 bubble = bList[0]  
                         else:
                             break
-                if len(colorMatchesList) == 0:
+                if len(self.colorMatchesList) == 0:
                     break
                 
-            return True
 
-        return False
-        #print('COLORMATCHESAFTER', len(colorMatches), colorMatches)
-    
     #now check every bubble for the matched color and calculate the sum of the same colors
     def callbackPosWallCollision(self, instance, pos):
         #check if collision with wall

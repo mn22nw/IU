@@ -114,6 +114,7 @@ class DbShooterWidget(Widget):
         #create all the bubbles and threats for the startup
         self.createObsticles()
         
+        #create the grid for the bubbles to fit in
         self.createBubbleGrid()
 
         #add the first upcoming bubble to the view
@@ -220,12 +221,10 @@ class DbShooterWidget(Widget):
         b.setRandomColor()
         b.source = 'graphics/bubbles/' + b.getColor() + '.png'
         return b
-        #self.bubbleList.append(b)
 
     def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
         bubbleSizeX =  0.08333333333333 
         layout = self.ids.bubbleLayout
-        print('BL-->', bubblesLeft,'BR-->', bubblesRight)
         
         #create bubbles to the left
         for i in range(bubblesLeft):
@@ -279,11 +278,12 @@ class DbShooterWidget(Widget):
         #setting procentual values for bubblesize, to be able to make the game responsive
         bubbleSizeX =  0.08333333333333 
         bubbleSizeY = 0.045
-        threatPosY = bubbleSizeY + bubbleSizeY *.25
-        rowCount = 0
-        numberOfBubbles = 12
         x = 0
         y = bubbleSizeY * 10
+        threatPosY = y + bubbleSizeY *1.3
+        rowCount = 0
+        numberOfBubbles = 12
+        
         xOdd = 0.041666666666665
 
 
@@ -310,7 +310,7 @@ class DbShooterWidget(Widget):
                         threatPosX += xOdd
 
                     #create a threat
-                    #self.createThreat(threatPosX, threatPosY)
+                    self.createThreat(threatPosX, threatPosY)
 
                     #increase the y-value for the threat position
                     threatPosY += bubbleSizeY * 3
@@ -345,7 +345,6 @@ class DbShooterWidget(Widget):
 
                 #set if the block should start with a row of 11 or 12 bubbles
                 if (numberOfBlocks % 2 == 0): #even 
-                    print('itswhaat, even' )
                     #STARTONEVEN 
                     self.createBubbleGridRow(numberOfBubbles)
                     self.createBubbleGridRow(numberOfBubbles-1)
@@ -362,9 +361,16 @@ class DbShooterWidget(Widget):
             numberUnTakenPositions = 115
             for gridBubble in self.bubbleGridList[numberUnTakenPositions:]:
                 gridBubble.posTaken = True
-                gridBubble.opacity= 0
+                gridBubble.opacity= .8
+            
+                #set all the bubbles that are where a threat is places to available positions
+                for threat in self.threatListCopy:
+                    threat.opacity = 0
+                    if threat.collide_point(gridBubble.center_x , gridBubble.center_y):
+                        gridBubble.posTaken = False
+                        gridBubble.opacity= 0
 
-
+            
 
     def addThreats(self, subject, data):
         for item in data['level' + str(self.level)][subject]:
