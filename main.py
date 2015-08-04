@@ -37,8 +37,15 @@ Window.size = 560, 836
 class TableLabel(Label):  
     title = Label.text
 
+
+'''
+####################################
+##
+##   VIEW
+##
+####################################
+'''
 class MyView(Widget):
-    
     #def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
         super(MyView, self).__init__(**kwargs)
@@ -49,10 +56,10 @@ class MyView(Widget):
             parent = self.first_arg = kwargs.pop('parent')
             super(MyView, self).__init__(*args, **kwargs)
         '''
-        self.vc = vc
+        
         #properties of the view 
         self.level = vc.level
-
+        self.vc = vc
         self.lives = 5
         self.points = NumericProperty()
         self.bubble = None
@@ -64,13 +71,7 @@ class MyView(Widget):
         self.angle = NumericProperty()
         self.rowspaceY = 0
         self.bubbleSpaceX = 0
-        self.shooter = self.shooter
-        #layout propoerties
-        self.bubbleLayout = self.ids.bubbleLayout
-
-        #print('BUBBLELAYOUT', vc.bubbleLayout)
-        self.bubbleGridLayout = self.ids.bubbleGridLayout
-        self.nextBubbleLayout = self.ids.nextBubbleLayout
+        
         #load the view
         self.loadView(self.level)
 #       self.makeStyle()
@@ -119,7 +120,9 @@ class MyView(Widget):
     #def getLabelText(self):
     #    return self.labelText.get()
      
-
+    def updatePoints(self, instance, value):
+        pass
+        #self.updateLabel(self.ids.pointsLbl, value)
 
      
     def setBubbleStartPosition(self):
@@ -249,7 +252,6 @@ class MyView(Widget):
                         threatPosX += xOdd
 
                     #create a threat
-
                     self.createThreat(threatPosX, threatPosY)
 
                     #increase the y-value for the threat position
@@ -346,16 +348,25 @@ class MyView(Widget):
 
 Factory.register("Shooter", Shooter)
 
+
+'''
+####################################
+##
+##   VIEWCONTROLLER
+##
+####################################
+'''
+
 class MyViewController(Widget):
     
     def __init__(self, **kwargs):
         super(MyViewController, self).__init__(**kwargs)
-
+        
+        #properties of the controller 
         self.level = 1
-#instantiation of 
-        myView = MyView(vc=self)
-        self.view = myView
-
+        self.availableBubblePositions = []
+        #instantiation of view
+        self.view = MyView(vc=self)
 
 
 #Game functions
@@ -381,43 +392,89 @@ class MyViewController(Widget):
         #add the bullet to the correct layoutt
         self.view.bubbleLayout.add_widget(self.view.bubble)
         self.view.bubble.fire()
+
+        #fit the bubble to the grid before checking for colormatches
+        self.fitBubbleToGrid()
+
+
+        self.removeOrKeepBubbles()
+
+    
+    def removePoints(self,instance):
+        for point in self.pointList:
+            layout = self.parent.parent.ids.bubbleLayout
+            layout.remove_widget
+
+
+    def removeOrKeepBubbles(self):
+        #check if it targeted the same color/s and if so, remove the bubble itself.
+        matches = self.view.bubble.findColorMatches()
+        if len(matches) >= 3:
+            self.bubble.removeColorMatches()
+            #set the bubblespace in grid to available
+            self.posTaken = False
+            #add bubble to gridList 
+            self.view.bubbleGridList.append(self)               
+            self.view.bubbleLayout.remove_widget(self)
+
+            Clock.schedule_once(self.removePoints, 2)
+
+        else: 
+            #add bubble to the list of bubbles 
+            self.view.bubbleList.append(self)
+
+    def calculateAvailableBubblePositions(self):
+        self.availableBubblePositions = []
+        if not len(self.view.bubbleGridList) == 0:
+            for gridBubble in self.view.bubbleGridList[::-1]: #start from the last added bubble
+                if not gridBubble.posTaken:
+                    self.availableBubblePositions.append(gridBubble)
+
+    
+    def fitBubbleToGrid(self):
+        bubblesToCompareList = []
+        distancesToCompareList = []
+        self.calculateAvailableBubblePositions()
+        for b in self.availableBubblePositions:
+            #get the distance of the closest gridBubbles to the bubble
+            distance = self.view.bubble.getGridBubbleDistance(b)
+            b.distanceToClostestGridBubble = distance
+            
+            #if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
+            if b.distanceToClostestGridBubble > 0: 
+                bubblesToCompareList.append(b)
+                distancesToCompareList.append(b.distanceToClostestGridBubble)
+
+        #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
+        if not len(distancesToCompareList) == 0:
+            smallestDistance = min(distancesToCompareList)       
+            for b in bubblesToCompareList:
+
+                if b.distanceToClostestGridBubble == smallestDistance:
+                    self.pos_hint = b.pos_hint              
+
+                    #set the bubble as taken! 
+                    if b in self.view.bubbleGridList[::-1]:
+                        print('iT*S INSEDE THE GRID YOOO')
+                        b.posTaken = True
+
+
 '''
 #Handlers -- target action
-    def addPressed(self):
-#(7a) Change getters and setters for the view
-        self.view.setLabelText(self.view.getPenguinType()+ ' Penguin '+ self.view.getPenguinAction() + ' Added')
-         
-    def quitPressed(self):
-#(7b) Change getters and setters for the view
-        self.view.setLabelText('Quitting')
-        answer = messagebox.askokcancel('Ok to Quit','This will quit the program. \n Ok to quit?')
-        if answer==True:
-            self.parent.destroy()
 
+    #when quit is pressed 
+    def close(self):
+        App.get_running_app().stop()
+        raise SystemExit(0)
+
+    #when display help screen is pressed
+    def welcome_screen(self):
+        self.root.display_help_screen()  
+    def addPressed(self):
+'''
 
 # huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
-class DbShooterWidget(Widget):
-    #app = ObjectProperty(None)
-    
-    
-    points = NumericProperty()
-    bubble = None
-    
-    angle = NumericProperty()
-    
-    
-    #constructor, decides what happens when the class gets instanciated 
-    def __init__(self, **kwargs):
-        super(DbShooterWidget, self).__init__(**kwargs)
 
-        
-        #self.points.bind(value=self.updatePoints)
-
-    def updatePoints(self, instance, value):
-        pass
-        #self.updateLabel(self.ids.pointsLbl, value)
-        
-'''  
 
 #Huvudklassen som bygger applicationen och returnerar MainWidget
 class DbShooter(App):
@@ -438,7 +495,7 @@ class DbShooter(App):
         '''
 
         self.MyViewController = MyViewController(app=self)
-        
+
         self.root = self.MyViewController.view
         #self.root.bind(points=self.root.updatePoints)
         
@@ -460,13 +517,8 @@ class DbShooter(App):
         config.setdefault('GamePlay', 'BubbleSpeed', '10')
         config.setdefault('GamePlay', 'Levels', '2')
 
-    def welcome_screen(self):
-        self.root.display_help_screen()    
+      
 
-
-    def close(self):
-        App.get_running_app().stop()
-        raise SystemExit(0)
 
 #Kör applikationen
 if __name__ == "__main__":	

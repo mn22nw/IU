@@ -25,7 +25,6 @@ class Bubble(Image):
     bubbleSizeX =  0.08333333333333 
     bubbleSizeY = 0.045
     posTaken = False
-    availableBubblePositions = []
     distanceToClostestGridBubble = 0
     collidedWithWall = False
     colorMatchesList = []
@@ -64,30 +63,9 @@ class Bubble(Image):
 
     def animationComplete(self):
         self.unbind(pos=self.callbackPosWallCollision)
-        
-        self.fitBubbleToGrid()
-
-        #check if it targeted the same color/s and if so, remove the bubble itself. 
-
-        matches = self.findColorMatches()
-        if len(matches) >= 3:
-            self.removeColorMatches()
-            layout = self.parent.parent.ids.bubbleLayout
-
-            #set the bubblespace in grid to available
-            self.posTaken = False
-            #add bubble to gridList 
-            self.parent.parent.bubbleGridList.append(self)               
-            layout.remove_widget(self)
-
-            Clock.schedule_once(self.removePoints, 2)
-
-        else: 
-            #add bubble to the list of bubbles 
-            self.parent.parent.bubbleList.append(self)
+    
 
         
-
     def calculateOrigin(self):
         self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
         self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)
@@ -106,21 +84,6 @@ class Bubble(Image):
 
         return (destinationX, destinationY)
 
-    
-
-    def checkBubbleDistance(self,bubble):
-        #calculate the distance between the centre of both bubbles
-        a = Vector(self.center)
-        b = Vector(bubble.center)
-        distance = int(Vector(a).distance(b))
-        diameter = int(bubble.width *.9) 
-
-        #if for some reason the distance is 0 return false
-        if distance == 0:
-            return False
-
-        if distance < diameter: 
-            return True     
 
     def onWallCollision(self, anglechange):
         self.animation.stop(self)
@@ -131,22 +94,6 @@ class Bubble(Image):
         #threatAnimation = Animation( pos=(600, 500), opacity = 0.5, duration=0.2)
         #threatAnimation.start(self)
         #change the angle with 90degrees
-
-    def checkBubbleCollision(self, bubble):              
-        if self.checkBubbleDistance(bubble):
-            #stop animation on collide
-            self.animation.stop(self)
-            self.animationComplete()
-            self.unbind(pos=self.callbackPos)
-            #print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
-
-
-    def checkThreatCollision(self, threat): 
-        self.animation.stop(self)
-        self.animationComplete()
-        self.unbind(pos=self.callbackPos)
-        threat.displayQuestionScreen()
-       
 
     
 
@@ -162,40 +109,6 @@ class Bubble(Image):
             return distance
         return 0  
 
-    def calculateAvailableBubblePositions(self):
-        self.availableBubblePositions = []
-        if not len(self.parent.parent.bubbleGridList) == 0:
-            for gridBubble in self.parent.parent.bubbleGridList[::-1]: #start from the last added bubble
-                if not gridBubble.posTaken:
-                    self.availableBubblePositions.append(gridBubble)
-
-    #TODO-move this outside of bubbleclass!!!
-    def fitBubbleToGrid(self):
-        bubblesToCompareList = []
-        distancesToCompareList = []
-        self.calculateAvailableBubblePositions()
-        for b in self.availableBubblePositions:
-            #get the distance of the closest gridBubbles to the bubble
-            distance = self.getGridBubbleDistance(b)
-            b.distanceToClostestGridBubble = distance
-            
-            #if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
-            if b.distanceToClostestGridBubble > 0: 
-                bubblesToCompareList.append(b)
-                distancesToCompareList.append(b.distanceToClostestGridBubble)
-
-        #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
-        if not len(distancesToCompareList) == 0:
-            smallestDistance = min(distancesToCompareList)       
-            for b in bubblesToCompareList:
-
-                if b.distanceToClostestGridBubble == smallestDistance:
-                    self.pos_hint = b.pos_hint              
-
-                    #set the bubble as taken! 
-                    if b in self.parent.parent.bubbleGridList[::-1]:
-                        print('iT*S INSEDE THE GRID YOOO')
-                        b.posTaken = True
 
     #TODO - this should be move outside of bubble class - and refactor it to remove DRY
     def findColorMatch(self, bubble):
@@ -239,10 +152,7 @@ class Bubble(Image):
                            
             return colorMatches
 
-    def removePoints(self,instance):
-        for point in self.pointList:
-            layout = self.parent.parent.ids.bubbleLayout
-            layout.remove_widget
+    
 
     def removeBubble(self, bubble): 
 
@@ -310,8 +220,41 @@ class Bubble(Image):
                             break
                 if len(self.colorMatchesList) == 0:
                     break
-                
+    
+    def checkThreatCollision(self, threat): 
+        if self.collide_widget(threat):
+            self.animation.stop(self)
+            self.animationComplete()
+            self.unbind(pos=self.callbackPos)
+            threat.displayQuestionScreen()  
+            return True
+        return False  
 
+    def checkBubbleDistance(self,bubble):
+        #calculate the distance between the centre of both bubbles
+        a = Vector(self.center)
+        b = Vector(bubble.center)
+        distance = int(Vector(a).distance(b))
+        diameter = int(bubble.width *.9) 
+
+        #if for some reason the distance is 0 return false
+        if distance == 0:
+            return False
+
+        if distance < diameter: 
+            return True  
+
+    def checkBubbleCollision(self, bubble): 
+        if bubble.collide_widget(self):             
+            if self.checkBubbleDistance(bubble):
+                self.animation.stop(self)
+                self.animationComplete()
+                self.unbind(pos=self.callbackPos)
+                return True
+        return False
+            #print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
+
+    
     #now check every bubble for the matched color and calculate the sum of the same colors
     def callbackPosWallCollision(self, instance, pos):
         #check if collision with wall
@@ -330,18 +273,13 @@ class Bubble(Image):
         # check if there's a collision with a threat
         if not len(self.parent.parent.threatListCopy) == 0:
             for threat in self.parent.parent.threatListCopy:
-                if self.collide_widget(threat):
-                    #check if it collides with a threat
-                    self.checkThreatCollision(threat)
-                    #self.removeBubble()
+                if self.checkThreatCollision(threat):
                     return
 
         # check here if the bubble collides with another bubble
         if not len(self.parent.parent.bubbleList) == 0:
             for bubble in self.parent.parent.bubbleList:
-                if bubble.collide_widget(self):
-                    #check if it collides with a bubble
-                    self.checkBubbleCollision(bubble)
+                if self.checkBubbleCollision(bubble):
                     return
        
     '''            
