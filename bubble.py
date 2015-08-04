@@ -8,7 +8,7 @@ from kivy.uix.image import Image
 from kivy.animation import Animation
 from kivy.graphics import Color, Point
 from kivy.clock import Clock
-
+from functools import partial
 
 from kivy.utils import boundary
 import math
@@ -29,6 +29,7 @@ class Bubble(Image):
     distanceToClostestGridBubble = 0
     collidedWithWall = False
     colorMatchesList = []
+    pointList = []
 
     '''
     ####################################
@@ -66,7 +67,7 @@ class Bubble(Image):
         
         self.fitBubbleToGrid()
 
-        #check if it targeted the same colors and if so, remove the bubble itself. 
+        #check if it targeted the same color/s and if so, remove the bubble itself. 
 
         matches = self.findColorMatches()
         if len(matches) >= 3:
@@ -76,13 +77,16 @@ class Bubble(Image):
             #set the bubblespace in grid to available
             self.posTaken = False
             #add bubble to gridList 
-            self.parent.parent.bubbleGridList.append(self)
-                
+            self.parent.parent.bubbleGridList.append(self)               
             layout.remove_widget(self)
+
+            Clock.schedule_once(self.removePoints, 2)
 
         else: 
             #add bubble to the list of bubbles 
             self.parent.parent.bubbleList.append(self)
+
+        
 
     def calculateOrigin(self):
         self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
@@ -138,15 +142,11 @@ class Bubble(Image):
 
 
     def checkThreatCollision(self, threat): 
-        #find threats in parent threat list
-        print('threeaaat COLLIIIIIISSISOSIon')
         self.animation.stop(self)
         self.animationComplete()
         self.unbind(pos=self.callbackPos)
         threat.displayQuestionScreen()
-        #Clock.schedule_once(self.animateBubble, 1.1)
-        #  Clock.schedule_once(self.removeBubble, 2)
-
+       
 
     
 
@@ -238,16 +238,30 @@ class Bubble(Image):
                         colorMatches.append(b)
                            
             return colorMatches
-   
+
+    def removePoints(self,instance):
+        for point in self.pointList:
+            layout = self.parent.parent.ids.bubbleLayout
+            layout.remove_widget
+
+    def removeBubble(self, bubble): 
+
+        layout = self.parent.parent.ids.bubbleLayout
+        #Clock.schedule_once(self.animateBubble, 1.1)
+        b = Bubble()
+        b.source = 'graphics/points.png'
+        b.pos_hint = bubble.pos_hint
+        layout.add_widget(b) 
+        self.pointList.append(bubble)
+        layout.remove_widget(bubble)
+        self.parent.parent.bubbleList.remove(bubble)
+
     #this function first removes the colormatch, the returns the related new colormatches for the removed colormatch bubble
     def removeBubbleAndFindClosestColorMatch(self, bubble):
-        layout = self.parent.parent.ids.bubbleLayout
         bubble.posTaken = False
         #add bubble to gridList 
         self.parent.parent.bubbleGridList.append(bubble)
-        layout.remove_widget(bubble)
-       
-        self.parent.parent.bubbleList.remove(bubble)
+        self.removeBubble(bubble)
         #find closest bubbleMatch      
         colorMatchesList = self.findColorMatch(bubble)
 
@@ -360,6 +374,7 @@ class Bubble(Image):
         threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
         threatAnimation.start(self)
         self.parent.remove_widget(self)
-        
+    '''    
     def removeBubble(self, instance):
         self.parent.remove_widget(self)
+    '''

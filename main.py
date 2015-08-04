@@ -365,7 +365,6 @@ class DbShooterWidget(Widget):
             
                 #set all the bubbles that are where a threat is places to available positions
                 for threat in self.threatListCopy:
-                    threat.opacity = 0
                     if threat.collide_point(gridBubble.center_x , gridBubble.center_y):
                         gridBubble.posTaken = False
                         gridBubble.opacity= 0
