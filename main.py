@@ -112,7 +112,7 @@ class MyView(Widget):
     #    return self.labelText.get()
      
     def setPoints(self, value):
-        self.points += str(value)
+        self.points += value
         #pass
         #self.updateLabel(self.ids.pointsLbl, value)
 
@@ -140,8 +140,7 @@ class MyView(Widget):
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
-
-    
+  
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 
@@ -397,27 +396,36 @@ class MyViewController(Widget):
 
     def removeOrKeepBubbles(self):
         #check if it targeted the same color/s and if so, remove the bubble itself.
-        matches = self.bubble.findColorMatches()
-        if len(matches) >= 3:
-            self.bubble.removeColorMatches()
+        firstColorMatches = self.bubble.findClosestColorMatches()
+        #print('FIRST COLORMATCHES', len(firstColorMatches))
+        for b in firstColorMatches:
+            print(b.bubbleColor)
+        allColorMatches = self.bubble.findAllRelatedColorMatches(firstColorMatches)
+
+        print('ALL COLOR MATCHES', len(allColorMatches))
+        #don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
+        allColorMatches.append(self.bubble)
+        if len(allColorMatches) >= 3:
+            
+            
+            #delete all the color matches including the recently fired bubble
+            for bubble in allColorMatches:
+                
+                bubble.changeToPointsPicture()
+                bubble.animatePointsPicture()
+
+                bubble.posTaken = False
+                #add bubble to gridList 
+                self.view.bubbleGridList.append(bubble)
+                #self.view.bubbleLayout.remove_widget(bubble) 
+        else: 
+            print('it does add the bubble to the bubblelist')
+            #add bubble to the list of bubbles 
+            self.view.bubbleList.append(self.bubble)
             #set the bubblespace in grid to available
             self.posTaken = False
             #add bubble to gridList 
-            self.view.bubbleGridList.append(self)               
-
-            for bubble in matches:
-                b = Bubble()
-                b.source = 'graphics/points.png'
-                b.pos_hint = bubble.pos_hint
-                self.view.bubbleLayout.add_widget(b) 
-                self.pointList.append(b)
-            
-            #delete the recently fired bubble
-            self.view.bubbleLayout.remove_widget(self.bubble) 
-            Clock.schedule_once(self.removePoints, 0.2)
-        else: 
-            #add bubble to the list of bubbles 
-            self.view.bubbleList.append(self.bubble)
+            self.view.bubbleGridList.append(self)  
 
     def calculateAvailableBubblePositions(self):
         self.availableBubblePositions = []
@@ -428,7 +436,7 @@ class MyViewController(Widget):
 
     
     def fitBubbleToGrid(self):
-        print('FIIINTTTIING?!?!?!?')
+        print('Fitting bubblle to grid!')
         bubblesToCompareList = []
         distancesToCompareList = []
         self.calculateAvailableBubblePositions()
