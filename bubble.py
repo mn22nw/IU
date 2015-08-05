@@ -99,43 +99,43 @@ class Bubble(Image):
             return distance
         return 0  
 
-    def findColorMatch(self, bubble):
+    def findColorMatch(self):  #TODO - rename to find ColorMAtches
         print('triesTOfindCOlorMatch')
         colorMatches = []
         if not len(self.parent.parent.bubbleList) == 0:
-            hitAreaRight = bubble.center_x + bubble.width * 0.5
-            hitAreaLeft = bubble.center_x - bubble.width * 0.5
-            hitAreaTop = bubble.center_y + bubble.width * 0.85
-            hitAreaBottom = bubble.center_y - bubble.width * 0.85
+            hitAreaRight = self.center_x + self.width * 0.5
+            hitAreaLeft = self.center_x - self.width * 0.5
+            hitAreaTop = self.center_y + self.width * 0.85
+            hitAreaBottom = self.center_y - self.width * 0.85
             for b in self.parent.parent.bubbleList:
 
                 #Top right bubble
                 if b.collide_point(hitAreaRight , hitAreaTop):
-                    if b.getColor() == bubble.getColor():
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
 
                 #Bottom right bubble
                 if b.collide_point(hitAreaRight , hitAreaBottom):
-                    if b.getColor() == bubble.getColor():
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
                 #Top left bubble
                 if b.collide_point(hitAreaLeft , hitAreaTop):
-                    if b.getColor() == bubble.getColor():
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
                         
                 #Bottom left bubble
                 if b.collide_point(hitAreaLeft , hitAreaBottom):
-                    if b.getColor() == bubble.getColor():
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
 
                 #Right bubble
-                if b.collide_point(bubble.center_x + bubble.width , bubble.center_y):
-                    if b.getColor() == bubble.getColor():
+                if b.collide_point(self.center_x + self.width , self.center_y):
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
 
                 #Left bubble
-                if b.collide_point(bubble.center_x - bubble.width , bubble.center_y):
-                    if b.getColor() == bubble.getColor():
+                if b.collide_point(self.center_x - self.width , self.center_y):
+                    if b.getColor() == self.getColor():
                         colorMatches.append(b)
                            
             return colorMatches
@@ -148,12 +148,12 @@ class Bubble(Image):
         self.parent.parent.bubbleList.remove(bubble)
 
         #find closest bubbleMatch      
-        colorMatchesList = self.findColorMatch(bubble)
+        colorMatchesList = bubble.findColorMatch()
 
         return colorMatchesList
         
     def findClosestColorMatches(self):
-        self.colorMatchesList = self.findColorMatch(self)
+        self.colorMatchesList = self.findColorMatch()
         moreMatchesList = []
         totalColorMatchesList = []
         
@@ -162,7 +162,8 @@ class Bubble(Image):
         for bubble in  self.colorMatchesList:
             print('this is the first ever made', bubble.getColor())
 
-            if len(self.findColorMatch(bubble)) > 0:   
+            if len(bubble.findColorMatch()) > 0:   
+                print('it appends to MOREMACHES YOOOLO')
                 moreMatchesList.append(bubble)
 
         print('moreMatchesList',  len(moreMatchesList))
@@ -180,6 +181,7 @@ class Bubble(Image):
                     #start with removing the first colorMatch the shooting bubble had. 
                     #then remove every bubble that's related to that one
                 while True:
+                    print(len(self.parent.parent.bubbleList), 'lengh bubbleLIst')
                     if bubble in self.parent.parent.bubbleList:
                         bList= self.removeBubbleFrombubbleListAndFindClosestColorMatch(bubble)
                         if len(bList) == 0:
