@@ -331,7 +331,7 @@ class MyViewController(Widget):
 #Game functions
     def fireBubble(self):
 
-        print('FIREEEE')
+        print('******************** FIREEEE ********************')
         '''
         #hej = App.get_running_app()
         #hej.sound['bullet_start'].play()

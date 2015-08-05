@@ -169,35 +169,37 @@ class Bubble(Image):
     def findAllRelatedColorMatches(self, firstColorMatchesList):
         allRelatedColorMatchesList = []
         print('THE LENGHT OF firstColorMatchesList', len(firstColorMatchesList))
+
+        #if it has more than one color of the same color next to it - remove them from the bubbleList
+        if len(firstColorMatchesList) > 1:
+            for bubble in firstColorMatchesList:
+                self.parent.parent.bubbleList.remove(bubble)
+
         if not len(firstColorMatchesList) == 0:
             while len(firstColorMatchesList) > 0: 
-                print('INSIDE WHILE LOOP- THE LENGHT OF firstColorMatchesList', len(firstColorMatchesList))
+                print('\nINSIDE WHILE LOOP- THE LENGHT OF firstColorMatchesList')
+                print(len(firstColorMatchesList))
                 if len(firstColorMatchesList) == 0:   
                     break
                 
                 for bubble in  firstColorMatchesList:
                     #allRelatedColorMatchesList.append(bubble)  
-                    print('\nfirstColorMatchesList lenght', len(firstColorMatchesList))
                     firstColorMatchesList.remove(bubble)
-
-                    #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
-                    allRelatedColorMatchesList.append(bubble)  
-                    #but the bubble needs to be removed from the bubbleList so the removeColorMatches function doesn't find the same bubble over and over again (endless loop will occur)
-                    if bubble in self.parent.parent.bubbleList:
-                        self.parent.parent.bubbleList.remove(bubble)
+                    #the bubble needs to be removed from the bubbleList so the removeColorMatches function doesn't find the same bubble over and over again (endless loop will occur)
+                    
                     #fint the closest colormatches (it does not count with itself)
                     bList = bubble.findClosestColorMatches()
-                    print('\bList lenght', len(bList))
                     
-                    if bList > 0:
+                    if bList > 0:                       
+                        #allRelatedColorMatchesList.append(bubble) 
                         for b in bList:
                             print('\nbList', len(bList))
+                            if bubble in self.parent.parent.bubbleList:
+                                self.parent.parent.bubbleList.remove(bubble)
                             firstColorMatchesList.append(b)
                             print('\nIt adds to the allreladed')
+                            #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
                             allRelatedColorMatchesList.append(b)
-                    
-                    if len(firstColorMatchesList) == 0:   
-                        break  
                     
                 
                 #break
