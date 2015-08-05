@@ -20,6 +20,7 @@ from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.clock import Clock
+import time
 
 from math import sin
 from math import cos
@@ -95,7 +96,7 @@ class MyView(Widget):
         #add the upcomingBubble to the preview-window
         self.nextBubbleLayout.add_widget(self.upcomingBubble)
 
-    def createShootingBubble(self):
+    def createFiredBubble(self):
         self.bubble = Bubble(pos=(500,500)) 
         #set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
@@ -338,7 +339,7 @@ class MyViewController(Widget):
         '''
         # create a bubble, calculate the start position and fire it.
         #TODO- maybe return the bubble instead
-        self.bubble = self.view.createShootingBubble()
+        self.bubble = self.view.createFiredBubble()
 
         #change the color of the upcoming bubble
         self.view.changeUpcomingBubbleColor()
@@ -354,12 +355,6 @@ class MyViewController(Widget):
         self.view.bubbleLayout.add_widget(self.bubble)
 
         self.bubble.fire()
-
-    
-    def removePoints(self,instance):
-        for point in self.pointList:
-            print('remove point')
-            self.view.bubbleLayout.remove_widget(point)
 
     
     #get all the questions from a json file 
@@ -394,38 +389,38 @@ class MyViewController(Widget):
                 print(threat.question)
                 self.view.threatList.append(threat)
 
-    def removeOrKeepBubbles(self):
+    def removeOrKeepBubbles(self, instance):
         #check if it targeted the same color/s and if so, remove the bubble itself.
         firstColorMatches = self.bubble.findClosestColorMatches()
         #print('FIRST COLORMATCHES', len(firstColorMatches))
-        for b in firstColorMatches:
-            print(b.bubbleColor)
         allColorMatches = self.bubble.findAllRelatedColorMatches(firstColorMatches)
 
-        print('ALL COLOR MATCHES', len(allColorMatches))
+        
         #don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
         allColorMatches.append(self.bubble)
+        print('ALL COLOR MATCHES', len(allColorMatches))
         if len(allColorMatches) >= 3:
-            
             
             #delete all the color matches including the recently fired bubble
             for bubble in allColorMatches:
-                
-                bubble.changeToPointsPicture()
-                bubble.animatePointsPicture()
-
                 bubble.posTaken = False
                 #add bubble to gridList 
                 self.view.bubbleGridList.append(bubble)
-                #self.view.bubbleLayout.remove_widget(bubble) 
+                #self.view.bubbleLayout.remove_widget(bubble)
+
+                bubble.changeToPointsPicture()
+                bubble.animatePointsPicture()
+
+                 
         else: 
             print('it does add the bubble to the bubblelist')
             #add bubble to the list of bubbles 
             self.view.bubbleList.append(self.bubble)
+            print(len(self.view.bubbleList))
             #set the bubblespace in grid to available
             self.posTaken = False
             #add bubble to gridList 
-            self.view.bubbleGridList.append(self)  
+            self.view.bubbleGridList.append(self.bubble)  
 
     def calculateAvailableBubblePositions(self):
         self.availableBubblePositions = []
@@ -436,7 +431,7 @@ class MyViewController(Widget):
 
     
     def fitBubbleToGrid(self):
-        print('Fitting bubblle to grid!')
+        #print('Fitting bubblle to grid!')
         bubblesToCompareList = []
         distancesToCompareList = []
         self.calculateAvailableBubblePositions()
@@ -451,20 +446,19 @@ class MyViewController(Widget):
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
 
-        #just need to see which of the nearby gridBubbles that are the closest one, and set the bubble position to that 
+        #checks which of the nearby gridBubbles that are the closest one, and set the recently fired bubble position to it 
         if not len(distancesToCompareList) == 0:
             smallestDistance = min(distancesToCompareList)       
             for b in bubblesToCompareList:
 
                 if b.distanceToClostestGridBubble == smallestDistance:
-
-                    print(b.pos_hint , 'b.pos_hint ')
-                    self.bubble.pos_hint = b.pos_hint              
-
+                    self.bubble.pos_hint = b.pos_hint     
+                    print('THE BUBBLE IS AT IT*S RIGHT PLACE IN THE GRID, now to colormatches')         
                     #set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
-                        print('iT*S INSEDE THE GRID YOOO')
                         b.posTaken = True
+            return True
+        return False
 
 
 '''

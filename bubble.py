@@ -14,6 +14,7 @@ from kivy.utils import boundary
 import math
 from kivy.vector import Vector
 import random
+import time
 
 '''
     ####################################
@@ -70,8 +71,10 @@ class Bubble(Image):
 
     def animationComplete(self):
         self.unbind(pos=self.callbackPosWallCollision)      
+        
         self.parent.parent.vc.fitBubbleToGrid()
-        self.parent.parent.vc.removeOrKeepBubbles()  
+        Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,1)
+        #self.parent.parent.vc.removeOrKeepBubbles()  
     
     def createAnimation(self, speed, destination):
         time = Vector(self.center).distance(destination) / (speed * +70.0)
@@ -99,8 +102,8 @@ class Bubble(Image):
             return distance
         return 0  
 
-    def findColorMatch(self):  #TODO - rename to find ColorMAtches
-        print('triesTOfindCOlorMatch')
+    def findColorMatches(self):  
+        print('triesTOfindCOlorMatch', self.getColor(), self.pos)
         colorMatches = []
         if not len(self.parent.parent.bubbleList) == 0:
             hitAreaRight = self.center_x + self.width * 0.5
@@ -108,36 +111,40 @@ class Bubble(Image):
             hitAreaTop = self.center_y + self.width * 0.85
             hitAreaBottom = self.center_y - self.width * 0.85
             for b in self.parent.parent.bubbleList:
-
                 #Top right bubble
                 if b.collide_point(hitAreaRight , hitAreaTop):
+                    print('TOP RIGHT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
-
                 #Bottom right bubble
-                if b.collide_point(hitAreaRight , hitAreaBottom):
+                if b.collide_point(hitAreaRight, hitAreaBottom):
+                    print('BOTTOM RIGHT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
                 #Top left bubble
                 if b.collide_point(hitAreaLeft , hitAreaTop):
+                    print('TOP LEFT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
                         
                 #Bottom left bubble
                 if b.collide_point(hitAreaLeft , hitAreaBottom):
+                    print('BOTTOM LEFT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
 
                 #Right bubble
                 if b.collide_point(self.center_x + self.width , self.center_y):
+                    print('RIGHT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
 
                 #Left bubble
                 if b.collide_point(self.center_x - self.width , self.center_y):
+                    print('LEFT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
-                           
+            print('DID IT FIND ANY??', len(colorMatches))               
             return colorMatches
 
     #this function first removes the colormatch, the returns the related new colormatches for the removed colormatch bubble
@@ -145,62 +152,58 @@ class Bubble(Image):
         #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
         self.allColorMatchesList.append(bubble)
         #but it needs to be removed from the bubbleList so the removeColorMatches function doesn't find the same bubble over and over again (endless while loop will occur)
-        self.parent.parent.bubbleList.remove(bubble)
+        
+        #self.parent.parent.bubbleList.remove(bubble)
 
         #find closest bubbleMatch      
-        colorMatchesList = bubble.findColorMatch()
+        colorMatchesList = bubble.findColorMatches()
 
         return colorMatchesList
         
     def findClosestColorMatches(self):
-        self.colorMatchesList = self.findColorMatch()
-        moreMatchesList = []
-        totalColorMatchesList = []
-        
-        print('Length FoR colorMatchesList', len(self.colorMatchesList) )
-
-        for bubble in  self.colorMatchesList:
-            print('this is the first ever made', bubble.getColor())
-
-            if len(bubble.findColorMatch()) > 0:   
-                print('it appends to MOREMACHES YOOOLO')
-                moreMatchesList.append(bubble)
-
-        print('moreMatchesList',  len(moreMatchesList))
-        totalColorMatchesList =  self.colorMatchesList + moreMatchesList
-        totalColorMatchesList.append(self)
-        
-        return totalColorMatchesList
+        #checks how many colormatches that are closest to the bubble (maximum 6)
+        listOfMatches = self.findColorMatches()        
+        print('Length FoR listOfMatches', len(listOfMatches) ) 
+        return listOfMatches
         
     def findAllRelatedColorMatches(self, firstColorMatchesList):
-        #if there is three or more of the same color pop them and remove them 
-        self.colorMatchesList = firstColorMatchesList
-        while True: 
-            for bubble in self.colorMatchesList:
-                self.colorMatchesList.remove(bubble)
-                    #start with removing the first colorMatch the shooting bubble had. 
-                    #then remove every bubble that's related to that one
-                while True:
-                    print(len(self.parent.parent.bubbleList), 'lengh bubbleLIst')
+        allRelatedColorMatchesList = []
+        print('THE LENGHT OF firstColorMatchesList', len(firstColorMatchesList))
+        if not len(firstColorMatchesList) == 0:
+            while len(firstColorMatchesList) > 0: 
+                print('INSIDE WHILE LOOP- THE LENGHT OF firstColorMatchesList', len(firstColorMatchesList))
+                if len(firstColorMatchesList) == 0:   
+                    break
+                
+                for bubble in  firstColorMatchesList:
+                    #allRelatedColorMatchesList.append(bubble)  
+                    print('\nfirstColorMatchesList lenght', len(firstColorMatchesList))
+                    firstColorMatchesList.remove(bubble)
+
+                    #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
+                    allRelatedColorMatchesList.append(bubble)  
+                    #but the bubble needs to be removed from the bubbleList so the removeColorMatches function doesn't find the same bubble over and over again (endless loop will occur)
                     if bubble in self.parent.parent.bubbleList:
-                        bList= self.removeBubbleFrombubbleListAndFindClosestColorMatch(bubble)
-                        if len(bList) == 0:
-                            break
-                            
-                        if len(bList) > 1:
-                            print('is it ever more than 1????')
-                            bubble = bList[0]
-                            bList.remove(bubble)
-                            for b in bList:
-                                self.colorMatchesList.append(b)
-                        else:
-                            bubble = bList[0]  
-                    else:
-                        break
-            if len(self.colorMatchesList) == 0:
-                break
-        return self.allColorMatchesList
-    
+                        self.parent.parent.bubbleList.remove(bubble)
+                    #fint the closest colormatches (it does not count with itself)
+                    bList = bubble.findClosestColorMatches()
+                    print('\bList lenght', len(bList))
+                    
+                    if bList > 0:
+                        for b in bList:
+                            print('\nbList', len(bList))
+                            firstColorMatchesList.append(b)
+                            print('\nIt adds to the allreladed')
+                            allRelatedColorMatchesList.append(b)
+                    
+                    if len(firstColorMatchesList) == 0:   
+                        break  
+                    
+                
+                #break
+            print(len(allRelatedColorMatchesList))
+        return allRelatedColorMatchesList
+
     def checkThreatCollision(self, threat): 
         if self.collide_widget(threat):
             self.animation.stop(self)
