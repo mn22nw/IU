@@ -395,7 +395,9 @@ class MyViewController(Widget):
         #print('FIRST COLORMATCHES', len(firstColorMatches))
         allColorMatches = self.bubble.findAllRelatedColorMatches(firstColorMatches)
 
-        
+        #if there's only one match the bubble needs to be re-added to the bubbleList (since it's being removed in the findAllRelatedColorMatches function)
+        if len(allColorMatches) == 1:
+            self.view.bubbleList.append(allColorMatches[0])
         #don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
         allColorMatches.append(self.bubble)
         print('ALL COLOR MATCHES', len(allColorMatches))

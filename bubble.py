@@ -103,7 +103,7 @@ class Bubble(Image):
         return 0  
 
     def findColorMatches(self):  
-        print('triesTOfindCOlorMatch', self.getColor(), self.pos)
+        print('triesTOfindCOlorMatch : ****', self.getColor(), '*****',self.pos)
         colorMatches = []
         if not len(self.parent.parent.bubbleList) == 0:
             hitAreaRight = self.center_x + self.width * 0.5
@@ -144,21 +144,13 @@ class Bubble(Image):
                     print('LEFT BUBBLE COLLIDE', b.getColor())
                     if b.getColor() == self.getColor():
                         colorMatches.append(b)
-            print('DID IT FIND ANY??', len(colorMatches))               
+            print('DID IT FIND ANY??', len(colorMatches)) 
+            #if it has more than one color of the same color next to it - remove them from the bubbleList
+            if len(colorMatches) > 0:
+                for bubble in colorMatches:
+                    self.parent.parent.bubbleList.remove(bubble)              
             return colorMatches
 
-    #this function first removes the colormatch, the returns the related new colormatches for the removed colormatch bubble
-    def removeBubbleFrombubbleListAndFindClosestColorMatch(self, bubble):
-        #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
-        self.allColorMatchesList.append(bubble)
-        #but it needs to be removed from the bubbleList so the removeColorMatches function doesn't find the same bubble over and over again (endless while loop will occur)
-        
-        #self.parent.parent.bubbleList.remove(bubble)
-
-        #find closest bubbleMatch      
-        colorMatchesList = bubble.findColorMatches()
-
-        return colorMatchesList
         
     def findClosestColorMatches(self):
         #checks how many colormatches that are closest to the bubble (maximum 6)
@@ -170,12 +162,9 @@ class Bubble(Image):
         allRelatedColorMatchesList = []
         print('THE LENGHT OF firstColorMatchesList', len(firstColorMatchesList))
 
-        #if it has more than one color of the same color next to it - remove them from the bubbleList
-        if len(firstColorMatchesList) > 1:
-            for bubble in firstColorMatchesList:
-                self.parent.parent.bubbleList.remove(bubble)
-
         if not len(firstColorMatchesList) == 0:
+            for bubble in firstColorMatchesList:
+                allRelatedColorMatchesList.append(bubble)
             while len(firstColorMatchesList) > 0: 
                 print('\nINSIDE WHILE LOOP- THE LENGHT OF firstColorMatchesList')
                 print(len(firstColorMatchesList))
@@ -194,8 +183,8 @@ class Bubble(Image):
                         #allRelatedColorMatchesList.append(bubble) 
                         for b in bList:
                             print('\nbList', len(bList))
-                            if bubble in self.parent.parent.bubbleList:
-                                self.parent.parent.bubbleList.remove(bubble)
+                            #if bubble in self.parent.parent.bubbleList:
+                                #self.parent.parent.bubbleList.remove(bubble)
                             firstColorMatchesList.append(b)
                             print('\nIt adds to the allreladed')
                             #instead of deleting the bubble now, I save it for later in a list so that the controller can access it and delete all the bubbles and add points to them before they get deleted
