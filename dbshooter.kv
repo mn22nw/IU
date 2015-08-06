@@ -210,85 +210,95 @@
 
 
 
-# Setting dialog description with the type of a GridLayout width BoxLayouts nested within
+# Setting dialog description with the type of a BoxLayout, widh a BoxLayout inside, and GridLayout width BoxLayouts nested within
 <SettingDialog>:
-	cols:1
-	#rows:5
-	orientation: 'vertical'
-	spacing: 10
+	
     music_slider: music_slider
     sound_slider: sound_slider
     close_button: close_button	
 
-	BoxLayout:
-		orientation: 'vertical'
-		Widget:
-	    	heigth: 5
-		Label:
-		    text: 'Music Volume:'
-		Slider:
-		    id: music_slider
-		Widget:
-	        heigth: 5
     BoxLayout:
-		orientation: 'vertical'
-		Label:
-		    text: 'Sound Volume:'
-		Slider:
-		    id: sound_slider
+	    orientation: 'vertical'
+		spacing: 10
+    	pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y 
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
+
+		BoxLayout:
+			orientation: 'vertical'
+			Widget:
+		    	heigth: 5
+			Label:
+			    text: 'Music Volume:'
+			Slider:
+			    id: music_slider
+			Widget:
+		        heigth: 5
+	    BoxLayout:
+			orientation: 'vertical'
+			Label:
+			    text: 'Sound Volume:'
+			Slider:
+			    id: sound_slider
+			
+	    Widget:
+		    heigth: 5
+	    BoxLayout:
+	    	orientation: 'vertical'
+	    	size_hint: None,None
+	    	height:self.parent.height *0.3
+	    	width:self.parent.width
+
+		    Label:
+		        text: 'Demo video:'
+		        size_hint: None,None
+		    	height: root.height *0.05
+		    	width: self.parent.width
+
+		    Label:
+		        text: '(Will start your browser and be openened in youtube!)'
+		        font_size:13
+		        size_hint: None,None
+		    	height: root.height *0.05
+		    	width: self.parent.width
+		    Widget:
+		    	size_hint: None,None
+		    	height:10
+			Button:
+			    id: hyperLinkImage
+			    on_press: root.redirectToHyperLink()
+			    background_normal: 'graphics/demoVideo.png'
+		        #background_down: 'graphics/button_down.png'
+			    size_hint:None,None
+			    height: root.height *0.3
+		    	width: self.parent.width
 		Widget:
-	        heigth: 5
-    GridLayout:
-    	cols: 1
-    	orientation: 'vertical'
-    	size_hint: None,None
-		height: root.height *0.4
-		width: root.width
-
-	    Label:
-	        text: 'Demo video:'
-	        size_hint: None,None
-	    	height: root.height *0.05
-	    	width: root.width
-
-	    Label:
-	        text: '(Will start your browser and be openened in youtube!)'
-	        font_size:13
-	        size_hint: None,None
-	    	height: root.height *0.05
-	    	width: root.width
-	    
-		Button:
-		    id: hyperLinkImage
-		    on_press: root.redirectToHyperLink()
-		    background_normal: 'graphics/demoVideo.png'
-	        #background_down: 'graphics/button_down.png'
+		    heigth: 5
+		BoxLayout:
+		    spacing: 10
+		    padding:20
 		    size_hint:None,None
-		    height: root.height *0.3
-	    	width: root.width
+			height:self.parent.height *0.15
+	    	width:self.parent.width
+			Button:
+			    text: 'Help'
+			    bold: True
+			    background_normal: 'graphics/button_normal.png'
+	            background_down: 'graphics/button_down.png'
+			    font_size: 15
+			    size_hint: 0.8, 1
+			    on_release: root.displayHelpScreen()
+			    
+			Button:
+			    id: close_button
+	            text: 'Close'
+	            bold: True
+	            background_normal: 'graphics/button_normal.png'
+	            background_down: 'graphics/button_down.png'
+	            font_size: 15
+	            size_hint: 0.8, 1
+	            on_press: app.root.settingsPopup.dismiss()
 
-
-	Widget:
-	    heigth: 10
-	
-	BoxLayout:
-	    spacing: 10
-	
-		Button:
-		    text: 'Help'
-		    bold: True
-		    background_normal: 'graphics/button_normal.png'
-            background_down: 'graphics/button_down.png'
-		    font_size: 15
-		    size_hint: 1, 1.5
-		    on_release: root.displayHelpScreen()
-		    
-		Button:
-		    id: close_button
-            text: 'Close'
-            bold: True
-            background_normal: 'graphics/button_normal.png'
-            background_down: 'graphics/button_down.png'
-            font_size: 15
-            size_hint: 1, 1.5
-            on_press: app.root.settingsPopup.dismiss()
+	      
