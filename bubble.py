@@ -38,19 +38,13 @@ class Bubble(Image):
         self.posTaken = False
         self.distanceToClostestGridBubble = 0
         self.collidedWithWall = False
-        self.colorMatchesList = []
-        self.allColorMatchesList = []
 
     def fire(self):
         #angle is in radians
         self.startAnimation(self.angle)
         # start to track the position changes
         self.bind(pos=self.callbackPos)
-        self.bind(pos=self.callbackPosWallCollision)
-     
-    def calculateOrigin(self):
-        self.x +=  math.cos(degrees_to_radians(self.boss.turretAngle)) * (Tank.side-20)
-        self.posy +=  math.sin(degrees_to_radians(-self.boss.turretAngle)) * (Tank.side-20)    
+        self.bind(pos=self.callbackPosWallCollision)    
     
     def calculateDestination(self, angle):
         #set a destination
@@ -63,9 +57,7 @@ class Bubble(Image):
 
     def startAnimation(self, angle):
         destination = self.calculateDestination(angle)
-        app = App.get_running_app()  # maybe change this??!
-        speed = boundary(app.config.getint('GamePlay', 'BubbleSpeed'), 1, 10)
-        self.animation = self.createAnimation(speed, destination)      
+        self.animation = self.createAnimation(10, destination)      
         # start the animation
         self.animation.start(self)
 
@@ -73,8 +65,8 @@ class Bubble(Image):
         self.unbind(pos=self.callbackPosWallCollision)      
         
         self.parent.parent.vc.fitBubbleToGrid()
-        Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,1)
-        #self.parent.parent.vc.removeOrKeepBubbles()  
+        Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,0.1)
+
     
     def createAnimation(self, speed, destination):
         time = Vector(self.center).distance(destination) / (speed * +70.0)
@@ -97,7 +89,6 @@ class Bubble(Image):
         distance = int(Vector(a).distance(b))
         diameter = int(bubble.width*1.4)
         
-        #print('DISTANCE', distance)
         if distance < diameter: 
             return distance
         return 0  
@@ -283,6 +274,12 @@ class Bubble(Image):
       
     '''
     def removeBubble(self, instance):
-        self.parent.parent.bubbleLayout.remove_widget(self)
+        self.parent.parent.setPoints(10)
+        layout = self.parent.parent.bubbleLayout
+        #ensure the bubble exists in the layout before trying to remove it! to prevent app from crashing
+        for child in layout.children:
+            if child == self:
+                self.parent.parent.bubbleLayout.remove_widget(self)
+
 
     

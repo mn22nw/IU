@@ -97,17 +97,26 @@ class Threat(Widget):
             #layout.add_widget(l)
             layout.add_widget(image)
             self.questionScreen.content = layout
-            #TODO increase points
+            # increase points
             self.parent.parent.setPoints(500)
             #remove threat if success
             Clock.schedule_once(self.animateThreat, 1.1)
             Clock.schedule_once(self.removeThreat, 2)
+            # dismiss window after 1 seconds
+            Clock.schedule_once(self.questionScreen.dismiss, 1)
             
         else:
-            self.questionScreen.content = Label(text= 'Feeel')
+            image = Image(source='graphics/fail.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+            #l.text = 'Success'
+            #layout.add_widget(l)
+            layout.add_widget(image)
+            self.questionScreen.content = layout
+            # decrease points
+            self.parent.parent.setPoints(-200)
+            # dismiss window after 1.5 seconds
+            Clock.schedule_once(self.questionScreen.dismiss, 1.5)
 
-        # dismiss window after 1 seconds
-        Clock.schedule_once(self.questionScreen.dismiss, 1)
+       
      
 
     def displayQuestionScreen(self):

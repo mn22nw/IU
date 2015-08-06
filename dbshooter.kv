@@ -61,9 +61,7 @@
     Image:
     	source:threatId.imageSrc
     	size:threatId.size
-    	pos:threatId.pos
-
-	
+    	pos:threatId.pos	
 
 # Main widget description:
 <MyView>:
@@ -80,7 +78,7 @@
         keep_ratio: False
         size: app.window.size
    
-	# Widget where all the obsticles (bubbles, threats) will be and where all the new bubbles will be added::
+	# Widget-layout where all the obsticles (bubbles, threats) will be and where all the new bubbles will be added::
 	FloatLayout:
 		id: bubbleLayout
 		canvas:
@@ -119,7 +117,18 @@
 	    height: root.height
 	    width: root.height * containerWidth
 
-	#this defines the base on which the shooter stands (with level, table/database image etc) 
+
+	# defines the settings-icon
+	Button:
+		text:''
+		width: bubbleLayout.width *0.12
+		height: self.width* 1.15
+		pos:bubbleLayout.x + bubbleLayout.width - self.width - self.width*0.05, root.y
+		background_normal: 'graphics/settings.png'
+    	background_down: 'graphics/settings.png'	
+    	on_press: root.displaySettingsScreen()
+
+	#this defines the base on which the shooter stands (with level, table image etc) 
 	BoxLayout:
 		id: databaseWidget
 		height: root.height *0.2
@@ -200,3 +209,58 @@
 	#halign:'right'
 
 
+
+# Setting dialog description
+<SettingDialog>:
+    music_slider: music_slider
+    sound_slider: sound_slider
+    speed_slider: speed_slider
+    close_button: close_button
+    
+	orientation: 'vertical'
+	padding: 10
+	spacing: 10
+	
+	Label:
+	    text: 'Music Volume:'
+	Slider:
+	    id: music_slider
+	Widget:
+        heigth: 5
+    
+    Label:
+        text: 'Sound Volume:'
+    Slider:
+        id: sound_slider
+	Widget:
+        heigth: 5
+    
+    Label:
+        text: 'Bullet Speed:'
+    Slider:
+        id: speed_slider
+        range: 1, 10
+	Widget:
+	    heigth: 10
+	
+	BoxLayout:
+	    spacing: 10
+	
+		Button:
+		    text: 'Help'
+		    bold: True
+		    background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+		    font_size: 15
+		    size_hint: 1, 1.5
+		    on_release: app.root.displayHelpScreen()
+		    
+		Button:
+		    id: close_button
+            text: 'Close'
+            bold: True
+            background_normal: 'graphics/button_normal.png'
+            background_down: 'graphics/button_down.png'
+            font_size: 15
+            size_hint: 1, 1.5
+            on_press: app.root.settingsPopup.dismiss()

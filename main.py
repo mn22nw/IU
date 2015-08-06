@@ -10,6 +10,7 @@ from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from kivy.storage.jsonstore import JsonStore
 from kivy.lang import Builder
+from kivy.utils import boundary
 from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.uix.label import Label
@@ -50,15 +51,12 @@ class MyView(Widget):
     #def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
         super(MyView, self).__init__(**kwargs)
-    
-        '''
-        def __init__(self, *args, **kwargs):
-            #self.first_arg = kwargs.pop('parent')
-            parent = self.first_arg = kwargs.pop('parent')
-            super(MyView, self).__init__(*args, **kwargs)
-        '''      
+          
+          
         #properties of the view 
+        self.app = App.get_running_app()
         self.vc = vc
+        self.settingsPopup = None
         self.bubble = None
         self.upcomingBubble = None
         self.angle = NumericProperty()
@@ -72,12 +70,11 @@ class MyView(Widget):
     
     #loading the view (called in the controller)
     def loadView(self):
-
         self.bubble = Bubble()
 
         #create all the bubbles and threats for the startup
         self.createObsticles()
-        
+
         #create the grid for the bubbles to fit in
         self.createBubbleGrid()
 
@@ -101,7 +98,6 @@ class MyView(Widget):
         #set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
-
         return self.bubble
     
 
@@ -114,9 +110,6 @@ class MyView(Widget):
      
     def setPoints(self, value):
         self.points += value
-        #pass
-        #self.updateLabel(self.ids.pointsLbl, value)
-
      
     def setBubbleStartPosition(self, bubble):
         bubble.center = self.shooter.center
@@ -130,8 +123,32 @@ class MyView(Widget):
         #if self.lives == 0:
             #self.reset_level()
     '''
+    # popups
+    def displaySettingsScreen(self):
+        ''
+        #self.app.sound['switch'].play()
+        
+        # the first time the setting dialog is called, initialize its content.
+        if self.settingsPopup is None:
+            
+            self.settingsPopup = Popup(attach_to=self,
+                                       title= 'DBShooter Settings'
+                                       )
+            
+            
+            self.setting_dialog = SettingDialog(root=self)
+            
+            self.settingsPopup.content = self.setting_dialog
 
-    def display_help_screen(self):
+
+            
+            self.setting_dialog.music_slider.value = boundary(self.app.config.getint('General', 'Music'), 0, 100)
+            self.setting_dialog.sound_slider.value = boundary(self.app.config.getint('General', 'Sound'), 0, 100)
+            
+        self.settingsPopup.open()
+
+
+    def displayHelpScreen(self):
         # display the help screen on a Popup
         image = Image(source='graphics/help_screen.png')
         
@@ -141,7 +158,6 @@ class MyView(Widget):
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
-  
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 
@@ -291,13 +307,8 @@ class MyView(Widget):
                         gridBubble.posTaken = False
                         gridBubble.opacity= 0
 
-            
-          
-    
-    
 
 Factory.register("Shooter", Shooter)
-
 
 '''
 ####################################
@@ -325,10 +336,9 @@ class MyViewController(Widget):
         
         #load the view (this needs to be called after getting the questions)
         self.view.loadView()
-        
-    
+           
 
-#Game functions
+
     def fireBubble(self):
 
         print('******************** FIREEEE ********************')
@@ -337,8 +347,7 @@ class MyViewController(Widget):
         #hej.sound['bullet_start'].play()
         ###
         '''
-        # create a bubble, calculate the start position and fire it.
-        #TODO- maybe return the bubble instead
+        # create the shooting bubble
         self.bubble = self.view.createFiredBubble()
 
         #change the color of the upcoming bubble
@@ -346,12 +355,13 @@ class MyViewController(Widget):
 
         self.view.angle= radians(float(self.view.shooter.shootDirectionAngle))
 
-        #set the bubble angle to the same as tower angle (in radiant)
+        #set the bubble angle to the same as shooter angle (in radians)
         self.bubble.angle =  self.view.angle
         
+        #calculate the start position
         self.view.setBubbleStartPosition(self.bubble)
 
-        #add the bullet to the correct layout
+        #add the bubble to the correct layout
         self.view.bubbleLayout.add_widget(self.bubble)
 
         self.bubble.fire()
@@ -361,7 +371,7 @@ class MyViewController(Widget):
     def getAllQuestions(self):
 
         import json
-        #I took help from http://xmodulo.com/how-to-parse-json-string-in-python.html
+        #I took a little help from http://xmodulo.com/how-to-parse-json-string-in-python.html
         try:
             #get the json-file were the questions are stored
             with open('questions.json', "r") as f:
@@ -389,6 +399,7 @@ class MyViewController(Widget):
                 print(threat.question)
                 self.view.threatList.append(threat)
 
+    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
     def removeOrKeepBubbles(self, instance):
         #check if it targeted the same color/s and if so, remove the bubble itself.
         firstColorMatches = self.bubble.findClosestColorMatches()
@@ -408,11 +419,10 @@ class MyViewController(Widget):
                 bubble.posTaken = False
                 #add bubble to gridList 
                 self.view.bubbleGridList.append(bubble)
-                #self.view.bubbleLayout.remove_widget(bubble)
 
+                #replace the bubble with a points-picture and remove it
                 bubble.changeToPointsPicture()
                 bubble.animatePointsPicture()
-
                  
         else: 
             print('it does add the bubble to the bubblelist')
@@ -424,19 +434,20 @@ class MyViewController(Widget):
             #add bubble to gridList 
             self.view.bubbleGridList.append(self.bubble)  
 
-    def calculateAvailableBubblePositions(self):
+    #TODO - maybe move findAvailableBubblePositions and fitBubbleToGrid back to the bubbleclass....
+    def findAvailableBubblePositions(self):
         self.availableBubblePositions = []
         if not len(self.view.bubbleGridList) == 0:
             for gridBubble in self.view.bubbleGridList[::-1]: #start from the last added bubble
                 if not gridBubble.posTaken:
                     self.availableBubblePositions.append(gridBubble)
 
-    
+    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
     def fitBubbleToGrid(self):
         #print('Fitting bubblle to grid!')
         bubblesToCompareList = []
         distancesToCompareList = []
-        self.calculateAvailableBubblePositions()
+        self.findAvailableBubblePositions()
         for b in self.availableBubblePositions:
             #get the distance of the closest gridBubbles to the bubble
             distance = self.bubble.getGridBubbleDistance(b)
@@ -448,14 +459,14 @@ class MyViewController(Widget):
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
 
-        #checks which of the nearby gridBubbles that are the closest one, and set the recently fired bubble position to it 
+        #checks which one of the nearby gridBubbles that are the closest, and sets the recently fired bubble position to it 
         if not len(distancesToCompareList) == 0:
             smallestDistance = min(distancesToCompareList)       
             for b in bubblesToCompareList:
 
                 if b.distanceToClostestGridBubble == smallestDistance:
                     self.bubble.pos_hint = b.pos_hint     
-                    print('THE BUBBLE IS AT IT*S RIGHT PLACE IN THE GRID, now to colormatches')         
+                    print('THE BUBBLE IS AT IT*S RIGHT PLACE IN THE GRID, now do colormatches')         
                     #set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
                         b.posTaken = True
@@ -476,15 +487,53 @@ class MyViewController(Widget):
         self.root.display_help_screen()  
     def addPressed(self):
 '''
+'''
+####################################
+##
+##   Setting Dialog Class
+##
+####################################
+'''
+class SettingDialog(BoxLayout):
+    music_slider = ObjectProperty(None)
+    sound_slider = ObjectProperty(None)
+    
+    root = ObjectProperty(None)
+    
+    def __init__(self, **kwargs):
+        super(SettingDialog, self).__init__(**kwargs)
+        
+        self.music_slider.bind(value=self.updateMusicVolume)
+        self.sound_slider.bind(value=self.updateSoundVolume)
+    
+    def updateMusicVolume(self, instance, value):
+        # write to app configs
+        self.root.app.config.set('General', 'Music', str(int(value)))
+        self.root.app.config.write()
+        self.root.app.music.volume = value / 100.0
+    
+    def updateSoundVolume(self, instance, value):
+        # write to app configs
+        self.root.app.config.set('General', 'Sound', str(int(value)))
+        self.root.app.config.write()
+        for item in self.root.app.sound:
+            self.root.app.sound[item].volume = value / 100.0
+    
+    def displayHelpScreen(self):
+        self.root.settingsPopup.dismiss()
+        self.root.displayHelpScreen()
+    
 
-# huvudklassen för applikationen, detta är med andra ord den kod som körs när applikationen byggs och blir huvudcontainern där alla widgetar placeras. 
-
-
-#Huvudklassen som bygger applicationen och returnerar MainWidget
+'''
+####################################
+##
+##   Main Application Class
+##
+####################################
+'''
 class DbShooter(App):
 	
     def build(self):
-
         self.sound = {}
         self.title = 'DB Shooter'      
 	    
@@ -492,17 +541,16 @@ class DbShooter(App):
         EventLoop.ensure_window()
         self.window = EventLoop.window
 
-        '''
-        # create the root widget and give it a reference of the application instance (so it can access the application settings)
-        self.DbShooterWidget = DbShooterWidget(app=self)
-        self.root = self.DbShooterWidget
-        '''
+        # start the background music:
+        self.music = SoundLoader.load('sound/background.mp3')
+        self.music.volume = self.config.getint('General', 'Music') / 100.0
+        #self.music.bind(on_stop=self.replaySound)
+        #self.music.play()
 
+
+        # create the root widget and give it a reference of the view / application instance
         self.MyViewController = MyViewController(app=self)
-
-        self.root = self.MyViewController.view
-        #self.root.bind(points=self.root.updatePoints)
-        
+        self.root = self.MyViewController.view        
 
         # load all other sounds:
         #self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
@@ -510,6 +558,13 @@ class DbShooter(App):
         
         #self.welcome_screen()
 
+        # if the user started the game the first time, display quick start guide
+        if self.config.get('General', 'FirstStartup') == 'Yes':
+            
+            #Clock.schedule_once(self.welcome_screen, 2)
+            
+            self.config.set('General', 'FirstStartup', 'No')
+            self.config.write()
      
     def build_config(self, config):
         config.adddefaultsection('General')
@@ -518,12 +573,14 @@ class DbShooter(App):
         config.setdefault('General', 'FirstStartup', 'Yes')
         
         config.adddefaultsection('GamePlay')
-        config.setdefault('GamePlay', 'BubbleSpeed', '10')
-        config.setdefault('GamePlay', 'Levels', '2')
+        config.setdefault('GamePlay', 'BulletSpeed', '10')
+        config.setdefault('GamePlay', 'Levels', '0000000000000000000000000000000000000000')
 
-      
+    def replaySound(self, instance):
+        if self.music.status != 'play':
+            self.music.play()
 
 
-#Kör applikationen
+#Run the application
 if __name__ == "__main__":	
 	DbShooter().run()
