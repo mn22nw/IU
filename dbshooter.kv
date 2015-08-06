@@ -168,7 +168,7 @@
 	    		text: 'Lives'	    		
 	    	TableLabel:
 				id: livesLbl
-		        text:'hey' #str(MyView.lives)
+		        text:str(MyView.lives)
 		    #points
 		    TableLabel:
 	    		text: 'Points'
@@ -179,7 +179,7 @@
 		    TableLabel:
 	    		text: 'Level'
 		    TableLabel:
-		        text: 'level'##str(root.level)
+		        text: str(MyView.level)
 	FloatLayout:
 		id: shooterLayout
 		pos_hint:None, None
@@ -215,7 +215,6 @@
 	
     music_slider: music_slider
     sound_slider: sound_slider
-    close_button: close_button	
 
     BoxLayout:
 	    orientation: 'vertical'
@@ -277,28 +276,42 @@
 		Widget:
 		    heigth: 5
 		BoxLayout:
-		    spacing: 10
+		    spacing: 5
 		    padding:20
 		    size_hint:None,None
 			height:self.parent.height *0.15
 	    	width:self.parent.width
-			Button:
-			    text: 'Help'
-			    bold: True
+			SettingsButton:
+			    text: 'HELP'
 			    background_normal: 'graphics/button_normal.png'
 	            background_down: 'graphics/button_down.png'
-			    font_size: 15
-			    size_hint: 0.8, 1
 			    on_release: root.displayHelpScreen()
-			    
-			Button:
-			    id: close_button
-	            text: 'Close'
-	            bold: True
-	            background_normal: 'graphics/button_normal.png'
-	            background_down: 'graphics/button_down.png'
-	            font_size: 15
-	            size_hint: 0.8, 1
+   
+	        SettingsButton:
+			    id: restartButton
+	            text: 'RESTART'
+	            background_normal: 'graphics/settingsButton.png'
+	            background_down: 'graphics/settingsButton.png'
 	            on_press: app.root.settingsPopup.dismiss()
 
-	      
+	        SettingsButton:
+			    id: exitButton
+	            text: 'EXIT'
+	            background_normal: 'graphics/settingsButton.png'
+	            background_down: 'graphics/settingsButton.png'
+	            on_press: app.root.settingsPopup.dismiss()
+
+	        SettingsButton:
+			    id: backButton
+	            text: 'Continue \nplaying'
+	            background_normal: 'graphics/button_normal.png'
+	            background_down: 'graphics/button_down.png'
+	            on_press: app.root.settingsPopup.dismiss()
+
+
+# describes the general styling for the buttons in the settings dialog	      
+<SettingsButton@Button>:
+	bold: True
+	halign:'center'
+	font_size: 15
+	size_hint: 1, 1

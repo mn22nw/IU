@@ -47,7 +47,8 @@ Window.size = 560, 836
 '''
 class MyView(Widget):
     #properties that has to be accessed in the .kv file are placed outside of the constructor
-    lives = 5
+    lives = NumericProperty(5)
+    level = 1
     points = NumericProperty(0)
 
     #def __init__(self,vc):
@@ -104,14 +105,18 @@ class MyView(Widget):
     
 
     #setters and getters for the properties  
-    def setLabelText(self,label, text):
-        #self.labelText.set(newText)
-        label.text = str(text) 
-    #def getLabelText(self):
-    #    return self.labelText.get()
+    
+    def setLevel(self, value):
+        self.level = value
      
     def setPoints(self, value):
         self.points += value
+
+    def getPoints(self, value): #TODO - not using this?
+        return self.points
+
+    def setLives(self, value):
+        self.lives += value
      
     def setBubbleStartPosition(self, bubble):
         bubble.center = self.shooter.center
@@ -156,6 +161,21 @@ class MyView(Widget):
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
+    def displayLifeIsLostScreen(self):
+        lifeIsLostScreen = Popup( title='Life is lost', auto_dismiss=False,
+                            attach_to=self,
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
+                            )
+
+        lifeIsLostScreen.content =  image = Image(source='graphics/lifeLost.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        lifeIsLostScreen.open()
+        Clock.schedule_once(lifeIsLostScreen.dismiss, 1.5)
+        Clock.schedule_once(self.removeLife, 1.6)
+
+    def removeLife(self, instance):
+        self.setPoints(-self.points)
+        self.setLives(-1)
+
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 
@@ -335,6 +355,8 @@ class MyViewController(Widget):
         
         #load the view (this needs to be called after getting the questions)
         self.view.loadView()
+
+        self.view.bind(points=self.checkPoints)
            
 
 
@@ -365,7 +387,11 @@ class MyViewController(Widget):
 
         self.bubble.fire()
 
-    
+    def checkPoints(self,instance, value):
+        if value < 0:
+            self.view.displayLifeIsLostScreen()
+            
+
     #get all the questions from a json file 
     def getAllQuestions(self):
 
