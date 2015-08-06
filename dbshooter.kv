@@ -210,36 +210,64 @@
 
 
 
-# Setting dialog description
+# Setting dialog description with the type of a GridLayout width BoxLayouts nested within
 <SettingDialog>:
+	cols:1
+	#rows:5
+	orientation: 'vertical'
+	spacing: 10
     music_slider: music_slider
     sound_slider: sound_slider
-    speed_slider: speed_slider
-    close_button: close_button
-    
-	orientation: 'vertical'
-	padding: 10
-	spacing: 10
-	
-	Label:
-	    text: 'Music Volume:'
-	Slider:
-	    id: music_slider
-	Widget:
-        heigth: 5
-    
-    Label:
-        text: 'Sound Volume:'
-    Slider:
-        id: sound_slider
-	Widget:
-        heigth: 5
-    
-    Label:
-        text: 'Bullet Speed:'
-    Slider:
-        id: speed_slider
-        range: 1, 10
+    close_button: close_button	
+
+	BoxLayout:
+		orientation: 'vertical'
+		Widget:
+	    	heigth: 5
+		Label:
+		    text: 'Music Volume:'
+		Slider:
+		    id: music_slider
+		Widget:
+	        heigth: 5
+    BoxLayout:
+		orientation: 'vertical'
+		Label:
+		    text: 'Sound Volume:'
+		Slider:
+		    id: sound_slider
+		Widget:
+	        heigth: 5
+    GridLayout:
+    	cols: 1
+    	orientation: 'vertical'
+    	size_hint: None,None
+		height: root.height *0.4
+		width: root.width
+
+	    Label:
+	        text: 'Demo video:'
+	        size_hint: None,None
+	    	height: root.height *0.05
+	    	width: root.width
+
+	    Label:
+	        text: '(Will start your browser and be openened in youtube!)'
+	        font_size:13
+	        size_hint: None,None
+	    	height: root.height *0.05
+	    	width: root.width
+	    
+		Button:
+		    id: hyperLinkImage
+		    on_press: root.redirectToHyperLink()
+		    background_normal: 'graphics/demoVideo.png'
+	        #background_down: 'graphics/button_down.png'
+		    size_hint:None,None
+		    height: root.height *0.3
+	    	width: root.width
+
+
 	Widget:
 	    heigth: 10
 	
@@ -253,7 +281,7 @@
             background_down: 'graphics/button_down.png'
 		    font_size: 15
 		    size_hint: 1, 1.5
-		    on_release: app.root.displayHelpScreen()
+		    on_release: root.displayHelpScreen()
 		    
 		Button:
 		    id: close_button

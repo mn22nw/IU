@@ -17,11 +17,13 @@ from kivy.uix.label import Label
 from kivy.core.audio import SoundLoader
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.clock import Clock
 import time
+import webbrowser
 
 from math import sin
 from math import cos
@@ -125,7 +127,6 @@ class MyView(Widget):
     '''
     # popups
     def displaySettingsScreen(self):
-        ''
         #self.app.sound['switch'].play()
         
         # the first time the setting dialog is called, initialize its content.
@@ -134,16 +135,13 @@ class MyView(Widget):
             self.settingsPopup = Popup(attach_to=self,
                                        title= 'DBShooter Settings'
                                        )
+                      
+            self.settingDialog = SettingDialog(root=self)
             
+            self.settingsPopup.content = self.settingDialog
             
-            self.setting_dialog = SettingDialog(root=self)
-            
-            self.settingsPopup.content = self.setting_dialog
-
-
-            
-            self.setting_dialog.music_slider.value = boundary(self.app.config.getint('General', 'Music'), 0, 100)
-            self.setting_dialog.sound_slider.value = boundary(self.app.config.getint('General', 'Sound'), 0, 100)
+            self.settingDialog.music_slider.value = boundary(self.app.config.getint('General', 'Music'), 0, 100)
+            self.settingDialog.sound_slider.value = boundary(self.app.config.getint('General', 'Sound'), 0, 100)
             
         self.settingsPopup.open()
 
@@ -324,6 +322,7 @@ class MyViewController(Widget):
         super(MyViewController, self).__init__(**kwargs)
         
         #properties of the controller 
+        self.app = App.get_running_app()
         self.level = 1
         self.availableBubblePositions = []
         self.pointList = []
@@ -444,7 +443,6 @@ class MyViewController(Widget):
 
     #this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
     def fitBubbleToGrid(self):
-        #print('Fitting bubblle to grid!')
         bubblesToCompareList = []
         distancesToCompareList = []
         self.findAvailableBubblePositions()
@@ -466,7 +464,7 @@ class MyViewController(Widget):
 
                 if b.distanceToClostestGridBubble == smallestDistance:
                     self.bubble.pos_hint = b.pos_hint     
-                    print('THE BUBBLE IS AT IT*S RIGHT PLACE IN THE GRID, now do colormatches')         
+                    print('THE BUBBLE IS AT IT\'S RIGHT PLACE IN THE GRID, now do colormatches')         
                     #set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
                         b.posTaken = True
@@ -494,7 +492,7 @@ class MyViewController(Widget):
 ##
 ####################################
 '''
-class SettingDialog(BoxLayout):
+class SettingDialog(GridLayout):
     music_slider = ObjectProperty(None)
     sound_slider = ObjectProperty(None)
     
@@ -502,9 +500,9 @@ class SettingDialog(BoxLayout):
     
     def __init__(self, **kwargs):
         super(SettingDialog, self).__init__(**kwargs)
-        
-        self.music_slider.bind(value=self.updateMusicVolume)
-        self.sound_slider.bind(value=self.updateSoundVolume)
+        #TODO- uncomment this
+        #self.music_slider.bind(value=self.updateMusicVolume)
+        #self.sound_slider.bind(value=self.updateSoundVolume)
     
     def updateMusicVolume(self, instance, value):
         # write to app configs
@@ -520,8 +518,11 @@ class SettingDialog(BoxLayout):
             self.root.app.sound[item].volume = value / 100.0
     
     def displayHelpScreen(self):
-        self.root.settingsPopup.dismiss()
+        #self.root.settingsPopup.dismiss()
         self.root.displayHelpScreen()
+
+    def redirectToHyperLink(self):
+        webbrowser.open("http://kivy.org/")
     
 
 '''
@@ -542,13 +543,13 @@ class DbShooter(App):
         self.window = EventLoop.window
 
         # start the background music:
-        self.music = SoundLoader.load('sound/background.mp3')
-        self.music.volume = self.config.getint('General', 'Music') / 100.0
+        #self.music = SoundLoader.load('sound/background.mp3')
+        #self.music.volume = self.config.getint('General', 'Music') / 100.0
         #self.music.bind(on_stop=self.replaySound)
         #self.music.play()
 
 
-        # create the root widget and give it a reference of the view / application instance
+        # create the root widget and give it a reference of the view / application instance 
         self.MyViewController = MyViewController(app=self)
         self.root = self.MyViewController.view        
 
@@ -571,10 +572,6 @@ class DbShooter(App):
         config.setdefault('General', 'Music', '100')
         config.setdefault('General', 'Sound', '100')
         config.setdefault('General', 'FirstStartup', 'Yes')
-        
-        config.adddefaultsection('GamePlay')
-        config.setdefault('GamePlay', 'BulletSpeed', '10')
-        config.setdefault('GamePlay', 'Levels', '0000000000000000000000000000000000000000')
 
     def replaySound(self, instance):
         if self.music.status != 'play':

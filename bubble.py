@@ -264,15 +264,7 @@ class Bubble(Image):
 
     def animatePointsPicture(self):
         Clock.schedule_once(self.removeBubble, 0.2)
-    '''
-    def animateBubble(self, instance):
-        X = self.width
-        Y = self.height
-        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
-        threatAnimation.start(self)
-        self.parent.remove_widget(self)
-      
-    '''
+
     def removeBubble(self, instance):
         self.parent.parent.setPoints(10)
         layout = self.parent.parent.bubbleLayout
