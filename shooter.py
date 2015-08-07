@@ -19,7 +19,6 @@ class Shooter(Image):
     shooterTowerAngle = NumericProperty(0)
     shootDirectionAngle = NumericProperty(0)
     
-
     '''
     ####################################
     ##
@@ -29,7 +28,7 @@ class Shooter(Image):
     '''
     def on_touch_up(self, touch):
         
-        #prevent from shooting bubbles when the settingsdialog was recently closed. It was a quick fix.
+        #prevent from shooting bubble when the settingsdialog was recently closed. This was a quick fix, didn't really know what else to do.
         if not self.parent.parent.settingsPopupDismissed:
 
             self.changeAngle(touch)
@@ -47,8 +46,7 @@ class Shooter(Image):
     ####################################
     '''
     def on_touch_down(self, touch):
-        self.parent.parent.settingsPopupDismissed = False   
-        
+        self.parent.parent.settingsPopupDismissed = False          
               
     '''
     ####################################
@@ -76,16 +74,13 @@ class Shooter(Image):
         
         #radians to degrees
         angle = angle * (180/pi);    
-        print('ANGLE', angle)
 
         #if user clicks below the shooter, move it to the lowest right/left position
         if angle < 180 and angle > -180: 
-            print('less')
             self.shooterTowerAngle = maxAngle  - 90
             self.shootDirectionAngle = maxAngle   
 
         if angle < minAngle and angle >= - 90:
-            print('more')
             self.shooterTowerAngle = minAngle  - 90
             self.shootDirectionAngle = minAngle
 

@@ -47,8 +47,8 @@ class Bubble(Image):
         self.bind(pos=self.callbackPosWallCollision)    
     
     def calculateDestination(self, angle):
-        #set a destination
-        destination = 600
+        #set a destination that goes outside of the screen
+        destination = 2500
         #set angle and distance from the correct position (x, y).
         destinationX = destination* math.cos(angle) + self.center_x 
         destinationY = destination* math.sin(angle) + self.center_y
@@ -62,8 +62,7 @@ class Bubble(Image):
         self.animation.start(self)
 
     def animationComplete(self):
-        self.unbind(pos=self.callbackPosWallCollision)      
-        
+        self.unbind(pos=self.callbackPosWallCollision)           
         self.parent.parent.vc.fitBubbleToGrid()
         Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,0.1)
 
@@ -74,13 +73,9 @@ class Bubble(Image):
     
     def onWallCollision(self, anglechange):
         self.animation.stop(self)
-        print('self.angle', self.angle, self.angle + math.radians(90))
         self.startAnimation(self.angle - math.radians(anglechange))
         #needs to send ranians
         self.unbind(pos=self.callbackPosWallCollision)
-        #threatAnimation = Animation( pos=(600, 500), opacity = 0.5, duration=0.2)
-        #threatAnimation.start(self)
-        #change the angle with 90degrees 
 
     def getGridBubbleDistance(self,bubble):
         #calculate the distance between the centre of both bubbles
@@ -209,7 +204,6 @@ class Bubble(Image):
 
 
     def callbackPos(self, instance, pos):
-
         # check if there's a collision with a threat
         if not len(self.parent.parent.threatListCopy) == 0:
             for threat in self.parent.parent.threatListCopy:
@@ -229,9 +223,7 @@ class Bubble(Image):
         self.bubbleColor = self.colorList[c]
         return self.bubbleColor
 
-        #for c in range(0,len(colorList)):
     def getColor(self):
-        #print(self.bubbleColor, 'CCssCCCOL')
         return self.bubbleColor
 
     def changeToPointsPicture(self):

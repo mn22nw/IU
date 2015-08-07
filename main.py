@@ -227,7 +227,6 @@ class MyView(Widget):
             threatIndex = random.randint(0, len(self.threatList)-1)
             
             threat = self.threatList.pop(threatIndex)
-            
             threat.pos_hint={'x': x, 'center_y': y}
             #b.setRandomColor()
             #t.setQuestion()
@@ -265,7 +264,7 @@ class MyView(Widget):
             for i in range(3): #remember! first time in range i will be equal to 0            
                 #create a threat only on first row of block
                 if i == 0:
-                    threatPosX = (startNumber - 1) * bubbleSizeX
+                    threatPosX = (startNumber - 1) * bubbleSizeX + 0.005
                      #if threat starts at an uneven row, add half a bubble of extra space on it's left
                     if (rowCount % 2 == 1): 
                         threatPosX += xOdd
@@ -549,7 +548,7 @@ class MyViewController(Widget):
 ##
 ####################################
 '''
-class SettingDialog(GridLayout):
+class SettingDialog(Widget):
     music_slider = ObjectProperty(None)
     sound_slider = ObjectProperty(None)
     

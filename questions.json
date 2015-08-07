@@ -12,12 +12,12 @@
                 "info":"A little bit of info here"
             },
             {
-                "question": "What does miii stand for?",
-                "correctAnswer": 0,
+                "question": "CSRF can be described as:",
+                "correctAnswer": 2,
                 "answers": [
-                    "miisi",
-                    "loo",
-                    "doo"
+                    "An attack when malicious code modifies your website to display unwanted information",
+                    "An attack against a webapplications database",
+                    "An attack which results in a request being submitted \non the user's behalf without their consent"
                 ],
                 "info":"A little bit of info here"
             }
@@ -35,12 +35,12 @@
                 "info": 0 
             },
             {
-                "question": "Which of these are an example of SQL-Injection Attack:",
+                "question": "Which example makes a SQL-Injection possible:",
                 "correctAnswer": 0,
                 "answers": [
-                    "graphics/questions/sql1.jpg",
-                    "graphics/questions/sql2.jpg",
-                    "graphics/questions/sql3.jpg"
+                    "When 'Username' and 'Password' from an inputfield \nare directly inserted into a SQL-statement",
+                    "When a cookie is badly written",
+                    "When 'Username' and 'Password' are written in foreign caracters when you log in to a website"
                 ],
                 "info":"A little bit of info here"
             }
@@ -48,24 +48,25 @@
 
         "XSS": [
             {
-                "question": "What does CSRF stand for?",
-                "correctAnswer": 1,
+                "question": "What does XSS stand for?",
+                "correctAnswer": 0,
                 "answers": [
-                    "When a hacker tries to embed harmful/malicious code into someones email",
-                    "When a hacker tries to “inject” harmful/malicious SQL code into someone else’s database",
-                    "When a hacker hides harmful/malicious SQL code inside a cookie"
+                    "Cross-Site Scripting",
+                    "External Script Safety",
+                    "Cross Secure Risk Forgery"
+                    
                 ],
                 "info": 0 
             },
             {
-                "question": "Which of these are an example of SQL-Injection Attack:",
-                "correctAnswer": 0,
+                "question": "XSS can be described as:",
+                "correctAnswer": 1,
                 "answers": [
-                    "graphics/questions/sql1.jpg",
-                    "graphics/questions/sql2.jpg",
-                    "graphics/questions/sql3.jpg"
+                    "A code on your website that was badly written",
+                    "A coded command/malicious script that is inputed to your website",
+                    "When a user tries to log in to your website but gets an error message"
                 ],
-                "info":"A little bit of info here"
+                "info":0 
             }
         ]
     },

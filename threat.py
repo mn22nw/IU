@@ -11,6 +11,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
+from kivy.uix.behaviors import ButtonBehavior
 
 from kivy.utils import boundary
 from kivy.uix.popup import Popup
@@ -23,6 +24,9 @@ import random
 
 #custom class for question buttons (so they can be styled in the KV file)
 class QuestionButton(Button):  
+    pass
+#makes it possible to click on the image as well(the number next to the questions)
+class ImageButton(ButtonBehavior, Image):
     pass
 
 #custom triangle class for threat
@@ -87,12 +91,9 @@ class Threat(Widget):
 
     def checkAnswer(self, instance):
         layout = BoxLayout(orientation = 'vertical')
-        l = Label(text= self.question)
 
         if instance.id == self.correctAnswer:
             image = Image(source='graphics/success.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
-            #l.text = 'Success'
-            #layout.add_widget(l)
             layout.add_widget(image)
             self.questionScreen.content = layout
             # increase points
@@ -105,12 +106,9 @@ class Threat(Widget):
             
         else:
             image = Image(source='graphics/fail.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
-            #l.text = 'Success'
-            #layout.add_widget(l)
             layout.add_widget(image)
             self.questionScreen.content = layout
-            # decrease points
-            # dismiss window after 1.5 seconds
+            # dismiss window after 1.5 seconds and remove points after
             Clock.schedule_once(self.questionScreen.dismiss, 1.5)
             Clock.schedule_once(self.delayRemovingPoints, 1.5)
           
@@ -121,19 +119,22 @@ class Threat(Widget):
         image = Image(source='graphics/questionScreen.png')
         
         layout = BoxLayout(orientation = 'vertical')
-        l = Label(text= self.question,  size_hint_y=0.3)
+        l = Label(text= self.question,  size_hint_y=0.3, font_size=20)
         layout.add_widget(l)
-        gridlayout = GridLayout(cols=2, size_hint_y=0.7)
-
+        gridlayout = GridLayout(cols=3, size_hint_y=0.7)      
+        
         for i in range(3):
-            image = Image(source='graphics/questions/'+ str(i)+'.png', size_hint_x=0.2)
-            btn = QuestionButton(id= str(i), text=self.answers[i], size_hint_x=0.8)
+            imageBtn = ImageButton(id= str(i), source='graphics/questions/'+ str(i)+'.png', size_hint_x=0.15, on_press= self.checkAnswer)
+            btn = QuestionButton(id= str(i), text=self.answers[i])
             btn.bind(on_press= self.checkAnswer)
-            gridlayout.add_widget(image)
+            spaceFillGrid = Widget(size_hint_x= 0.05)
+            gridlayout.add_widget(spaceFillGrid)
+            gridlayout.add_widget(imageBtn)
             gridlayout.add_widget(btn)
 
-
+        spaceFill = Widget(size_hint_y= 0.2)
         layout.add_widget(gridlayout)
+        layout.add_widget(spaceFill)
         self.questionScreen.title = self.title
         self.questionScreen.content = layout
 

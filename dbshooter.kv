@@ -4,6 +4,8 @@
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
 
+
+
 # Custom Label,  defines the styling for the labels that contains lives, points and  level
 <TableLabel@Label>:
 	canvas.before:
@@ -63,6 +65,17 @@
     	size:threatId.size
     	pos:threatId.pos	
 
+# decripes the buttons inside the question-popup	
+<QuestionButton>:
+	font_size:17
+	text_size:int(self.width * 0.8), None
+	size_hint_x:0.85
+	line_height:1.4
+	#background_color:0.45,0.45,0.45,1
+	background_normal: 'graphics/questions/questionButton.png'
+	background_down: 'graphics/questions/questionButton.png'
+
+
 # Main widget description:
 <MyView>:
 	id: MyView
@@ -97,12 +110,12 @@
 	#the walls
 	Wall:
 		id:leftWall
-		size:50, root.height
+		size:50, root.height * 2
 		pos:bubbleLayout.x - self.width, root.y	
 		opacity:0	
 	Wall:
 		id:rightWall
-		size:50, root.height
+		size:50, root.height * 2
 		pos:bubbleLayout.x + bubbleLayout.width, root.y	
 		opacity:0
 
@@ -206,13 +219,14 @@
 <QuestionButton>:
 	font_size:15
 	text_size:int(self.width * 0.8), None
-	#halign:'right'
+	#background_color:0.45,0.45,0.45,1
+	background_normal: 'graphics/questions/questionButton.png'
+	background_down: 'graphics/questions/questionButton.png'
 
 
 
-# Setting dialog description with the type of a BoxLayout, widh a BoxLayout inside, and GridLayout width BoxLayouts nested within
+# Setting dialog description with the type of a Widget, widh a BoxLayout inside that has BoxLayouts/GridLayout nested within
 <SettingDialog>:
-	cols:1
     music_slider: music_slider
     sound_slider: sound_slider
 
