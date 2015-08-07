@@ -20,14 +20,14 @@ from kivy.uix.button import Button
 from functools import partial
 import random
 
+
 #custom class for question buttons (so they can be styled in the KV file)
 class QuestionButton(Button):  
     pass
-#custom triangle class for threat
 
+#custom triangle class for threat
+# point_inside_polygon and collide_point is taken from kivys own examples https://github.com/kivy/kivy/blob/master/examples/widgets/customcollide.py
 def point_inside_polygon(x, y, poly):
-    '''Taken from http://www.ariel.com.au/a/python-point-int-poly.html
-    '''
     n = len(poly)
     inside = False
     p1x = poly[0]
@@ -74,14 +74,12 @@ class Threat(Widget):
     
     def __init__(self, **kwargs):
         super(Threat, self).__init__(**kwargs)
-        #skapa grunden för popupen
+        #creates the base for the popup
         self.questionScreen = Popup( title=self.title, auto_dismiss=False,
                             attach_to=self,
                             size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
                             )
-    # collide_point taken fromkivys own examples https://github.com/kivy/kivy/blob/master/examples/widgets/customcollide.py
 
-    
     def collide_point(self, x, y):
         x, y = self.to_local(x, y)
         return point_inside_polygon(x, y,
@@ -112,17 +110,14 @@ class Threat(Widget):
             layout.add_widget(image)
             self.questionScreen.content = layout
             # decrease points
-            self.parent.parent.setPoints(-200)
             # dismiss window after 1.5 seconds
             Clock.schedule_once(self.questionScreen.dismiss, 1.5)
-
-       
-     
+            Clock.schedule_once(self.delayRemovingPoints, 1.5)
+          
 
     def displayQuestionScreen(self):
         # display the question screen on a Popup
         
-        #design this later!!
         image = Image(source='graphics/questionScreen.png')
         
         layout = BoxLayout(orientation = 'vertical')
@@ -139,7 +134,6 @@ class Threat(Widget):
 
 
         layout.add_widget(gridlayout)
-
         self.questionScreen.title = self.title
         self.questionScreen.content = layout
 
@@ -148,7 +142,6 @@ class Threat(Widget):
     def animateThreat(self, instance):
         X = self.width
         Y = self.height
-        #endPos = startPos
         threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
         threatAnimation.start(self)
 
@@ -156,16 +149,17 @@ class Threat(Widget):
         #first remove it from the threat list!
         self.parent.parent.threatListCopy.remove(self)
         self.parent.remove_widget(self)
-    
+
+    def delayRemovingPoints(self, instance):
+        self.parent.parent.setPoints(-200)
+
     #returns a string with the color name  
     def setRandomColor(self):
         c = random.randint(0,(len(self.colorList) - 1))
         self.bubbleColor = self.colorList[c]
         return self.bubbleColor
 
-        #for c in range(0,len(colorList)):
     def getColor(self):
-        #print(self.bubbleColor, 'threatCOlor')
         return self.bubbleColor
 
 

@@ -44,6 +44,29 @@
                 ],
                 "info":"A little bit of info here"
             }
+        ], 
+
+        "XSS": [
+            {
+                "question": "What does CSRF stand for?",
+                "correctAnswer": 1,
+                "answers": [
+                    "When a hacker tries to embed harmful/malicious code into someones email",
+                    "When a hacker tries to “inject” harmful/malicious SQL code into someone else’s database",
+                    "When a hacker hides harmful/malicious SQL code inside a cookie"
+                ],
+                "info": 0 
+            },
+            {
+                "question": "Which of these are an example of SQL-Injection Attack:",
+                "correctAnswer": 0,
+                "answers": [
+                    "graphics/questions/sql1.jpg",
+                    "graphics/questions/sql2.jpg",
+                    "graphics/questions/sql3.jpg"
+                ],
+                "info":"A little bit of info here"
+            }
         ]
     },
     "level2": 1

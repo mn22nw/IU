@@ -54,12 +54,12 @@ class MyView(Widget):
     #def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
         super(MyView, self).__init__(**kwargs)
-          
-          
+        
         #properties of the view 
         self.app = App.get_running_app()
         self.vc = vc
         self.settingsPopup = None
+        self.settingsPopupDismissed = False
         self.bubble = None
         self.upcomingBubble = None
         self.angle = NumericProperty()
@@ -69,7 +69,7 @@ class MyView(Widget):
         self.bubbleGridList = []
         self.threatList = []
         self.threatListCopy = []
-        
+       
     
     #loading the view (called in the controller)
     def loadView(self):
@@ -82,6 +82,15 @@ class MyView(Widget):
         self.createBubbleGrid()
 
         #add the first upcoming bubble to the view
+        self.addUpcomingBubbletoView()
+
+    def resetView(self):
+        self.bubbleList = []
+        print( 'LEN CHILDREN', len(self.bubbleLayout.children))
+        self.bubbleLayout.clear_widgets()
+        self.createObsticles()
+        self.setTakenPositions()
+        self.nextBubbleLayout.clear_widgets()
         self.addUpcomingBubbletoView()
 
 
@@ -120,20 +129,11 @@ class MyView(Widget):
      
     def setBubbleStartPosition(self, bubble):
         bubble.center = self.shooter.center
-    '''
-    def bubble_exploding(self):
-        #self.app.sound['pop'].play()
-        
-        self.lives -= 1
-        self.update_label(self.ids.livesLbl, self.lives)
-        print(self.lives , 'LIIIIVES')
-        #if self.lives == 0:
-            #self.reset_level()
-    '''
+
     # popups
     def displaySettingsScreen(self):
         #self.app.sound['switch'].play()
-        
+        self.settingsPopupDismissed = False
         # the first time the setting dialog is called, initialize its content.
         if self.settingsPopup is None:
             
@@ -161,13 +161,16 @@ class MyView(Widget):
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
         help_screen.open()
+
     def displayLifeIsLostScreen(self):
         lifeIsLostScreen = Popup( title='Life is lost', auto_dismiss=False,
                             attach_to=self,
-                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6} 
                             )
-
-        lifeIsLostScreen.content =  image = Image(source='graphics/lifeLost.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        layout = BoxLayout(orientation = 'vertical')
+        image = Image(source='graphics/lifeLost.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        layout.add_widget(image)
+        lifeIsLostScreen.content = layout
         lifeIsLostScreen.open()
         Clock.schedule_once(lifeIsLostScreen.dismiss, 1.5)
         Clock.schedule_once(self.removeLife, 1.6)
@@ -219,16 +222,18 @@ class MyView(Widget):
         self.rowspaceY +=self.bubble.bubbleSizeY
            
     def createThreat(self, x, y):
-        #get a random threat from the list
-        threatIndex = random.randint(0, len(self.threatList)-1)
-        
-        threat = self.threatList.pop(threatIndex)
-        
-        
-        threat.pos_hint={'x': x, 'center_y': y}
-        #b.setRandomColor()
-        #t.setQuestion()
-        self.bubbleLayout.add_widget(threat)
+        if len(self.threatList) > 0:
+            #get a random threat from the list
+            threatIndex = random.randint(0, len(self.threatList)-1)
+            
+            threat = self.threatList.pop(threatIndex)
+            
+            threat.pos_hint={'x': x, 'center_y': y}
+            #b.setRandomColor()
+            #t.setQuestion()
+            self.bubbleLayout.add_widget(threat)
+            print('THREAT.POS YO', threat.pos)
+            self.threatListCopy.append(threat)
 
     def createObsticles(self):    
 
@@ -312,16 +317,21 @@ class MyView(Widget):
                     self.createBubbleGridRow(numberOfBubbles-1)        
 
                 numberOfBlocks -= 1     
-            #reverse the bubblegridList and set all the bubblepositions on the 'first' eight rows to taken (since they will be taken by the default bubbles)
             
+            self.setTakenPositions()
+
+
+    def setTakenPositions(self):       
             numberUnTakenPositions = 115
+            #reverse the bubblegridList and set all the bubblepositions on the 'first' eight rows to taken (since they will be taken by the default bubbles)
             for gridBubble in self.bubbleGridList[numberUnTakenPositions:]:
                 gridBubble.posTaken = True
                 gridBubble.opacity= .8
-            
                 #set all the bubbles that are where a threat is places to available positions
                 for threat in self.threatListCopy:
+                    #print('POSITION THREAT: ', threat.pos, 'POSITION GRIDBUBBLE: ', gridBubble.pos)
                     if threat.collide_point(gridBubble.center_x , gridBubble.center_y):
+                        #print('butWAI taken')
                         gridBubble.posTaken = False
                         gridBubble.opacity= 0
 
@@ -357,8 +367,8 @@ class MyViewController(Widget):
         self.view.loadView()
 
         self.view.bind(points=self.checkPoints)
+        self.view.bind(lives=self.checkLives)
            
-
 
     def fireBubble(self):
 
@@ -390,6 +400,13 @@ class MyViewController(Widget):
     def checkPoints(self,instance, value):
         if value < 0:
             self.view.displayLifeIsLostScreen()
+
+
+    def checkLives(self,instance,value):
+        #if lives goes out, reset the level
+        if value < 5:
+            print('*******VALUE BELLOWOWOWO')
+            self.resetLevel(self.level)
             
 
     #get all the questions from a json file 
@@ -407,9 +424,11 @@ class MyViewController(Widget):
             
             #get all SQL-Injection questions
             self.addQuestionsToThreats('SQL-Injection', data)
+
+            #get all SQL-Injection questions
+            self.addQuestionsToThreats('XSS', data)
             
-            #need a copy of the threatList to be able to check for collision later (the original threatList is manipulated later)
-            self.view.threatListCopy = list(self.view.threatList)
+
         except (ValueError, KeyError, TypeError):
             print "JSON format error"
 
@@ -424,7 +443,19 @@ class MyViewController(Widget):
                 print(threat.question)
                 self.view.threatList.append(threat)
 
-    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
+
+    def resetLevel(self, level):
+        print('VIIIIIIIIIIIIIIIW',self.view)
+        self.view.threatList = []
+        self.view.threatListCopy = []
+        self.getAllQuestions()
+
+        self.view.resetView()
+        #self.level = 6
+
+
+
+    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed exactly when the animation is completed)
     def removeOrKeepBubbles(self, instance):
         #check if it targeted the same color/s and if so, remove the bubble itself.
         firstColorMatches = self.bubble.findClosestColorMatches()
@@ -546,6 +577,10 @@ class SettingDialog(GridLayout):
     def displayHelpScreen(self):
         #self.root.settingsPopup.dismiss()
         self.root.displayHelpScreen()
+    
+    def dismissSettingsDialog(self):
+        self.root.settingsPopupDismissed = True
+        self.root.settingsPopup.dismiss()
 
     def redirectToHyperLink(self):
         webbrowser.open("http://kivy.org/")

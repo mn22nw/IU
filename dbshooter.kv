@@ -212,7 +212,7 @@
 
 # Setting dialog description with the type of a BoxLayout, widh a BoxLayout inside, and GridLayout width BoxLayouts nested within
 <SettingDialog>:
-	
+	cols:1
     music_slider: music_slider
     sound_slider: sound_slider
 
@@ -292,21 +292,21 @@
 	            text: 'RESTART'
 	            background_normal: 'graphics/settingsButton.png'
 	            background_down: 'graphics/settingsButton.png'
-	            on_press: app.root.settingsPopup.dismiss()
+	            on_press: root.dismissSettingsDialog()
 
 	        SettingsButton:
 			    id: exitButton
 	            text: 'EXIT'
 	            background_normal: 'graphics/settingsButton.png'
 	            background_down: 'graphics/settingsButton.png'
-	            on_press: app.root.settingsPopup.dismiss()
+	            on_press: root.dismissSettingsDialog()
 
 	        SettingsButton:
 			    id: backButton
 	            text: 'Continue \nplaying'
 	            background_normal: 'graphics/button_normal.png'
 	            background_down: 'graphics/button_down.png'
-	            on_press: app.root.settingsPopup.dismiss()
+	            on_press: root.dismissSettingsDialog()
 
 
 # describes the general styling for the buttons in the settings dialog	      

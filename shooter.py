@@ -18,15 +18,7 @@ from math import pi
 class Shooter(Image):
     shooterTowerAngle = NumericProperty(0)
     shootDirectionAngle = NumericProperty(0)
-    '''
-    ####################################
-    ##
-    ##   On Touch Down
-    ##
-    ####################################
-    '''
-    def on_touch_down(self, touch):
-        pass
+    
 
     '''
     ####################################
@@ -36,10 +28,27 @@ class Shooter(Image):
     ####################################
     '''
     def on_touch_up(self, touch):
-        self.changeAngle(touch)
-        #prevent from shooting bubbles when scrolling mouse wheel
-        if not touch.is_mouse_scrolling:
-            self.parent.parent.vc.fireBubble()
+        
+        #prevent from shooting bubbles when the settingsdialog was recently closed. It was a quick fix.
+        if not self.parent.parent.settingsPopupDismissed:
+
+            self.changeAngle(touch)
+            #prevent from shooting bubbles when scrolling mouse wheel
+            if not touch.is_mouse_scrolling:
+                self.parent.parent.vc.fireBubble()
+
+        self.parent.parent.settingsPopupDismissed = False   
+
+    '''
+    ####################################
+    ##
+    ##   On Touch Down
+    ##
+    ####################################
+    '''
+    def on_touch_down(self, touch):
+        self.parent.parent.settingsPopupDismissed = False   
+        
               
     '''
     ####################################
@@ -67,7 +76,7 @@ class Shooter(Image):
         
         #radians to degrees
         angle = angle * (180/pi);    
-        #print('ANGLE', angle)
+        print('ANGLE', angle)
 
         #if user clicks below the shooter, move it to the lowest right/left position
         if angle < 180 and angle > -180: 

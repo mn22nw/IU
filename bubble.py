@@ -241,11 +241,11 @@ class Bubble(Image):
         Clock.schedule_once(self.removeBubble, 0.2)
 
     def removeBubble(self, instance):
-        self.parent.parent.setPoints(10)
         layout = self.parent.parent.bubbleLayout
-        #ensure the bubble exists in the layout before trying to remove it! to prevent app from crashing
+        #ensure the bubble exists in the layout before trying to remove it/add points! to prevent app from crashing
         for child in layout.children:
             if child == self:
+                self.parent.parent.setPoints(10)
                 self.parent.parent.bubbleLayout.remove_widget(self)
 
 
