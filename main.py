@@ -154,12 +154,15 @@ class MyView(Widget):
     def displayHelpScreen(self):
         # display the help screen on a Popup
         image = Image(source='graphics/help_screen.png')
-        
-        help_screen = Popup(title='Help Screen',
+
+        help_screen = HelpScreen()
+        '''
+        help_screen = Popup(title='Help',
                             attach_to=self,
-                            size_hint=(0.98, 0.98),
+                            size_hint=(None,1), pos_hint={'center_x': 0.5, 'center_y': 0.5},
                             content=image)
         image.bind(on_touch_down=help_screen.dismiss)
+        '''
         help_screen.open()
 
     def displayLifeIsLostScreen(self):
@@ -583,8 +586,26 @@ class SettingDialog(Widget):
 
     def redirectToHyperLink(self):
         webbrowser.open("http://kivy.org/")
-    
 
+class HelpScreen(Popup):
+    page = NumericProperty(1)
+    
+    def __init__(self, **kwargs):
+        super(HelpScreen, self).__init__(**kwargs)
+
+
+    def goToNextPage(self):
+        if self.page < 5:
+            self.page += 1 
+            self.changeImage(self.page)
+
+    def goToPrevPage(self):
+        if self.page > 1:
+            self.page -= 1
+            self.changeImage(self.page)
+
+    def changeImage(self, page):
+        self.helpImage.source = 'graphics/helpScreen/' + str(page) + '.png'
 '''
 ####################################
 ##

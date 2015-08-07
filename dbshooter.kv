@@ -4,7 +4,35 @@
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
 
-
+<HelpScreen>:
+	id: helpScreen
+	title: 'Help'
+	size_hint:None,None
+	size:app.window.height * (containerWidth + 0.02), app.window.height
+	helpImage: helpImage
+	BoxLayout:
+		orientation: 'vertical'
+		Widget:
+			size_hint:1, 0.05
+		Image:
+			id:helpImage
+			source: 'graphics/helpScreen/1.png'
+			size_hint:1,0.8
+		BoxLayout:
+			size_hint:1,0.1
+			HelpButton:
+				text: 'Close'
+				on_press: root.dismiss()
+			HelpButton:
+				text: 'Previous'
+				on_press: root.goToPrevPage()				
+			HelpButton:
+				text: 'Next'
+				on_press: root.goToNextPage()	
+			
+		Widget:
+			size_hint:1,0.05
+		
 
 # Custom Label,  defines the styling for the labels that contains lives, points and  level
 <TableLabel@Label>:
@@ -96,7 +124,7 @@
 		id: bubbleLayout
 		canvas:
 			Color:
-	            rgba: 1, 1, 1, 0.15
+	            rgba: 1, 1, 1, 0#.15
 	        Rectangle:
 	            pos: self.pos
 	            size: self.size
@@ -122,7 +150,7 @@
 
 	# the grid for all the bubbles
 	FloatLayout:
-		opacity:0.2
+		opacity:0
 		id: bubbleGridLayout
 		pos_hint:None, None
 		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
@@ -297,8 +325,6 @@
 	    	width:self.parent.width
 			SettingsButton:
 			    text: 'HELP'
-			    background_normal: 'graphics/button_normal.png'
-	            background_down: 'graphics/button_down.png'
 			    on_release: root.displayHelpScreen()
    
 	        SettingsButton:
@@ -310,16 +336,14 @@
 
 	        SettingsButton:
 			    id: exitButton
-	            text: 'EXIT'
-	            background_normal: 'graphics/settingsButton.png'
-	            background_down: 'graphics/settingsButton.png'
+	            text: 'EXIT'        
 	            on_press: root.dismissSettingsDialog()
 
 	        SettingsButton:
 			    id: backButton
 	            text: 'Continue \nplaying'
-	            background_normal: 'graphics/button_normal.png'
-	            background_down: 'graphics/button_down.png'
+	            background_normal: 'graphics/settingsButton2.png'
+	            background_down: 'graphics/settingsButton2.png'
 	            on_press: root.dismissSettingsDialog()
 
 
@@ -329,3 +353,8 @@
 	halign:'center'
 	font_size: 15
 	size_hint: 1, 1
+	background_normal: 'graphics/settingsButton.png'
+	background_down: 'graphics/settingsButton.png'
+
+<HelpButton@SettingsButton>:
+	color:0,0,0,1
