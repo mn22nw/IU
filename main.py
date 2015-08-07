@@ -153,16 +153,7 @@ class MyView(Widget):
 
     def displayHelpScreen(self):
         # display the help screen on a Popup
-        image = Image(source='graphics/help_screen.png')
-
         help_screen = HelpScreen()
-        '''
-        help_screen = Popup(title='Help',
-                            attach_to=self,
-                            size_hint=(None,1), pos_hint={'center_x': 0.5, 'center_y': 0.5},
-                            content=image)
-        image.bind(on_touch_down=help_screen.dismiss)
-        '''
         help_screen.open()
 
     def displayLifeIsLostScreen(self):
@@ -333,7 +324,7 @@ class MyView(Widget):
                 for threat in self.threatListCopy:
                     #print('POSITION THREAT: ', threat.pos, 'POSITION GRIDBUBBLE: ', gridBubble.pos)
                     if threat.collide_point(gridBubble.center_x , gridBubble.center_y):
-                        #print('butWAI taken')
+                        print('butWAI taken')
                         gridBubble.posTaken = False
                         gridBubble.opacity= 0
 
@@ -370,7 +361,7 @@ class MyViewController(Widget):
 
         self.view.bind(points=self.checkPoints)
         self.view.bind(lives=self.checkLives)
-           
+        
 
     def fireBubble(self):
 
@@ -453,8 +444,6 @@ class MyViewController(Widget):
         self.getAllQuestions()
 
         self.view.resetView()
-        #self.level = 6
-
 
 
     #this function is called from inside the bubble (I couldn't find another solution since it has to be executed exactly when the animation is completed)
@@ -530,20 +519,36 @@ class MyViewController(Widget):
             return True
         return False
 
-
-'''
 #Handlers -- target action
-
     #when quit is pressed 
-    def close(self):
+    def close(self, instance):
         App.get_running_app().stop()
         raise SystemExit(0)
 
     #when display help screen is pressed
     def welcome_screen(self):
         self.root.display_help_screen()  
-    def addPressed(self):
-'''
+
+    def confirmClose(self):
+        quitScreen = Popup( title='Quit Application', auto_dismiss=False,
+                            attach_to=self,
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6}
+                            )
+
+        layout = BoxLayout(orientation = 'vertical')
+        innerLayout = BoxLayout(size_hint_y = 0.2)
+        l = Label(text='Are you sure you want to quit?',  size_hint_y = 0.8)
+        layout.add_widget(l)
+        btn = Button(text = 'Yes', on_press = self.close)
+        btn2 = Button(text = 'No', on_press = quitScreen.dismiss)
+        innerLayout.add_widget(btn)
+        innerLayout.add_widget(btn2)
+        layout.add_widget(innerLayout)
+
+        quitScreen.content = layout
+        quitScreen.open()
+
+
 '''
 ####################################
 ##
@@ -562,6 +567,7 @@ class SettingDialog(Widget):
         #TODO- uncomment this
         #self.music_slider.bind(value=self.updateMusicVolume)
         #self.sound_slider.bind(value=self.updateSoundVolume)
+        
     
     def updateMusicVolume(self, instance, value):
         # write to app configs
@@ -577,7 +583,7 @@ class SettingDialog(Widget):
             self.root.app.sound[item].volume = value / 100.0
     
     def displayHelpScreen(self):
-        #self.root.settingsPopup.dismiss()
+        self.dismissSettingsDialog()
         self.root.displayHelpScreen()
     
     def dismissSettingsDialog(self):
@@ -587,14 +593,22 @@ class SettingDialog(Widget):
     def redirectToHyperLink(self):
         webbrowser.open("http://kivy.org/")
 
+
+'''
+####################################
+##
+##   Help Screen
+##
+####################################
+'''
+
 class HelpScreen(Popup):
     page = NumericProperty(1)
     
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
 
-
-    def goToNextPage(self):
+    def goToNextPage(self): #TODO - limit number of pages 
         if self.page < 5:
             self.page += 1 
             self.changeImage(self.page)

@@ -1,5 +1,143 @@
 #:set containerWidth 0.669
 #:set bubbleSizeY 0.045
+# Main widget description:
+<MyView>:
+	id: MyView
+	shooter: shooter
+	bubbleLayout: bubbleLayout
+	bubbleGridLayout: bubbleGridLayout
+	nextBubbleLayout: nextBubbleLayout
+	
+	# describes the background for the app
+	Image:
+	    source: 'graphics/background.jpg'
+        allow_stretch: True
+        keep_ratio: False
+        size: app.window.size
+   
+	# Widget-layout where all the obsticles (bubbles, threats) will be and where all the new bubbles will be added::
+	FloatLayout:
+		id: bubbleLayout
+		canvas:
+			Color:
+	            rgba: 1, 1, 1, 0#.15
+	        Rectangle:
+	            pos: self.pos
+	            size: self.size
+
+		pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6) 
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
+	
+	#the walls
+	Wall:
+		id:leftWall
+		size:50, root.height * 2
+		pos:bubbleLayout.x - self.width, root.y	
+		opacity:0	
+	Wall:
+		id:rightWall
+		size:50, root.height * 2
+		pos:bubbleLayout.x + bubbleLayout.width, root.y	
+		opacity:0
+
+	Button:
+		text:'RESET'
+		on_press: root.vc.resetLevel(1)
+	# the grid for all the bubbles
+	FloatLayout:
+		opacity:.2
+		id: bubbleGridLayout
+		pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
+
+
+	# defines the settings-icon
+	Button:
+		text:''
+		width: bubbleLayout.width *0.12
+		height: self.width* 1.15
+		pos:bubbleLayout.x + bubbleLayout.width - self.width - self.width*0.05, root.y
+		background_normal: 'graphics/settings.png'
+    	background_down: 'graphics/settings.png'	
+    	on_press: root.displaySettingsScreen()
+
+	#this defines the base on which the shooter stands (with level, table image etc) 
+	BoxLayout:
+		id: databaseWidget
+		height: root.height *0.2
+		width: bubbleLayout.width *0.8
+		bottom: root.height
+		size_hint: None, None
+		pos: bubbleLayout.pos
+		canvas:
+			Rectangle:
+	            size: self.width, self.height
+	            pos: root.width *0.5 - self.width *0.5, 0
+	            source: 'graphics/table.png'
+
+	#This is the wrapper for level, and points etc
+	BoxLayout:
+		height:root.height *0.16
+		width:bubbleLayout.width *0.7
+		bottom: root.height 
+		size_hint:None, None
+		pos: root.width *0.5 - self.width *0.5, 0
+		#canvas:
+		#	Color:
+		#		rgb:0,0,1
+		#	Rectangle:
+	    #        size: self.width, self.height
+	    #        pos: root.width *0.5 - self.width *0.5, 0
+	    FloatLayout:
+	    	id: nextBubbleLayout
+	    		
+	    #this defines the level, points and lives
+	    GridLayout:
+	    	cols:2
+	    	padding:20
+	    	spacing:10,10
+	    	#lives
+	    	TableLabel:
+	    		text: 'Lives'	    		
+	    	TableLabel:
+				id: livesLbl
+		        text:str(MyView.lives)
+		    #points
+		    TableLabel:
+	    		text: 'Points'
+		    TableLabel:
+		        id: pointsLbl
+		        text:str(MyView.points)
+		    #level
+		    TableLabel:
+	    		text: 'Level'
+		    TableLabel:
+		        text: str(MyView.level)
+	FloatLayout:
+		id: shooterLayout
+		pos_hint:None, None
+		pos:(root.width-self.width)/2, root.y 
+	    size_hint:None, None
+	    height: root.height
+	    width: root.height * containerWidth
+
+		Shooter:
+			id: shooter
+			pos_hint: {'center_x':0.5, 'center_y':0.29}
+			size_hint:0.14,0.14
+
+		Image:
+			id: db
+			source: 'graphics/db.png'
+			size_hint:0.18,0.18
+			pos_hint: {'center_x':0.5, 'center_y':0.24}
+
 
 <Popup>:
 	size:app.window.height * (containerWidth + 0.02), app.window.height *0.6
@@ -104,155 +242,6 @@
 	background_down: 'graphics/questions/questionButton.png'
 
 
-# Main widget description:
-<MyView>:
-	id: MyView
-	shooter: shooter
-	bubbleLayout: bubbleLayout
-	bubbleGridLayout: bubbleGridLayout
-	nextBubbleLayout: nextBubbleLayout
-	
-	# describes the background for the app
-	Image:
-	    source: 'graphics/background.jpg'
-        allow_stretch: True
-        keep_ratio: False
-        size: app.window.size
-   
-	# Widget-layout where all the obsticles (bubbles, threats) will be and where all the new bubbles will be added::
-	FloatLayout:
-		id: bubbleLayout
-		canvas:
-			Color:
-	            rgba: 1, 1, 1, 0#.15
-	        Rectangle:
-	            pos: self.pos
-	            size: self.size
-
-		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6) 
-	    size_hint:None, None
-	    height: root.height
-	    width: root.height * containerWidth
-	
-	#the walls
-	Wall:
-		id:leftWall
-		size:50, root.height * 2
-		pos:bubbleLayout.x - self.width, root.y	
-		opacity:0	
-	Wall:
-		id:rightWall
-		size:50, root.height * 2
-		pos:bubbleLayout.x + bubbleLayout.width, root.y	
-		opacity:0
-
-
-	# the grid for all the bubbles
-	FloatLayout:
-		opacity:0
-		id: bubbleGridLayout
-		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
-	    size_hint:None, None
-	    height: root.height
-	    width: root.height * containerWidth
-
-
-	# defines the settings-icon
-	Button:
-		text:''
-		width: bubbleLayout.width *0.12
-		height: self.width* 1.15
-		pos:bubbleLayout.x + bubbleLayout.width - self.width - self.width*0.05, root.y
-		background_normal: 'graphics/settings.png'
-    	background_down: 'graphics/settings.png'	
-    	on_press: root.displaySettingsScreen()
-
-	#this defines the base on which the shooter stands (with level, table image etc) 
-	BoxLayout:
-		id: databaseWidget
-		height: root.height *0.2
-		width: bubbleLayout.width *0.8
-		bottom: root.height
-		size_hint: None, None
-		pos: bubbleLayout.pos
-		canvas:
-			Rectangle:
-	            size: self.width, self.height
-	            pos: root.width *0.5 - self.width *0.5, 0
-	            source: 'graphics/table.png'
-
-	#This is the wrapper for level, and points etc
-	BoxLayout:
-		height:root.height *0.16
-		width:bubbleLayout.width *0.7
-		bottom: root.height 
-		size_hint:None, None
-		pos: root.width *0.5 - self.width *0.5, 0
-		#canvas:
-		#	Color:
-		#		rgb:0,0,1
-		#	Rectangle:
-	    #        size: self.width, self.height
-	    #        pos: root.width *0.5 - self.width *0.5, 0
-	    FloatLayout:
-	    	id: nextBubbleLayout
-	    		
-	    #this defines the level, points and lives
-	    GridLayout:
-	    	cols:2
-	    	padding:20
-	    	spacing:10,10
-	    	#lives
-	    	TableLabel:
-	    		text: 'Lives'	    		
-	    	TableLabel:
-				id: livesLbl
-		        text:str(MyView.lives)
-		    #points
-		    TableLabel:
-	    		text: 'Points'
-		    TableLabel:
-		        id: pointsLbl
-		        text:str(MyView.points)
-		    #level
-		    TableLabel:
-	    		text: 'Level'
-		    TableLabel:
-		        text: str(MyView.level)
-	FloatLayout:
-		id: shooterLayout
-		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y 
-	    size_hint:None, None
-	    height: root.height
-	    width: root.height * containerWidth
-
-		Shooter:
-			id: shooter
-			pos_hint: {'center_x':0.5, 'center_y':0.29}
-			size_hint:0.14,0.14
-
-		Image:
-			id: db
-			source: 'graphics/db.png'
-			size_hint:0.18,0.18
-			pos_hint: {'center_x':0.5, 'center_y':0.24}
-
-<Button>:
-	font_size:43
-
-# decripes the buttons inside the question-popup	
-<QuestionButton>:
-	font_size:15
-	text_size:int(self.width * 0.8), None
-	#background_color:0.45,0.45,0.45,1
-	background_normal: 'graphics/questions/questionButton.png'
-	background_down: 'graphics/questions/questionButton.png'
-
-
-
 # Setting dialog description with the type of a Widget, widh a BoxLayout inside that has BoxLayouts/GridLayout nested within
 <SettingDialog>:
     music_slider: music_slider
@@ -329,15 +318,15 @@
    
 	        SettingsButton:
 			    id: restartButton
-	            text: 'RESTART'
+	            text: 'Restart'
 	            background_normal: 'graphics/settingsButton.png'
 	            background_down: 'graphics/settingsButton.png'
 	            on_press: root.dismissSettingsDialog()
 
 	        SettingsButton:
-			    id: exitButton
-	            text: 'EXIT'        
-	            on_press: root.dismissSettingsDialog()
+			    id: quitButton
+	            text: 'Quit'        
+	            on_press: app.root.vc.confirmClose()
 
 	        SettingsButton:
 			    id: backButton
@@ -353,8 +342,17 @@
 	halign:'center'
 	font_size: 15
 	size_hint: 1, 1
+	color:0,0,0,1
 	background_normal: 'graphics/settingsButton.png'
 	background_down: 'graphics/settingsButton.png'
 
 <HelpButton@SettingsButton>:
-	color:0,0,0,1
+
+# decripes the buttons inside the question-popup	
+<QuestionButton>:
+	font_size:15
+	text_size:int(self.width * 0.8), None
+	#background_color:0.45,0.45,0.45,1
+	background_normal: 'graphics/questions/questionButton.png'
+	background_down: 'graphics/questions/questionButton.png'
+
