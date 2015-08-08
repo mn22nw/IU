@@ -26,7 +26,7 @@
 	            size: self.size
 
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6) 
+		pos:(root.width-self.width)/2, root.layoutPositionY  #root.y + root.height * (bubbleSizeY * 4.6) 
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
@@ -43,15 +43,12 @@
 		pos:bubbleLayout.x + bubbleLayout.width, root.y	
 		opacity:0
 
-	Button:
-		text:'RESET'
-		on_press: root.vc.resetLevel(1)
 	# the grid for all the bubbles
 	FloatLayout:
-		opacity:.2
+		opacity:0.3
 		id: bubbleGridLayout
 		pos_hint:None, None
-		pos:(root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6)
+		pos:(root.width-self.width)/2,  root.layoutPositionY  #root.y + root.height * (bubbleSizeY * 4.6)
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
@@ -321,7 +318,7 @@
 	            text: 'Restart'
 	            background_normal: 'graphics/settingsButton.png'
 	            background_down: 'graphics/settingsButton.png'
-	            on_press: root.dismissSettingsDialog()
+	            on_press: app.root.vc.resetLevel(1)
 
 	        SettingsButton:
 			    id: quitButton

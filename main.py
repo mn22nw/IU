@@ -35,7 +35,7 @@ from bubble import Bubble
 from threat import Threat
 
 #sätter storleken för huvudfönstret:
-Window.size = 560, 836
+Window.size = 600, 836
 
 
 '''
@@ -46,10 +46,11 @@ Window.size = 560, 836
 ####################################
 '''
 class MyView(Widget):
-    #properties that has to be accessed in the .kv file are placed outside of the constructor
+    #properties that needs to be accessed in the .kv file are placed outside of the constructor
     lives = NumericProperty(5)
-    level = 1
+    level = NumericProperty(1)
     points = NumericProperty(0)
+    layoutPositionY = NumericProperty(0)
 
     #def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
@@ -69,6 +70,7 @@ class MyView(Widget):
         self.bubbleGridList = []
         self.threatList = []
         self.threatListCopy = []
+        self.layoutPositionY = self.y + (self.height * 1.5) #* (0.045 * 4.6)   
        
     
     #loading the view (called in the controller)
@@ -86,12 +88,13 @@ class MyView(Widget):
 
     def resetView(self):
         self.bubbleList = []
-        print( 'LEN CHILDREN', len(self.bubbleLayout.children))
         self.bubbleLayout.clear_widgets()
         self.createObsticles()
-        self.setTakenPositions()
         self.nextBubbleLayout.clear_widgets()
         self.addUpcomingBubbletoView()
+        self.points = 0
+        self.lives = 5
+        self.level = 1
 
 
     def changeUpcomingBubbleColor(self):
@@ -173,6 +176,9 @@ class MyView(Widget):
         self.setPoints(-self.points)
         self.setLives(-1)
 
+    def moveDownAllBubbles(self):
+        newPosition = self.layoutPositionY * 0.657 #(0.045 * 14.6)  
+        self.layoutPositionY = newPosition
 
     def createBubble(self, x, y):
         b = Bubble(pos_hint={'x': x, 'center_y': y}) 
@@ -311,22 +317,6 @@ class MyView(Widget):
 
                 numberOfBlocks -= 1     
             
-            self.setTakenPositions()
-
-
-    def setTakenPositions(self):       
-            numberUnTakenPositions = 115
-            #reverse the bubblegridList and set all the bubblepositions on the 'first' eight rows to taken (since they will be taken by the default bubbles)
-            for gridBubble in self.bubbleGridList[numberUnTakenPositions:]:
-                gridBubble.posTaken = True
-                gridBubble.opacity= .8
-                #set all the bubbles that are where a threat is places to available positions
-                for threat in self.threatListCopy:
-                    #print('POSITION THREAT: ', threat.pos, 'POSITION GRIDBUBBLE: ', gridBubble.pos)
-                    if threat.collide_point(gridBubble.center_x , gridBubble.center_y):
-                        print('butWAI taken')
-                        gridBubble.posTaken = False
-                        gridBubble.opacity= 0
 
 
 Factory.register("Shooter", Shooter)
@@ -340,7 +330,9 @@ Factory.register("Shooter", Shooter)
 '''
 
 class MyViewController(Widget):
-    
+    #misses property needs to be up here so kivy can bind it in the constructor
+    misses = NumericProperty(0)
+
     def __init__(self, **kwargs):
         super(MyViewController, self).__init__(**kwargs)
         
@@ -361,6 +353,7 @@ class MyViewController(Widget):
 
         self.view.bind(points=self.checkPoints)
         self.view.bind(lives=self.checkLives)
+        self.bind(misses = self.moveDownAllBubbles)
         
 
     def fireBubble(self):
@@ -397,8 +390,8 @@ class MyViewController(Widget):
 
     def checkLives(self,instance,value):
         #if lives goes out, reset the level
-        if value < 5:
-            print('*******VALUE BELLOWOWOWO')
+        if value < 1:
+            #Game Over! Try again (the same level) #TODO - make popup for this
             self.resetLevel(self.level)
             
 
@@ -421,7 +414,6 @@ class MyViewController(Widget):
             #get all SQL-Injection questions
             self.addQuestionsToThreats('XSS', data)
             
-
         except (ValueError, KeyError, TypeError):
             print "JSON format error"
 
@@ -438,11 +430,11 @@ class MyViewController(Widget):
 
 
     def resetLevel(self, level):
-        print('VIIIIIIIIIIIIIIIW',self.view)
+        if self.view.settingsPopup:
+            self.view.settingsPopup.dismiss()
         self.view.threatList = []
         self.view.threatListCopy = []
         self.getAllQuestions()
-
         self.view.resetView()
 
 
@@ -450,7 +442,6 @@ class MyViewController(Widget):
     def removeOrKeepBubbles(self, instance):
         #check if it targeted the same color/s and if so, remove the bubble itself.
         firstColorMatches = self.bubble.findClosestColorMatches()
-        #print('FIRST COLORMATCHES', len(firstColorMatches))
         allColorMatches = self.bubble.findAllRelatedColorMatches(firstColorMatches)
 
         #if there's only one match the bubble needs to be re-added to the bubbleList (since it's being removed in the findAllRelatedColorMatches function)
@@ -458,9 +449,8 @@ class MyViewController(Widget):
             self.view.bubbleList.append(allColorMatches[0])
         #don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
         allColorMatches.append(self.bubble)
-        print('ALL COLOR MATCHES', len(allColorMatches))
-        if len(allColorMatches) >= 3:
-            
+
+        if len(allColorMatches) >= 3:           
             #delete all the color matches including the recently fired bubble
             for bubble in allColorMatches:
                 bubble.posTaken = False
@@ -472,10 +462,11 @@ class MyViewController(Widget):
                 bubble.animatePointsPicture()
                  
         else: 
-            print('it does add the bubble to the bubblelist')
+            print('it adds the bubble to the bubblelist')
             #add bubble to the list of bubbles 
             self.view.bubbleList.append(self.bubble)
-            print(len(self.view.bubbleList))
+            #add one miss to the list of misses
+            self.misses += 1
             #set the bubblespace in grid to available
             self.posTaken = False
             #add bubble to gridList 
@@ -519,15 +510,16 @@ class MyViewController(Widget):
             return True
         return False
 
-#Handlers -- target action
+    def moveDownAllBubbles(self, instance, value):
+        if value > 1: 
+            self.view.moveDownAllBubbles()
+            self.misses = 0
+
+#Handlers 
     #when quit is pressed 
     def close(self, instance):
         App.get_running_app().stop()
         raise SystemExit(0)
-
-    #when display help screen is pressed
-    def welcome_screen(self):
-        self.root.display_help_screen()  
 
     def confirmClose(self):
         quitScreen = Popup( title='Quit Application', auto_dismiss=False,
