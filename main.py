@@ -60,7 +60,9 @@ class MyView(Widget):
         self.app = App.get_running_app()
         self.vc = vc
         self.settingsPopup = None
+        self.helpPopup = None
         self.settingsPopupDismissed = False
+        self.helpPopupDismissed = False
         self.bubble = None
         self.upcomingBubble = None
         self.angle = NumericProperty()
@@ -155,9 +157,16 @@ class MyView(Widget):
 
 
     def displayHelpScreen(self):
-        # display the help screen on a Popup
-        help_screen = HelpScreen()
-        help_screen.open()
+        self.helpPopupDismissed = False
+        if self.helpPopup is None:
+            self.helpPopup = Popup(attach_to=self)
+                      
+            self.helpContent = HelpScreen(root=self)
+            
+            self.helpPopup.content = self.helpContent
+            
+            
+        self.helpPopup.open()
 
     def displayLifeIsLostScreen(self):
         lifeIsLostScreen = Popup( title='Life is lost', auto_dismiss=False,
@@ -237,7 +246,7 @@ class MyView(Widget):
     def createObsticles(self):    
 
         #each block contains one threat and 3 rows of bubbles
-        numberOfBlocks = 4  
+        numberOfBlocks = 6  
         #setting procentual values for bubblesize, to be able to make the game responsive
         bubbleSizeX =  0.08333333333333 
         bubbleSizeY = 0.045
@@ -298,7 +307,7 @@ class MyView(Widget):
      
     def createBubbleGrid(self):    
             #each block contains one threat and 3 rows of bubbles
-            numberOfBlocks = 6  
+            numberOfBlocks = 10  #needs to be even  
             numberOfBubbles = 12
             #the range is number of rows
             for i in range(numberOfBlocks):
@@ -594,8 +603,10 @@ class SettingDialog(Widget):
 ####################################
 '''
 
-class HelpScreen(Popup):
+class HelpScreen(Widget):
     page = NumericProperty(1)
+
+    root = ObjectProperty(None)
     
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
@@ -612,6 +623,10 @@ class HelpScreen(Popup):
 
     def changeImage(self, page):
         self.helpImage.source = 'graphics/helpScreen/' + str(page) + '.png'
+
+    def dismissHelpScreen(self):
+        self.root.helpPopup.dismiss()
+        self.root.helpPopupDismissed = True
 '''
 ####################################
 ##
@@ -644,13 +659,13 @@ class DbShooter(App):
         #self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
         #self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
         
-        #self.welcome_screen()
-
+        
+        Clock.schedule_once(self.displayHelpScreen,0)
         # if the user started the game the first time, display quick start guide
         if self.config.get('General', 'FirstStartup') == 'Yes':
             
             #Clock.schedule_once(self.welcome_screen, 2)
-            
+            self.root.displayHelpScreen()
             self.config.set('General', 'FirstStartup', 'No')
             self.config.write()
      
@@ -664,6 +679,8 @@ class DbShooter(App):
         if self.music.status != 'play':
             self.music.play()
 
+    def displayHelpScreen(self,instance):
+        self.root.displayHelpScreen()
 
 #Run the application
 if __name__ == "__main__":	

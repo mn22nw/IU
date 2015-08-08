@@ -38,7 +38,7 @@
                 "question": "Which example makes a SQL-Injection possible:",
                 "correctAnswer": 0,
                 "answers": [
-                    "When 'Username' and 'Password' from an inputfield \nare directly inserted into a SQL-statement",
+                    "When 'Username' and 'Password' from an input field \nare directly inserted into a SQL-statement",
                     "When a cookie is badly written",
                     "When 'Username' and 'Password' are written in foreign caracters when you log in to a website"
                 ],

@@ -29,6 +29,7 @@ class Bubble(Image):
     def __init__(self, **kwargs):
         super(Bubble, self).__init__(**kwargs)
         #properties
+        self.app = App.get_running_app()
         self.bubbleColor= StringProperty()
         self.angle = NumericProperty(0) # in radians!
         self.colorList = ['blue', 'green', 'red', 'purple', 'yellow']
@@ -233,7 +234,7 @@ class Bubble(Image):
         Clock.schedule_once(self.removeBubble, 0.2)
 
     def removeBubble(self, instance):
-        layout = self.parent.parent.bubbleLayout
+        layout = self.app.root.bubbleLayout
         #ensure the bubble exists in the layout before trying to remove it/add points! to prevent app from crashing
         for child in layout.children:
             if child == self:

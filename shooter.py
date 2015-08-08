@@ -29,14 +29,15 @@ class Shooter(Image):
     def on_touch_up(self, touch):
         
         #prevent from shooting bubble when the settingsdialog was recently closed. This was a quick fix, didn't really know what else to do.
-        if not self.parent.parent.settingsPopupDismissed:
+        if not self.parent.parent.settingsPopupDismissed or not self.parent.parent.helpPopupDismissed:
 
             self.changeAngle(touch)
             #prevent from shooting bubbles when scrolling mouse wheel
             if not touch.is_mouse_scrolling:
                 self.parent.parent.vc.fireBubble()
 
-        self.parent.parent.settingsPopupDismissed = False   
+        self.parent.parent.settingsPopupDismissed = False  
+        self.parent.parent.helpPopupDismissed = False  
 
     '''
     ####################################
@@ -46,7 +47,8 @@ class Shooter(Image):
     ####################################
     '''
     def on_touch_down(self, touch):
-        self.parent.parent.settingsPopupDismissed = False          
+        self.parent.parent.settingsPopupDismissed = False  
+        self.parent.parent.helpPopupDismissed = False        
               
     '''
     ####################################
@@ -56,7 +58,8 @@ class Shooter(Image):
     ####################################
     '''
     def on_touch_move(self, touch):
-        self.changeAngle(touch)
+        if not self.parent.parent.settingsPopupDismissed or not self.parent.parent.helpPopupDismissed:
+            self.changeAngle(touch)
           
     '''
     ####################################
