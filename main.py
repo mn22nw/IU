@@ -213,14 +213,13 @@ class MyView(Widget):
         layout.add_widget(image)
         collisionScreen.content = layout
         collisionScreen.open()
-        Clock.schedule_once(collisionScreen.dismiss, 2.5)
-        
+        Clock.schedule_once(collisionScreen.dismiss, 2.5)        
 
     def removeLife(self, instance):
         self.setPoints(-self.points)
         self.setLives(-1)
 
-    def moveDownAllBubbles(self):
+    def moveDownAllBubbles(self): #TODO finish this function so bubbles can move down
         newPosition = self.layoutPositionY * -0.657 # (0.045 * 14.6)  # TODO change this value so it  # it never goes bellow it's own 
         self.layoutPositionY = newPosition
 

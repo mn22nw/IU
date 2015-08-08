@@ -141,9 +141,10 @@ class Threat(Widget):
         self.questionScreen.open()
         
     def animateThreat(self, instance):
+        self.changeToPointsPicture()
         X = self.width
         Y = self.height
-        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.2)
+        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.4)
         threatAnimation.start(self)
 
     def removeThreat(self, instance):
@@ -153,6 +154,9 @@ class Threat(Widget):
 
     def delayRemovingPoints(self, instance):
         self.parent.parent.setPoints(-200)
+
+    def changeToPointsPicture(self):
+        self.imageSrc = 'graphics/500.png'
 
     #returns a string with the color name  
     def setRandomColor(self):
