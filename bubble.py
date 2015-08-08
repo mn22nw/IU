@@ -66,11 +66,15 @@ class Bubble(Image):
         self.unbind(pos=self.callbackPosWallCollision)           
         self.parent.parent.vc.fitBubbleToGrid()
         Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,0.1)
+        self.opacity = 1
 
     
     def createAnimation(self, speed, destination):
         time = Vector(self.center).distance(destination) / (speed * +70.0)
-        return Animation(x=destination[0],y=destination[1], duration=time, transition='linear') 
+        self.opacity = 0
+        anim = Animation(opacity=1, duration=0.3)
+        anim &= Animation(pos=(destination[0],destination[1]), duration=time, transition='linear') 
+        return anim
     
     def onWallCollision(self, anglechange):
         self.animation.stop(self)
@@ -224,9 +228,7 @@ class Bubble(Image):
                 self.animationComplete()
                 self.unbind(pos=self.callbackPos)
                 return True
-        return False
-            #print('A BUBBLE HAS COLLIDED width a bubble at', bubble.x, bubble.y, 'and it has the color of', str(bubble.getColor()))      
-
+        return False              
     
     #now check every bubble for the matched color and calculate the sum of the same colors
     def callbackPosWallCollision(self, instance, pos):
@@ -253,8 +255,7 @@ class Bubble(Image):
             for bubble in self.parent.parent.bubbleList:
                 if self.checkBubbleCollision(bubble):
                     return
-       
-    
+         
     #returns a string with the color name  
     def setRandomColor(self):
         c = random.randint(0,(len(self.colorList) - 1))
