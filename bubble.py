@@ -91,40 +91,43 @@ class Bubble(Image):
 
     def findColorMatches(self):  
         colorMatches = []
-        if not len(self.parent.parent.bubbleList) == 0:
-            hitAreaRight = self.center_x + self.width * 0.5
-            hitAreaLeft = self.center_x - self.width * 0.5
-            hitAreaTop = self.center_y + self.width * 0.85
-            hitAreaBottom = self.center_y - self.width * 0.85
-            for b in self.parent.parent.bubbleList:
-                #Top right bubble
-                if b.collide_point(hitAreaRight , hitAreaTop):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)
-                #Bottom right bubble
-                if b.collide_point(hitAreaRight, hitAreaBottom):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)
-                #Top left bubble
-                if b.collide_point(hitAreaLeft , hitAreaTop):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)                       
-                #Bottom left bubble
-                if b.collide_point(hitAreaLeft , hitAreaBottom):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)
-                #Right bubble
-                if b.collide_point(self.center_x + self.width , self.center_y):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)
-                #Left bubble
-                if b.collide_point(self.center_x - self.width , self.center_y):
-                    if b.getColor() == self.getColor():
-                        colorMatches.append(b)
-            #if it has more than one color of the same color next to it - remove them from the bubbleList so it doesn't find the same bubble over and over again (endless loop will occur in findAllRelatedColorMatches)
-            if len(colorMatches) > 0:
-                for bubble in colorMatches:
-                    self.parent.parent.bubbleList.remove(bubble)              
+        try:
+            if not len(self.parent.parent.bubbleList) == 0:
+                hitAreaRight = self.center_x + self.width * 0.5
+                hitAreaLeft = self.center_x - self.width * 0.5
+                hitAreaTop = self.center_y + self.width * 0.85
+                hitAreaBottom = self.center_y - self.width * 0.85
+                for b in self.parent.parent.bubbleList:
+                    #Top right bubble
+                    if b.collide_point(hitAreaRight , hitAreaTop):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                    #Bottom right bubble
+                    if b.collide_point(hitAreaRight, hitAreaBottom):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                    #Top left bubble
+                    if b.collide_point(hitAreaLeft , hitAreaTop):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)                       
+                    #Bottom left bubble
+                    if b.collide_point(hitAreaLeft , hitAreaBottom):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                    #Right bubble
+                    if b.collide_point(self.center_x + self.width , self.center_y):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                    #Left bubble
+                    if b.collide_point(self.center_x - self.width , self.center_y):
+                        if b.getColor() == self.getColor():
+                            colorMatches.append(b)
+                #if it has more than one color of the same color next to it - remove them from the bubbleList so it doesn't find the same bubble over and over again (endless loop will occur in findAllRelatedColorMatches)
+                if len(colorMatches) > 0:
+                    for bubble in colorMatches:
+                        self.parent.parent.bubbleList.remove(bubble)              
+                return colorMatches
+        except:
             return colorMatches
 
         
@@ -265,7 +268,11 @@ class Bubble(Image):
         self.source = 'graphics/points.png'
 
     def animatePointsPicture(self):
-        Clock.schedule_once(self.removeBubble, 0.2)
+        X = self.width
+        Y = self.height
+        pictureAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.6)
+        pictureAnimation.start(self)
+        Clock.schedule_once(self.removeBubble, 0.6)
 
     def removeBubble(self, instance):
         layout = self.app.root.bubbleLayout

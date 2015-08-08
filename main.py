@@ -545,7 +545,9 @@ class MyViewController(Widget):
                 # replace the bubble with a points-picture and remove it
                 bubble.changeToPointsPicture()
                 bubble.animatePointsPicture()
- 
+           
+            # check if any bubble collides with the shooter
+            self.checkCollistionWithShooter()
         else: 
             # add bubble to the list of bubbles 
             self.view.bubbleList.append(self.bubble)
@@ -554,14 +556,12 @@ class MyViewController(Widget):
 
             # set the bubble in grid to taken 
             for b in self.view.bubbleGridList:
-                    if self.bubble.pos_hint == b.pos_hint:
-                        self.bubble.posTaken = True
+                if self.bubble.pos_hint == b.pos_hint:
+                    self.bubble.posTaken = True
             
             # update/set the lowestbubblePosition  #TODO - don't really want to call these functions from here, move them later if there's time. 
             self.setlowestBubblePositionY()
-
-            # check if any bubble collides with the shooter
-            self.checkCollistionWithShooter()
+        
 
         Clock.schedule_once(self.checkForLonelyBubbles, 0.2)
           
@@ -573,9 +573,13 @@ class MyViewController(Widget):
                     for b in self.view.bubbleGridList:
                         if bubble.pos_hint == b.pos_hint:
                             b.posTaken = False
+                            # remove it from the bubbleList
+                            for bl in self.view.bubbleList:
+                                if bl.pos_hint == bubble.pos_hint:
+                                    self.view.bubbleList.remove(bl)
                             # replace the bubble with a points-picture and remove it
                             bubble.changeToPointsPicture()
-                            bubble.animatePointsPicture()              
+                            bubble.animatePointsPicture()         
 
     def setlowestBubblePositionY(self):
         posList = []

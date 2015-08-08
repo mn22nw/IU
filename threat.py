@@ -144,7 +144,7 @@ class Threat(Widget):
         self.changeToPointsPicture()
         X = self.width
         Y = self.height
-        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.4)
+        threatAnimation = Animation( size=(X *1.5, X*1.5), opacity = 0, duration=0.6)
         threatAnimation.start(self)
 
     def removeThreat(self, instance):
