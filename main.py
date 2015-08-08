@@ -72,7 +72,9 @@ class MyView(Widget):
         self.bubbleGridList = []
         self.threatList = []
         self.threatListCopy = []
-        self.layoutPositionY = self.y + (self.height * 1.5) #* (0.045 * 4.6)   
+        self.layoutPositionY = self.y + (self.height * 1.5) #* (0.045 * 4.6) 
+        self.startPositionY =   self.y + (self.height * 1.5)
+        self.stepsMovedDown = NumericProperty()
        
     
     #loading the view (called in the controller)
@@ -85,19 +87,29 @@ class MyView(Widget):
         #create the grid for the bubbles to fit in
         self.createBubbleGrid()
 
+        #set the bubbles in the grid to taken if there's an bubble in it's place
+        self.setTakenGridPositions()
+
         #add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
 
     def resetView(self):
+        self.layoutPositionY = self.startPositionY 
+        self.bubble = None
+        self.rowspaceY = 0
+        self.bubbleSpaceX = 0
         self.bubbleList = []
+        self.bubbleGridList = []
         self.bubbleLayout.clear_widgets()
-        self.createObsticles()
+        self.bubbleGridLayout.clear_widgets()
         self.nextBubbleLayout.clear_widgets()
-        self.addUpcomingBubbletoView()
+
+        self.loadView()
         self.points = 0
         self.lives = 5
         self.level = 1
 
+       
 
     def changeUpcomingBubbleColor(self):
         self.upcomingBubble.setRandomColor()
@@ -233,14 +245,11 @@ class MyView(Widget):
     def createThreat(self, x, y):
         if len(self.threatList) > 0:
             #get a random threat from the list
-            threatIndex = random.randint(0, len(self.threatList)-1)
-            
+            threatIndex = random.randint(0, len(self.threatList)-1)            
             threat = self.threatList.pop(threatIndex)
             threat.pos_hint={'x': x, 'center_y': y}
             #b.setRandomColor()
-            #t.setQuestion()
             self.bubbleLayout.add_widget(threat)
-            print('THREAT.POS YO', threat.pos)
             self.threatListCopy.append(threat)
 
     def createObsticles(self):    
@@ -324,9 +333,18 @@ class MyView(Widget):
                     self.createBubbleGridRow(numberOfBubbles)
                     self.createBubbleGridRow(numberOfBubbles-1)        
 
-                numberOfBlocks -= 1     
-            
+                numberOfBlocks -= 1    
 
+    def setTakenGridPositions(self):       
+        for gridBubble in self.bubbleGridList:
+            gridBubble.posTaken = False
+            for bubble in self.bubbleList:
+                if gridBubble.pos_hint == bubble.pos_hint:
+                    print('itäs in thäre')
+                    gridBubble.posTaken = True
+                    if gridBubble in self.bubbleGridLayout.children:
+                        print ('gridBUBBLE', gridBubble.pos_hint, 'Bubble' , bubble.pos_hint)
+       
 
 Factory.register("Shooter", Shooter)
 
@@ -519,6 +537,8 @@ class MyViewController(Widget):
             return True
         return False
 
+    
+
     def moveDownAllBubbles(self, instance, value):
         if value > 1: 
             self.view.moveDownAllBubbles()
@@ -607,7 +627,7 @@ class HelpScreen(Widget):
     page = NumericProperty(1)
 
     root = ObjectProperty(None)
-    
+
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
 

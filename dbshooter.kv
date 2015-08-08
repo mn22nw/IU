@@ -45,7 +45,7 @@
 
 	# the grid for all the bubbles
 	FloatLayout:
-		opacity:0
+		opacity:0.2
 		id: bubbleGridLayout
 		pos_hint:None, None
 		pos:(root.width-self.width)/2,  root.layoutPositionY  #root.y + root.height * (bubbleSizeY * 4.6)
@@ -153,7 +153,7 @@
 	    size_hint:None, None
 	    height: root.height
 	    width: root.height * containerWidth
-	    
+
 		BoxLayout:
 			orientation: 'vertical'
 			Widget:
