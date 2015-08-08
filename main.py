@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-#Inlämningsuppgift, Maria Nygren
-#Plattform: Windows 8.1
-#Python version 3.4.3
-#kivy 1.9.0 (http://kivy.org/#home) - http://www.lfd.uci.edu/~gohlke/pythonlibs/#kivy
+# Inlämningsuppgift, Maria Nygren
+# Plattform: Windows 8.1
+# Python version 3.4.3
+# kivy 1.9.0 (http://kivy.org/# home) - http://www.lfd.uci.edu/~gohlke/pythonlibs/# kivy
 
 from kivy.app import App
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty
@@ -34,29 +34,29 @@ from shooter import Shooter
 from bubble import Bubble
 from threat import Threat
 
-#sätter storleken för huvudfönstret:
+# sätter storleken för huvudfönstret:
 Window.size = 600, 836
 
 
 '''
 ####################################
 ##
-##   VIEW
+##  VIEW
 ##
 ####################################
 '''
 class MyView(Widget):
-    #properties that needs to be accessed in the .kv file are placed outside of the constructor
+    # properties that needs to be accessed in the .kv file are placed outside of the constructor
     lives = NumericProperty(5)
     level = NumericProperty(1)
     points = NumericProperty(0)
     layoutPositionY = NumericProperty(0)
 
-    #def __init__(self,vc):
+    # def __init__(self,vc):
     def __init__(self, vc=None, **kwargs):
         super(MyView, self).__init__(**kwargs)
         
-        #properties of the view 
+        # properties of the view 
         self.app = App.get_running_app()
         self.vc = vc
         self.settingsPopup = None
@@ -72,25 +72,25 @@ class MyView(Widget):
         self.bubbleGridList = []
         self.threatList = []
         self.threatListCopy = []
-        self.layoutPositionY = self.y + (self.height * 1.5) #* (0.045 * 4.6) 
+        self.layoutPositionY = self.y + (self.height * 1.5) # * (0.045 * 4.6) 
         self.startPositionY =   self.y + (self.height * 1.5)
         self.stepsMovedDown = NumericProperty()
        
     
-    #loading the view (called in the controller)
+    # loading the view (called in the controller)
     def loadView(self):
         self.bubble = Bubble()
 
-        #create all the bubbles and threats for the startup
+        # create all the bubbles and threats for the startup
         self.createObsticles()
 
-        #create the grid for the bubbles to fit in
+        # create the grid for the bubbles to fit in
         self.createBubbleGrid()
 
-        #set the bubbles in the grid to taken if there's an bubble in it's place
+        # set the bubbles in the grid to taken if there's an bubble in it's place
         self.setTakenGridPositions()
 
-        #add the first upcoming bubble to the view
+        # add the first upcoming bubble to the view
         self.addUpcomingBubbletoView()
 
     def resetView(self):
@@ -117,18 +117,18 @@ class MyView(Widget):
     def addUpcomingBubbletoView(self):
         self.upcomingBubble = self.createBubble(0,0)
         self.upcomingBubble.pos_hint={'x': 0.55, 'center_y': .5}
-        #add the upcomingBubble to the preview-window
+        # add the upcomingBubble to the preview-window
         self.nextBubbleLayout.add_widget(self.upcomingBubble)
 
     def createFiredBubble(self):
         self.bubble = Bubble(pos=(500,500)) 
-        #set the shooting bubble to the same color as the upcoming previewd bubble
+        # set the shooting bubble to the same color as the upcoming previewd bubble
         self.bubble.bubbleColor = self.upcomingBubble.getColor()
         self.bubble.source = 'graphics/bubbles/' + self.bubble.getColor() + '.png'
         return self.bubble
     
 
-    #setters and getters for the properties  
+    # setters and getters for the properties  
     
     def setLevel(self, value):
         self.level = value
@@ -136,7 +136,7 @@ class MyView(Widget):
     def setPoints(self, value):
         self.points += value
 
-    def getPoints(self, value): #TODO - not using this?
+    def getPoints(self, value): # TODO - not using this?
         return self.points
 
     def setLives(self, value):
@@ -177,6 +177,7 @@ class MyView(Widget):
             
         self.helpPopup.open()
 
+    #TODO - make one standard popup for theese and just change the title and image!  to remove DRY (Had no time to do this)
     def displayLifeIsLostScreen(self):
         lifeIsLostScreen = Popup( title='Life is lost', auto_dismiss=False,
                             attach_to=self,
@@ -187,15 +188,40 @@ class MyView(Widget):
         layout.add_widget(image)
         lifeIsLostScreen.content = layout
         lifeIsLostScreen.open()
-        Clock.schedule_once(lifeIsLostScreen.dismiss, 1.5)
-        Clock.schedule_once(self.removeLife, 1.6)
+        Clock.schedule_once(lifeIsLostScreen.dismiss, 2.5)
+        Clock.schedule_once(self.removeLife, 2.6)
+
+    def displayGameOverScreen(self):
+        gameOverScreen = Popup( title='Game Over!', auto_dismiss=False,
+                            attach_to=self,
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6} 
+                            )
+        layout = BoxLayout(orientation = 'vertical')
+        image = Image(source='graphics/gameOver.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        layout.add_widget(image)
+        gameOverScreen.content = layout
+        gameOverScreen.open()
+        Clock.schedule_once(gameOverScreen.dismiss, 2.5)
+
+    def displayCollisionScreen(self):
+        collisionScreen = Popup( title='Collision!', auto_dismiss=False,
+                            attach_to=self,
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6} 
+                            )
+        layout = BoxLayout(orientation = 'vertical')
+        image = Image(source='graphics/onCollision.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        layout.add_widget(image)
+        collisionScreen.content = layout
+        collisionScreen.open()
+        Clock.schedule_once(collisionScreen.dismiss, 2.5)
+        
 
     def removeLife(self, instance):
         self.setPoints(-self.points)
         self.setLives(-1)
 
     def moveDownAllBubbles(self):
-        newPosition = self.layoutPositionY * -0.657 #(0.045 * 14.6)  #TODO change this value so it  #it never goes bellow it's own 
+        newPosition = self.layoutPositionY * -0.657 # (0.045 * 14.6)  # TODO change this value so it  # it never goes bellow it's own 
         self.layoutPositionY = newPosition
 
     def createBubble(self, x, y):
@@ -207,17 +233,17 @@ class MyView(Widget):
     def createBubbleRow(self, spaces, bubblesLeft, bubblesRight, x, y):       
         bubbleSizeX =  0.08333333333333 
         
-        #create bubbles to the left
+        # create bubbles to the left
         for i in range(bubblesLeft):
             b = self.createBubble(x, y)
             self.bubbleLayout.add_widget(b)
             self.bubbleList.append(b)
             x += bubbleSizeX
         
-        #add empty space for the threat
+        # add empty space for the threat
         x += (bubbleSizeX * spaces)
         
-        #create bubbles to right
+        # create bubbles to right
         for i in range(bubblesRight):
             b = self.createBubble(x, y)
             self.bubbleLayout.add_widget(b)
@@ -225,12 +251,12 @@ class MyView(Widget):
             x += bubbleSizeX
     
     def createBubbleGridRow(self, numberOfBubbles):  
-        if (numberOfBubbles % 2 == 1): #odd
+        if (numberOfBubbles % 2 == 1): # odd
             self.bubbleSpaceX = 0.041666666666665    
         else:
             self.bubbleSpaceX = 0
         
-        #create bubbles to the left
+        # create bubbles to the left
         for i in range(numberOfBubbles):
             b = self.createBubble(self.bubbleSpaceX, self.rowspaceY)
             self.bubbleGridLayout.add_widget(b)
@@ -241,19 +267,19 @@ class MyView(Widget):
            
     def createThreat(self, x, y):
         if len(self.threatList) > 0:
-            #get a random threat from the list
+            # get a random threat from the list
             threatIndex = random.randint(0, len(self.threatList)-1)            
             threat = self.threatList.pop(threatIndex)
             threat.pos_hint={'x': x, 'center_y': y}
-            #b.setRandomColor()
+            # b.setRandomColor()
             self.bubbleLayout.add_widget(threat)
             self.threatListCopy.append(threat)
 
     def createObsticles(self):    
 
-        #each block contains one threat and 3 rows of bubbles
+        # each block contains one threat and 3 rows of bubbles
         numberOfBlocks = 6  
-        #setting procentual values for bubblesize, to be able to make the game responsive
+        # setting procentual values for bubblesize, to be able to make the game responsive
         bubbleSizeX =  0.08333333333333 
         bubbleSizeY = 0.045
         x = 0
@@ -263,47 +289,47 @@ class MyView(Widget):
         numberOfBubbles = 12        
         xOdd = 0.041666666666665
 
-        #the range is number of rows
+        # the range is number of rows
         for r in range(numberOfBlocks):
             numberOfBubbles = 12
-            #number of spaces that's needed for the threat to fit within the bubbles
+            # number of spaces that's needed for the threat to fit within the bubbles
             spaces = 3
-            #set startnumber for threat
+            # set startnumber for threat
             startNumber = random.randint(1,9)
 
-            #bubbles and posistion for first row of threat
+            # bubbles and posistion for first row of threat
             bubblesLeft = startNumber -1
             bubblesRight = numberOfBubbles - startNumber - spaces + 1
 
-            #this will create 3 rows of bubbles with a threat inside at a random position
-            for i in range(3): #remember! first time in range i will be equal to 0            
-                #create a threat only on first row of block
+            # this will create 3 rows of bubbles with a threat inside at a random position
+            for i in range(3): # remember! first time in range i will be equal to 0            
+                # create a threat only on first row of block
                 if i == 0:
                     threatPosX = (startNumber - 1) * bubbleSizeX + 0.005
-                     #if threat starts at an uneven row, add half a bubble of extra space on it's left
+                     # if threat starts at an uneven row, add half a bubble of extra space on it's left
                     if (rowCount % 2 == 1): 
                         threatPosX += xOdd
 
-                    #create a threat
+                    # create a threat
                     self.createThreat(threatPosX, threatPosY)
 
-                    #increase the y-value for the threat position
+                    # increase the y-value for the threat position
                     threatPosY += bubbleSizeY * 3
-                if (rowCount % 2 == 0): #even 
-                    if i == 1:  #if row is even for every fourth row then add one bubble to left, and remove one right
+                if (rowCount % 2 == 0): # even 
+                    if i == 1:  # if row is even for every fourth row then add one bubble to left, and remove one right
                         bubblesLeft += 1
                         bubblesRight -= 1
                     if i == 2: 
                         bubblesRight -= 1
                     self.createBubbleRow(spaces, bubblesLeft, bubblesRight, x, y)
                     numberOfBubbles -= 1
-                else: #odd
-                    if i == 2:  #if row is uneven for every third row then take one bubble off left
+                else: # odd
+                    if i == 2:  # if row is uneven for every third row then take one bubble off left
                         bubblesLeft -= 1                     
                     self.createBubbleRow(spaces, bubblesLeft, bubblesRight -1, xOdd, y)
                     numberOfBubbles += 1
                 spaces -= 1
-                #bubbles and posistion for second row of threat
+                # bubbles and posistion for second row of threat
                 if i == 1:
                     bubblesLeft +=1
                     
@@ -312,20 +338,20 @@ class MyView(Widget):
                 rowCount +=1 
      
     def createBubbleGrid(self):    
-            #each block contains one threat and 3 rows of bubbles
-            numberOfBlocks = 10  #needs to be even  
+            # each block contains one threat and 3 rows of bubbles
+            numberOfBlocks = 10  # needs to be even  
             numberOfBubbles = 12
-            #the range is number of rows
+            # the range is number of rows
             for i in range(numberOfBlocks):
 
-                #set if the block should start with a row of 11 or 12 bubbles
-                if (numberOfBlocks % 2 == 0): #even 
-                    #STARTONEVEN 
+                # set if the block should start with a row of 11 or 12 bubbles
+                if (numberOfBlocks % 2 == 0): # even 
+                    # STARTONEVEN 
                     self.createBubbleGridRow(numberOfBubbles)
                     self.createBubbleGridRow(numberOfBubbles-1)
                     self.createBubbleGridRow(numberOfBubbles)
-                else: #odd
-                    #STARTONODD
+                else: # odd
+                    # STARTONODD
                     self.createBubbleGridRow(numberOfBubbles-1)
                     self.createBubbleGridRow(numberOfBubbles)
                     self.createBubbleGridRow(numberOfBubbles-1)        
@@ -344,32 +370,31 @@ Factory.register("Shooter", Shooter)
 '''
 ####################################
 ##
-##   VIEWCONTROLLER
+##  VIEWCONTROLLER
 ##
 ####################################
 '''
-
 class MyViewController(Widget):
-    #misses property needs to be up here so kivy can bind it in the constructor
+    # misses property needs to be up here so kivy can bind it in the constructor
     misses = NumericProperty(0)
     lowestBubblePositionY = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(MyViewController, self).__init__(**kwargs)
         
-        #properties of the controller 
+        # properties of the controller 
         self.app = App.get_running_app()
         self.level = 1
         self.availableBubblePositions = []
         self.pointList = []
 
-        #instantiation of view
+        # instantiation of view
         self.view = MyView(vc=self)
         
-        #get all the Questions for the game
+        # get all the Questions for the game
         self.getAllQuestions() 
         
-        #load the view (this needs to be called after getting the questions)
+        # load the view (this needs to be called after getting the questions)
         self.view.loadView()
 
         self.view.bind(points=self.checkPoints)
@@ -382,25 +407,25 @@ class MyViewController(Widget):
 
         print('******************** FIREEEE ********************')
         '''
-        #hej = App.get_running_app()
-        #hej.sound['bullet_start'].play()
-        ###
+        # hej = App.get_running_app()
+        # hej.sound['bullet_start'].play()
+        # # # 
         '''
         # create the shooting bubble
         self.bubble = self.view.createFiredBubble()
 
-        #change the color of the upcoming bubble
+        # change the color of the upcoming bubble
         self.view.changeUpcomingBubbleColor()
 
         self.view.angle= radians(float(self.view.shooter.shootDirectionAngle))
 
-        #set the bubble angle to the same as shooter angle (in radians)
+        # set the bubble angle to the same as shooter angle (in radians)
         self.bubble.angle =  self.view.angle
         
-        #calculate the start position
+        # calculate the start position
         self.view.setBubbleStartPosition(self.bubble)
 
-        #add the bubble to the correct layout
+        # add the bubble to the correct layout
         self.view.bubbleLayout.add_widget(self.bubble)
 
         self.bubble.fire()
@@ -411,9 +436,10 @@ class MyViewController(Widget):
 
 
     def checkLives(self,instance,value):
-        #if lives goes out, reset the level
+        # if lives goes out, reset the level
         if value < 1:
-            #Game Over! Try again (the same level) #TODO - make popup for this
+            # Game Over! 
+            self.view.displayGameOverScreen()
             self.resetLevel(self.level)
 
     def checkCollideWithDatabase(self, instance, value):
@@ -425,7 +451,7 @@ class MyViewController(Widget):
             print('*******************************IT has oollided with the table!!')
     
     def checkCollistionWithShooter(self):
-        #checks if a bubble or threat collides with the shooter
+        # checks if a bubble or threat collides with the shooter
         print('checking collistion with shooter')
         collision = False
         for bubble in self.view.bubbleList:
@@ -438,26 +464,37 @@ class MyViewController(Widget):
                 collision= True
                 break
         if collision:
-            print('COLLIDED')
-            self.resetLevel(self.level)
+            # keep points and 
+            currentLives = self.view.lives
+            if currentLives -1 == 0:
+                # Game over
+                self.view.displayGameOverScreen()
+                self.resetLevel(self.level)
+            else:
+                self.view.displayCollisionScreen()
+                currentPoints = self.view.points
+                self.resetLevel(self.level)
+                self.view.lives = currentLives - 1
+                self.view.points = currentPoints
 
-    #get all the questions from a json file 
+
+    # get all the questions from a json file 
     def getAllQuestions(self):
 
         import json
-        #I took a little help from http://xmodulo.com/how-to-parse-json-string-in-python.html
+        # I took a little help from http://xmodulo.com/how-to-parse-json-string-in-python.html
         try:
-            #get the json-file were the questions are stored
+            # get the json-file were the questions are stored
             with open('questions.json', "r") as f:
                 data = json.loads(f.read())
 
-            #get all CSRF questions
+            # get all CSRF questions
             self.addQuestionsToThreats('CSRF', data)
             
-            #get all SQL-Injection questions
+            # get all SQL-Injection questions
             self.addQuestionsToThreats('SQL-Injection', data)
 
-            #get all SQL-Injection questions
+            # get all SQL-Injection questions
             self.addQuestionsToThreats('XSS', data)
             
         except (ValueError, KeyError, TypeError):
@@ -470,10 +507,9 @@ class MyViewController(Widget):
                 threat.question = item['question']
                 threat.answers = item['answers']
                 threat.correctAnswer = str(item['correctAnswer'])
-                threat.imageSrc = 'graphics/threats/threat.png' #+ b.getColor() + '.png'
+                threat.imageSrc = 'graphics/threats/threat.png' # + b.getColor() + '.png'
                 print(threat.question)
                 self.view.threatList.append(threat)
-
 
     def resetLevel(self, level):
         if self.view.settingsPopup:
@@ -484,44 +520,44 @@ class MyViewController(Widget):
         self.view.resetView()
 
 
-    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed exactly when the animation is completed)
+    # this function is called from inside the bubble (I couldn't find another solution since it has to be executed exactly when the animation is completed)
     def removeOrKeepBubbles(self, instance):
-        #check if it targeted the same color/s and if so, remove the bubble itself.
+        # check if it targeted the same color/s and if so, remove the bubble itself.
         firstColorMatches = self.bubble.findClosestColorMatches()
         allColorMatches = self.bubble.findAllRelatedColorMatches(firstColorMatches)
 
-        #if there's only one match the bubble needs to be re-added to the bubbleList (since it's being removed in the findAllRelatedColorMatches function)
+        # if there's only one match the bubble needs to be re-added to the bubbleList (since it's being removed in the findAllRelatedColorMatches function)
         if len(allColorMatches) == 1:
             self.view.bubbleList.append(allColorMatches[0])
-        #don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
+        # don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
         allColorMatches.append(self.bubble)
 
         if len(allColorMatches) >= 3:           
-            #delete all the color matches including the recently fired bubble
+            # delete all the color matches including the recently fired bubble
             for bubble in allColorMatches:
                 bubble.posTaken = False
-                #add bubble to gridList 
+                # add bubble to gridList 
                 self.view.bubbleGridList.append(bubble)
 
-                #replace the bubble with a points-picture and remove it
+                # replace the bubble with a points-picture and remove it
                 bubble.changeToPointsPicture()
                 bubble.animatePointsPicture()
                  
         else: 
             print('it adds the bubble to the bubblelist')
-            #add bubble to the list of bubbles 
+            # add bubble to the list of bubbles 
             self.view.bubbleList.append(self.bubble)
-            #add one miss to the list of misses
+            # add one miss to the list of misses
             self.misses += 1
-            #set the bubblespace in grid to available #TODO is this right?!
+            # set the bubblespace in grid to available # TODO is this right?!
             self.posTaken = False
-            #add bubble to gridList 
+            # add bubble to gridList 
             self.view.bubbleGridList.append(self.bubble)  
 
-            #update/set the lowestbubblePosition 
+            # update/set the lowestbubblePosition 
             self.setlowestBubblePositionY()
 
-            #check if any bubble collides with the shooter
+            # check if any bubble collides with the shooter
             self.checkCollistionWithShooter()
                    
 
@@ -532,31 +568,31 @@ class MyViewController(Widget):
         self.lowestBubblePositionY = min(posList)
 
 
-    #TODO - maybe move findAvailableBubblePositions and fitBubbleToGrid back to the bubbleclass....
+    # TODO - maybe move findAvailableBubblePositions and fitBubbleToGrid back to the bubbleclass....
     def findAvailableBubblePositions(self):
         self.availableBubblePositions = []
         if not len(self.view.bubbleGridList) == 0:
-            for gridBubble in self.view.bubbleGridList[::-1]: #start from the last added bubble
+            for gridBubble in self.view.bubbleGridList[::-1]: # start from the last added bubble
                 if not gridBubble.posTaken:
                     self.availableBubblePositions.append(gridBubble)
 
-    #this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
+    # this function is called from inside the bubble (I couldn't find another solution since it has to be executed when the animation is completed)
     def fitBubbleToGrid(self):
         bubblesToCompareList = []
         distancesToCompareList = []
         self.findAvailableBubblePositions()
         for b in self.availableBubblePositions:
-            #get the distance of the closest gridBubbles to the bubble
+            # get the distance of the closest gridBubbles to the bubble
             distance = self.bubble.getGridBubbleDistance(b)
             b.distanceToClostestGridBubble = distance
             
-            #if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
+            # if the distance is close enough we have a potential position for the bubble, add this gridBubble to a list
             if b.distanceToClostestGridBubble > 0: 
 
                 bubblesToCompareList.append(b)
                 distancesToCompareList.append(b.distanceToClostestGridBubble)
 
-        #checks which one of the nearby gridBubbles that are the closest, and sets the recently fired bubble position to it 
+        # checks which one of the nearby gridBubbles that are the closest, and sets the recently fired bubble position to it 
         if not len(distancesToCompareList) == 0:
             smallestDistance = min(distancesToCompareList)       
             for b in bubblesToCompareList:
@@ -564,7 +600,7 @@ class MyViewController(Widget):
                 if b.distanceToClostestGridBubble == smallestDistance:
                     self.bubble.pos_hint = b.pos_hint     
                     print('THE BUBBLE IS AT IT\'S RIGHT PLACE IN THE GRID, now do colormatches')         
-                    #set the bubble as taken! 
+                    # set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
                         b.posTaken = True
             return True
@@ -572,14 +608,14 @@ class MyViewController(Widget):
   
 
     def moveDownAllBubbles(self, instance, value):
-        #if value > 1: 
+        # if value > 1: 
         #    self.view.moveDownAllBubbles()
         #    self.misses = 0
 
         self.checkCollistionWithShooter()
 
-#Handlers 
-    #when quit is pressed 
+# Handlers 
+    # when quit is pressed 
     def close(self, instance):
         App.get_running_app().stop()
         raise SystemExit(0)
@@ -607,10 +643,11 @@ class MyViewController(Widget):
 '''
 ####################################
 ##
-##   Setting Dialog Class
+##  Setting Dialog Class
 ##
 ####################################
 '''
+
 class SettingDialog(Widget):
     music_slider = ObjectProperty(None)
     sound_slider = ObjectProperty(None)
@@ -619,9 +656,9 @@ class SettingDialog(Widget):
     
     def __init__(self, **kwargs):
         super(SettingDialog, self).__init__(**kwargs)
-        #TODO- uncomment this
-        #self.music_slider.bind(value=self.updateMusicVolume)
-        #self.sound_slider.bind(value=self.updateSoundVolume)
+        # TODO- uncomment this
+        # self.music_slider.bind(value=self.updateMusicVolume)
+        # self.sound_slider.bind(value=self.updateSoundVolume)
         
     
     def updateMusicVolume(self, instance, value):
@@ -652,7 +689,7 @@ class SettingDialog(Widget):
 '''
 ####################################
 ##
-##   Help Screen
+##  Help Screen
 ##
 ####################################
 '''
@@ -665,7 +702,7 @@ class HelpScreen(Widget):
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
 
-    def goToNextPage(self): #TODO - limit number of pages 
+    def goToNextPage(self): # TODO - limit number of pages 
         if self.page < 5:
             self.page += 1 
             self.changeImage(self.page)
@@ -684,9 +721,9 @@ class HelpScreen(Widget):
 '''
 ####################################
 ##
-##   Main Application Class
+##  Main Application Class
 ##
-####################################
+#################################### 
 '''
 class DbShooter(App):
 	
@@ -699,10 +736,10 @@ class DbShooter(App):
         self.window = EventLoop.window
 
         # start the background music:
-        #self.music = SoundLoader.load('sound/background.mp3')
-        #self.music.volume = self.config.getint('General', 'Music') / 100.0
-        #self.music.bind(on_stop=self.replaySound)
-        #self.music.play()
+        # self.music = SoundLoader.load('sound/background.mp3')
+        # self.music.volume = self.config.getint('General', 'Music') / 100.0
+        # self.music.bind(on_stop=self.replaySound)
+        # self.music.play()
 
 
         # create the root widget and give it a reference of the view / application instance 
@@ -710,15 +747,15 @@ class DbShooter(App):
         self.root = self.MyViewController.view        
 
         # load all other sounds:
-        #self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
-        #self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
+        # self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
+        # self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
         
         
-        #Clock.schedule_once(self.displayHelpScreen,0)
+        # Clock.schedule_once(self.displayHelpScreen,0)
         # if the user started the game the first time, display quick start guide
         if self.config.get('General', 'FirstStartup') == 'Yes':
             
-            #Clock.schedule_once(self.welcome_screen, 2)
+            # Clock.schedule_once(self.welcome_screen, 2)
             self.root.displayHelpScreen()
             self.config.set('General', 'FirstStartup', 'No')
             self.config.write()
@@ -736,6 +773,6 @@ class DbShooter(App):
     def displayHelpScreen(self,instance):
         self.root.displayHelpScreen()
 
-#Run the application
+# Run the application
 if __name__ == "__main__":	
 	DbShooter().run()
