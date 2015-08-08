@@ -4,6 +4,8 @@
 <MyView>:
 	id: MyView
 	shooter: shooter
+	databaseWidget: databaseWidget
+	dbImage: dbImage
 	bubbleLayout: bubbleLayout
 	bubbleGridLayout: bubbleGridLayout
 	nextBubbleLayout: nextBubbleLayout
@@ -45,7 +47,7 @@
 
 	# the grid for all the bubbles
 	FloatLayout:
-		opacity:0.2
+		opacity:0
 		id: bubbleGridLayout
 		pos_hint:None, None
 		pos:(root.width-self.width)/2,  root.layoutPositionY  #root.y + root.height * (bubbleSizeY * 4.6)
@@ -71,7 +73,7 @@
 		width: bubbleLayout.width *0.8
 		bottom: root.height
 		size_hint: None, None
-		pos: bubbleLayout.pos
+		pos: (root.width-self.width)/2, root.y + root.height * (bubbleSizeY * 4.6) 
 		canvas:
 			Rectangle:
 	            size: self.width, self.height
@@ -127,10 +129,10 @@
 		Shooter:
 			id: shooter
 			pos_hint: {'center_x':0.5, 'center_y':0.29}
-			size_hint:0.14,0.14
+			size_hint:0.06,0.14
 
 		Image:
-			id: db
+			id: dbImage
 			source: 'graphics/db.png'
 			size_hint:0.18,0.18
 			pos_hint: {'center_x':0.5, 'center_y':0.24}

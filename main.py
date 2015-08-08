@@ -107,9 +107,7 @@ class MyView(Widget):
         self.loadView()
         self.points = 0
         self.lives = 5
-        self.level = 1
-
-       
+        self.level = 1       
 
     def changeUpcomingBubbleColor(self):
         self.upcomingBubble.setRandomColor()
@@ -149,7 +147,6 @@ class MyView(Widget):
 
     # popups
     def displaySettingsScreen(self):
-        #self.app.sound['switch'].play()
         self.settingsPopupDismissed = False
         # the first time the setting dialog is called, initialize its content.
         if self.settingsPopup is None:
@@ -171,7 +168,7 @@ class MyView(Widget):
     def displayHelpScreen(self):
         self.helpPopupDismissed = False
         if self.helpPopup is None:
-            self.helpPopup = Popup(attach_to=self)
+            self.helpPopup = Popup(title = 'Rules', attach_to=self)
                       
             self.helpContent = HelpScreen(root=self)
             
@@ -198,7 +195,7 @@ class MyView(Widget):
         self.setLives(-1)
 
     def moveDownAllBubbles(self):
-        newPosition = self.layoutPositionY * 0.657 #(0.045 * 14.6)  
+        newPosition = self.layoutPositionY * -0.657 #(0.045 * 14.6)  #TODO change this value so it  #it never goes bellow it's own 
         self.layoutPositionY = newPosition
 
     def createBubble(self, x, y):
@@ -340,12 +337,8 @@ class MyView(Widget):
             gridBubble.posTaken = False
             for bubble in self.bubbleList:
                 if gridBubble.pos_hint == bubble.pos_hint:
-                    print('itäs in thäre')
                     gridBubble.posTaken = True
-                    if gridBubble in self.bubbleGridLayout.children:
-                        print ('gridBUBBLE', gridBubble.pos_hint, 'Bubble' , bubble.pos_hint)
        
-
 Factory.register("Shooter", Shooter)
 
 '''
@@ -359,6 +352,7 @@ Factory.register("Shooter", Shooter)
 class MyViewController(Widget):
     #misses property needs to be up here so kivy can bind it in the constructor
     misses = NumericProperty(0)
+    lowestBubblePositionY = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(MyViewController, self).__init__(**kwargs)
@@ -381,6 +375,7 @@ class MyViewController(Widget):
         self.view.bind(points=self.checkPoints)
         self.view.bind(lives=self.checkLives)
         self.bind(misses = self.moveDownAllBubbles)
+        self.bind(lowestBubblePositionY = self.checkCollideWithDatabase)
         
 
     def fireBubble(self):
@@ -420,7 +415,31 @@ class MyViewController(Widget):
         if value < 1:
             #Game Over! Try again (the same level) #TODO - make popup for this
             self.resetLevel(self.level)
-            
+
+    def checkCollideWithDatabase(self, instance, value):
+
+        collidePointTable = self.view.dbImage.top - self.view.shooter.height
+        collidePointShooter = self.view.shooter.pos
+        print('DID THIS FUNCETION')
+        if value < collidePointTable:
+            print('*******************************IT has oollided with the table!!')
+    
+    def checkCollistionWithShooter(self):
+        #checks if a bubble or threat collides with the shooter
+        print('checking collistion with shooter')
+        collision = False
+        for bubble in self.view.bubbleList:
+            if bubble.collide_widget(self.view.shooter):               
+                collision= True
+                break
+
+        for threat in self.view.threatListCopy:
+            if threat.collide_widget(self.view.shooter):               
+                collision= True
+                break
+        if collision:
+            print('COLLIDED')
+            self.resetLevel(self.level)
 
     #get all the questions from a json file 
     def getAllQuestions(self):
@@ -494,10 +513,24 @@ class MyViewController(Widget):
             self.view.bubbleList.append(self.bubble)
             #add one miss to the list of misses
             self.misses += 1
-            #set the bubblespace in grid to available
+            #set the bubblespace in grid to available #TODO is this right?!
             self.posTaken = False
             #add bubble to gridList 
             self.view.bubbleGridList.append(self.bubble)  
+
+            #update/set the lowestbubblePosition 
+            self.setlowestBubblePositionY()
+
+            #check if any bubble collides with the shooter
+            self.checkCollistionWithShooter()
+                   
+
+    def setlowestBubblePositionY(self):
+        posList = []
+        for bubble in self.view.bubbleList:
+            posList.append(bubble.y)       
+        self.lowestBubblePositionY = min(posList)
+
 
     #TODO - maybe move findAvailableBubblePositions and fitBubbleToGrid back to the bubbleclass....
     def findAvailableBubblePositions(self):
@@ -536,13 +569,14 @@ class MyViewController(Widget):
                         b.posTaken = True
             return True
         return False
-
-    
+  
 
     def moveDownAllBubbles(self, instance, value):
-        if value > 1: 
-            self.view.moveDownAllBubbles()
-            self.misses = 0
+        #if value > 1: 
+        #    self.view.moveDownAllBubbles()
+        #    self.misses = 0
+
+        self.checkCollistionWithShooter()
 
 #Handlers 
     #when quit is pressed 
@@ -680,7 +714,7 @@ class DbShooter(App):
         #self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
         
         
-        Clock.schedule_once(self.displayHelpScreen,0)
+        #Clock.schedule_once(self.displayHelpScreen,0)
         # if the user started the game the first time, display quick start guide
         if self.config.get('General', 'FirstStartup') == 'Yes':
             

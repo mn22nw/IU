@@ -47,6 +47,7 @@ class Shooter(Image):
     ####################################
     '''
     def on_touch_down(self, touch):
+        print('TOUCH Y', touch.y)
         self.parent.parent.settingsPopupDismissed = False  
         self.parent.parent.helpPopupDismissed = False        
               
