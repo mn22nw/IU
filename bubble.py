@@ -58,7 +58,7 @@ class Bubble(Image):
 
     def startAnimation(self, angle):
         destination = self.calculateDestination(angle)
-        self.animation = self.createAnimation(10, destination)      
+        self.animation = self.createAnimation(10, destination)    
         # start the animation
         self.animation.start(self)
 
@@ -70,7 +70,7 @@ class Bubble(Image):
     
     def createAnimation(self, speed, destination):
         time = Vector(self.center).distance(destination) / (speed * +70.0)
-        return Animation(x=destination[0],y=destination[1], duration=time, transition='linear')
+        return Animation(x=destination[0],y=destination[1], duration=time, transition='linear') 
     
     def onWallCollision(self, anglechange):
         self.animation.stop(self)
@@ -156,6 +156,40 @@ class Bubble(Image):
                             allRelatedColorMatchesList.append(b)
 
         return allRelatedColorMatchesList
+
+    def findSurroundingBubbles(self):
+        surroundingBubbles = []
+        try:
+            if not len(self.parent.parent.bubbleList) == 0:
+                hitAreaRight = self.center_x + self.width * 0.5
+                hitAreaLeft = self.center_x - self.width * 0.5
+                hitAreaTop = self.center_y + self.width * 0.85
+                hitAreaBottom = self.center_y - self.width * 0.85
+                
+                for b in self.parent.parent.bubbleList:
+                    #Top right bubble
+                    if b.collide_point(hitAreaRight , hitAreaTop):
+                         surroundingBubbles.append(b)
+                    #Bottom right bubble
+                    if b.collide_point(hitAreaRight, hitAreaBottom):
+                        surroundingBubbles.append(b)
+                    #Top left bubble
+                    if b.collide_point(hitAreaLeft , hitAreaTop):
+                        surroundingBubbles.append(b)                      
+                    #Bottom left bubble
+                    if b.collide_point(hitAreaLeft , hitAreaBottom):
+                        surroundingBubbles.append(b)
+                    #Right bubble
+                    if b.collide_point(self.center_x + self.width , self.center_y):
+                        surroundingBubbles.append(b)
+                    #Left bubble
+                    if b.collide_point(self.center_x - self.width , self.center_y):
+                        surroundingBubbles.append(b)
+
+            return surroundingBubbles
+
+        except:
+            return surroundingBubbles 
 
     def checkThreatCollision(self, threat): 
         if self.collide_widget(threat):

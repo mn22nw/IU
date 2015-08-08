@@ -80,7 +80,6 @@ class MyView(Widget):
     # loading the view (called in the controller)
     def loadView(self):
         self.bubble = Bubble()
-
         # create all the bubbles and threats for the startup
         self.createObsticles()
 
@@ -219,8 +218,8 @@ class MyView(Widget):
         self.setPoints(-self.points)
         self.setLives(-1)
 
-    def moveDownAllBubbles(self): #TODO finish this function so bubbles can move down
-        newPosition = self.layoutPositionY * -0.657 # (0.045 * 14.6)  # TODO change this value so it  # it never goes bellow it's own 
+    def moveDownAllBubbles(self): 
+        newPosition = self.layoutPositionY - (self.height * 0.045) 
         self.layoutPositionY = newPosition
 
     def createBubble(self, x, y):
@@ -401,10 +400,19 @@ class MyViewController(Widget):
         self.bind(misses = self.moveDownAllBubbles)
         self.bind(lowestBubblePositionY = self.checkCollideWithDatabase)
         
+    def printTakenPos(self):
+        i = 0
+        for bubble in self.view.bubbleGridList:
+            if bubble.posTaken:
+                i+=1
+                print('NUMBER OF POSTAKEN:', i)
+
+        print('Number of Gridbubbles', len(self.view.bubbleGridList))
 
     def fireBubble(self):
 
         print('******************** FIREEEE ********************')
+        #self.printTakenPos()
         '''
         # hej = App.get_running_app()
         # hej.sound['bullet_start'].play()
@@ -433,7 +441,6 @@ class MyViewController(Widget):
         if value < 0:
             self.view.displayLifeIsLostScreen()
 
-
     def checkLives(self,instance,value):
         # if lives goes out, reset the level
         if value < 1:
@@ -442,16 +449,13 @@ class MyViewController(Widget):
             self.resetLevel(self.level)
 
     def checkCollideWithDatabase(self, instance, value):
-
         collidePointTable = self.view.dbImage.top - self.view.shooter.height
         collidePointShooter = self.view.shooter.pos
-        print('DID THIS FUNCETION')
         if value < collidePointTable:
-            print('*******************************IT has oollided with the table!!')
+            print('collided with table') #Todo - if time, add function to this
     
     def checkCollistionWithShooter(self):
         # checks if a bubble or threat collides with the shooter
-        print('checking collistion with shooter')
         collision = False
         for bubble in self.view.bubbleList:
             if bubble.collide_widget(self.view.shooter):               
@@ -480,8 +484,7 @@ class MyViewController(Widget):
     # get all the questions from a json file 
     def getAllQuestions(self):
 
-        import json
-        # I took a little help from http://xmodulo.com/how-to-parse-json-string-in-python.html
+        import json 
         try:
             # get the json-file were the questions are stored
             with open('questions.json', "r") as f:
@@ -534,31 +537,45 @@ class MyViewController(Widget):
         if len(allColorMatches) >= 3:           
             # delete all the color matches including the recently fired bubble
             for bubble in allColorMatches:
-                bubble.posTaken = False
-                # add bubble to gridList 
-                self.view.bubbleGridList.append(bubble)
-
+                # set the bubble in grid to available 
+                for b in self.view.bubbleGridList:
+                    if bubble.pos_hint == b.pos_hint:
+                        b.posTaken = False
+               
                 # replace the bubble with a points-picture and remove it
                 bubble.changeToPointsPicture()
                 bubble.animatePointsPicture()
-                 
+ 
         else: 
-            print('it adds the bubble to the bubblelist')
             # add bubble to the list of bubbles 
             self.view.bubbleList.append(self.bubble)
             # add one miss to the list of misses
             self.misses += 1
-            # set the bubblespace in grid to available # TODO is this right?!
-            self.posTaken = False
-            # add bubble to gridList 
-            self.view.bubbleGridList.append(self.bubble)  
 
-            # update/set the lowestbubblePosition 
+            # set the bubble in grid to taken 
+            for b in self.view.bubbleGridList:
+                    if self.bubble.pos_hint == b.pos_hint:
+                        self.bubble.posTaken = True
+            
+            # update/set the lowestbubblePosition  #TODO - don't really want to call these functions from here, move them later if there's time. 
             self.setlowestBubblePositionY()
 
             # check if any bubble collides with the shooter
             self.checkCollistionWithShooter()
-                   
+
+        Clock.schedule_once(self.checkForLonelyBubbles, 0.2)
+          
+    def checkForLonelyBubbles(self, instance):
+        # check if there is any 'lonely' bubbles (that is not attached to any other bubbles)
+            for bubble in self.view.bubbleList:
+                surroundingBubbles = bubble.findSurroundingBubbles()
+                if len(surroundingBubbles) == 0:
+                    for b in self.view.bubbleGridList:
+                        if bubble.pos_hint == b.pos_hint:
+                            b.posTaken = False
+                            # replace the bubble with a points-picture and remove it
+                            bubble.changeToPointsPicture()
+                            bubble.animatePointsPicture()              
 
     def setlowestBubblePositionY(self):
         posList = []
@@ -597,19 +614,17 @@ class MyViewController(Widget):
             for b in bubblesToCompareList:
 
                 if b.distanceToClostestGridBubble == smallestDistance:
-                    self.bubble.pos_hint = b.pos_hint     
-                    print('THE BUBBLE IS AT IT\'S RIGHT PLACE IN THE GRID, now do colormatches')         
+                    self.bubble.pos_hint = b.pos_hint          
                     # set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
                         b.posTaken = True
             return True
         return False
-  
 
     def moveDownAllBubbles(self, instance, value):
-        # if value > 1: 
-        #    self.view.moveDownAllBubbles()
-        #    self.misses = 0
+        if value > 5: 
+           self.view.moveDownAllBubbles()
+           self.misses = 0
 
         self.checkCollistionWithShooter()
 
