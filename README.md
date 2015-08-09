@@ -1,6 +1,6 @@
 # Inlämningsuppgift - Multimediaprogrammering i Python
 
-###'DB Shooter' ####-Maria Nygren
+###DB Shooter -Maria Nygren
 
 ####Installation
 #####Kivy finns att hämta **[HÄR](http://www.lfd.uci.edu/~gohlke/pythonlibs/#kivy)**
