@@ -163,7 +163,6 @@ class MyView(Widget):
             
         self.settingsPopup.open()
 
-
     def displayHelpScreen(self):
         self.helpPopupDismissed = False
         if self.helpPopup is None:
@@ -212,7 +211,18 @@ class MyView(Widget):
         layout.add_widget(image)
         collisionScreen.content = layout
         collisionScreen.open()
-        Clock.schedule_once(collisionScreen.dismiss, 2.5)        
+        Clock.schedule_once(collisionScreen.dismiss, 2.5)     
+
+    def displayVictoryScreen(self):
+        victoryScreen = Popup( title='EPIC WIN!', auto_dismiss=True,
+                            attach_to=self,
+                            size_hint=(None,None), pos_hint={'center_x': 0.5, 'center_y': .6} 
+                            )
+        layout = BoxLayout(orientation = 'vertical')
+        image = Image(source='graphics/victory.png', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+        layout.add_widget(image)
+        victoryScreen.content = layout
+        victoryScreen.open()     
 
     def removeLife(self, instance):
         self.setPoints(-self.points)
@@ -363,7 +373,6 @@ class MyView(Widget):
                 if gridBubble.pos_hint == bubble.pos_hint:
                     gridBubble.posTaken = True
        
-Factory.register("Shooter", Shooter)
 
 '''
 ####################################
@@ -396,28 +405,13 @@ class MyViewController(Widget):
         self.view.loadView()
 
         self.view.bind(points=self.checkPoints)
+        self.view.bind(points=self.checkGameStatus)
         self.view.bind(lives=self.checkLives)
         self.bind(misses = self.moveDownAllBubbles)
         self.bind(lowestBubblePositionY = self.checkCollideWithDatabase)
         
-    def printTakenPos(self):
-        i = 0
-        for bubble in self.view.bubbleGridList:
-            if bubble.posTaken:
-                i+=1
-                print('NUMBER OF POSTAKEN:', i)
-
-        print('Number of Gridbubbles', len(self.view.bubbleGridList))
 
     def fireBubble(self):
-
-        print('******************** FIREEEE ********************')
-        #self.printTakenPos()
-        '''
-        # hej = App.get_running_app()
-        # hej.sound['bullet_start'].play()
-        # # # 
-        '''
         # create the shooting bubble
         self.bubble = self.view.createFiredBubble()
 
@@ -441,6 +435,12 @@ class MyViewController(Widget):
         if value < 0:
             self.view.displayLifeIsLostScreen()
 
+    def checkGameStatus(self, instance, value):
+        #check if all threats are removed, if so the user won!  
+        if len(self.view.threatListCopy) == 0:
+            self.view.displayVictoryScreen() #Todo- should move up a level but I didn't have time to implement this
+            self.resetLevel(self.level)
+
     def checkLives(self,instance,value):
         # if lives goes out, reset the level
         if value < 1:
@@ -452,7 +452,7 @@ class MyViewController(Widget):
         collidePointTable = self.view.dbImage.top - self.view.shooter.height
         collidePointShooter = self.view.shooter.pos
         if value < collidePointTable:
-            print('collided with table') #Todo - if time, add function to this
+            print('collided with table') #Todo - if time, add functionality here
     
     def checkCollistionWithShooter(self):
         # checks if a bubble or threat collides with the shooter
@@ -467,7 +467,7 @@ class MyViewController(Widget):
                 collision= True
                 break
         if collision:
-            # keep points and 
+            # keep points/lives if needed, then end game or reset scene
             currentLives = self.view.lives
             if currentLives -1 == 0:
                 # Game over
@@ -510,7 +510,6 @@ class MyViewController(Widget):
                 threat.answers = item['answers']
                 threat.correctAnswer = str(item['correctAnswer'])
                 threat.imageSrc = 'graphics/threats/threat.png' # + b.getColor() + '.png'
-                print(threat.question)
                 self.view.threatList.append(threat)
 
     def resetLevel(self, level):
@@ -533,7 +532,6 @@ class MyViewController(Widget):
             self.view.bubbleList.append(allColorMatches[0])
         # don't forget to add the recently fired bubble since allColorMaches only contains the matches for the fired bubble
         allColorMatches.append(self.bubble)
-
         if len(allColorMatches) >= 3:           
             # delete all the color matches including the recently fired bubble
             for bubble in allColorMatches:
@@ -541,11 +539,13 @@ class MyViewController(Widget):
                 for b in self.view.bubbleGridList:
                     if bubble.pos_hint == b.pos_hint:
                         b.posTaken = False
-               
+                
                 # replace the bubble with a points-picture and remove it
                 bubble.changeToPointsPicture()
                 bubble.animatePointsPicture()
-           
+
+                self.app.sound['popping'].play()
+
             # check if any bubble collides with the shooter
             self.checkCollistionWithShooter()
         else: 
@@ -564,7 +564,7 @@ class MyViewController(Widget):
         
 
         Clock.schedule_once(self.checkForLonelyBubbles, 0.2)
-          
+    
     def checkForLonelyBubbles(self, instance):
         # check if there is any 'lonely' bubbles (that is not attached to any other bubbles)
             for bubble in self.view.bubbleList:
@@ -622,11 +622,12 @@ class MyViewController(Widget):
                     # set the bubble as taken! 
                     if b in self.view.bubbleGridList[::-1]:
                         b.posTaken = True
+                    self.app.sound['pop'].play()
             return True
         return False
 
     def moveDownAllBubbles(self, instance, value):
-        if value > 5: 
+        if value > 4: 
            self.view.moveDownAllBubbles()
            self.misses = 0
 
@@ -674,11 +675,10 @@ class SettingDialog(Widget):
     
     def __init__(self, **kwargs):
         super(SettingDialog, self).__init__(**kwargs)
-        # TODO- uncomment this
-        # self.music_slider.bind(value=self.updateMusicVolume)
-        # self.sound_slider.bind(value=self.updateSoundVolume)
-        
-    
+            
+        self.music_slider.bind(value=self.updateMusicVolume)
+        self.sound_slider.bind(value=self.updateSoundVolume)
+         
     def updateMusicVolume(self, instance, value):
         # write to app configs
         self.root.app.config.set('General', 'Music', str(int(value)))
@@ -701,7 +701,7 @@ class SettingDialog(Widget):
         self.root.settingsPopup.dismiss()
 
     def redirectToHyperLink(self):
-        webbrowser.open("http://kivy.org/")
+        webbrowser.open("https://www.youtube.com/watch?v=bxcxx_wuerk")
 
 
 '''
@@ -720,8 +720,8 @@ class HelpScreen(Widget):
     def __init__(self, **kwargs):
         super(HelpScreen, self).__init__(**kwargs)
 
-    def goToNextPage(self): # TODO - limit number of pages 
-        if self.page < 5:
+    def goToNextPage(self): 
+        if self.page < 3:
             self.page += 1 
             self.changeImage(self.page)
 
@@ -754,10 +754,10 @@ class DbShooter(App):
         self.window = EventLoop.window
 
         # start the background music:
-        # self.music = SoundLoader.load('sound/background.mp3')
-        # self.music.volume = self.config.getint('General', 'Music') / 100.0
-        # self.music.bind(on_stop=self.replaySound)
-        # self.music.play()
+        self.music = SoundLoader.load('sound/background.mp3')
+        self.music.volume = self.config.getint('General', 'Music') / 100.0
+        self.music.bind(on_stop=self.replaySound)
+        self.music.play()
 
 
         # create the root widget and give it a reference of the view / application instance 
@@ -765,16 +765,18 @@ class DbShooter(App):
         self.root = self.MyViewController.view        
 
         # load all other sounds:
-        # self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
-        # self.sound['bullet_start'] = SoundLoader.load('sound/bullet_start.mp3')
+        self.sound['pop'] = SoundLoader.load('sound/pop.mp3')
+        self.sound['popping'] = SoundLoader.load('sound/popping.mp3')
+        self.sound['swoosh'] = SoundLoader.load('sound/swoosh.mp3')
         
         
-        # Clock.schedule_once(self.displayHelpScreen,0)
+        sound_volume = self.config.getint('General', 'Sound') / 100.0
+        for item in self.sound:
+            self.sound[item].volume = sound_volume
+
         # if the user started the game the first time, display quick start guide
-        if self.config.get('General', 'FirstStartup') == 'Yes':
-            
-            # Clock.schedule_once(self.welcome_screen, 2)
-            self.root.displayHelpScreen()
+        if self.config.get('General', 'FirstStartup') == 'Yes':            
+            Clock.schedule_once(self.displayHelpScreen,0)
             self.config.set('General', 'FirstStartup', 'No')
             self.config.write()
      

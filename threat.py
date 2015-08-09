@@ -49,6 +49,13 @@ def point_inside_polygon(x, y, poly):
         p1x, p1y = p2x, p2y
     return inside
 
+'''
+####################################
+##
+##   Threat Class
+##
+####################################
+'''
 
 class Threat(Widget):
     #these are needed to calculate the correct collide point
@@ -56,7 +63,7 @@ class Threat(Widget):
     p2 = ListProperty([0, 0])
     p3 = ListProperty([0, 0])
 
-
+    #properties
     title = StringProperty()
     question = StringProperty()
     answers = []
@@ -68,16 +75,10 @@ class Threat(Widget):
     questionScreen = None
     imageSrc = StringProperty()
         
-    '''
-    ####################################
-    ##
-    ##   Threat Behavioral
-    ##
-    ####################################
-    '''
-    
     def __init__(self, **kwargs):
         super(Threat, self).__init__(**kwargs)
+        
+        self.app = self.app = App.get_running_app()
         #creates the base for the popup
         self.questionScreen = Popup( title=self.title, auto_dismiss=False,
                             attach_to=self,
@@ -90,34 +91,37 @@ class Threat(Widget):
                 self.p1 + self.p2 + self.p3)
 
     def checkAnswer(self, instance):
-        layout = BoxLayout(orientation = 'vertical')
+        try:
+            layout = BoxLayout(orientation = 'vertical')
 
-        if instance.id == self.correctAnswer:
-            image = Image(source='graphics/success.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
-            layout.add_widget(image)
-            self.questionScreen.content = layout
-            # increase points
-            self.parent.parent.setPoints(500)
-            #remove threat if success
-            Clock.schedule_once(self.animateThreat, 1.1)
-            Clock.schedule_once(self.removeThreat, 2)
-            # dismiss window after 1 seconds
-            Clock.schedule_once(self.questionScreen.dismiss, 1)
-            
-        else:
-            image = Image(source='graphics/fail.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
-            layout.add_widget(image)
-            self.questionScreen.content = layout
-            # dismiss window after 1.5 seconds and remove points after
-            Clock.schedule_once(self.questionScreen.dismiss, 1.5)
-            Clock.schedule_once(self.delayRemovingPoints, 1.5)
+            if instance.id == self.correctAnswer:
+                image = Image(source='graphics/success.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+                layout.add_widget(image)
+                self.questionScreen.content = layout
+
+                # increase points
+                self.parent.parent.setPoints(500)
+
+                #remove threat if success
+                Clock.schedule_once(self.animateThreat, 1.1)
+                Clock.schedule_once(self.removeThreat, 2)
+                # dismiss window after 1 seconds
+                Clock.schedule_once(self.questionScreen.dismiss, 1)
+
+                
+            else:
+                image = Image(source='graphics/fail.jpg', pos_hint={'center_x': 0.5, 'center_y': 0.4})
+                layout.add_widget(image)
+                self.questionScreen.content = layout
+                # dismiss window after 1.5 seconds and remove points after
+                Clock.schedule_once(self.questionScreen.dismiss, 1.5)
+                Clock.schedule_once(self.delayRemovingPoints, 1.6)
+        except:
+            pass
           
 
     def displayQuestionScreen(self):
-        # display the question screen on a Popup
-        
-        image = Image(source='graphics/questionScreen.png')
-        
+        # display the question screen in a Popup
         layout = BoxLayout(orientation = 'vertical')
         l = Label(text= self.question,  size_hint_y=0.3, font_size=20)
         layout.add_widget(l)
@@ -149,14 +153,20 @@ class Threat(Widget):
 
     def removeThreat(self, instance):
         #first remove it from the threat list!
-        self.parent.parent.threatListCopy.remove(self)
-        self.parent.remove_widget(self)
-
+        try:
+            self.parent.parent.threatListCopy.remove(self)
+            self.parent.remove_widget(self)
+        except:
+            pass
     def delayRemovingPoints(self, instance):
-        self.parent.parent.setPoints(-200)
+        try:
+            self.parent.parent.setPoints(-200)
+        except:
+            pass
 
     def changeToPointsPicture(self):
         self.imageSrc = 'graphics/500.png'
+        self.app.sound['swoosh'].play()
 
     #returns a string with the color name  
     def setRandomColor(self):

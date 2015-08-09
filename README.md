@@ -1,6 +1,11 @@
 # Inlämningsuppgift - Multimediaprogrammering i Python
 
-###Här kommer jag publicera min kod till mitt spel 'Bubble Shooter'
+###'DB Shooter' ####-Maria Nygren
 
-![help screen](graphics/helpScreen/1.png)
-![help screen 2](graphics/helpScreen/1.png)
+####Installation
+#####Kivy finns att hämta **[HÄR](http://www.lfd.uci.edu/~gohlke/pythonlibs/#kivy)**
+
+![help screen 1](graphics/helpScreen/1.png)
+![help screen 2](graphics/helpScreen/2.png)
+![help screen 3](graphics/helpScreen/3.png)
+

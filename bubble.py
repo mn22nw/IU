@@ -6,11 +6,8 @@ from kivy.app import App
 from kivy.properties import NumericProperty, StringProperty
 from kivy.uix.image import Image
 from kivy.animation import Animation
-from kivy.graphics import Color, Point
 from kivy.clock import Clock
 from functools import partial
-
-from kivy.utils import boundary
 import math
 from kivy.vector import Vector
 import random
@@ -63,10 +60,13 @@ class Bubble(Image):
         self.animation.start(self)
 
     def animationComplete(self):
-        self.unbind(pos=self.callbackPosWallCollision)           
-        self.parent.parent.vc.fitBubbleToGrid()
-        Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,0.1)
-        self.opacity = 1
+        try:
+            self.unbind(pos=self.callbackPosWallCollision)           
+            self.parent.parent.vc.fitBubbleToGrid()
+            Clock.schedule_once(self.parent.parent.vc.removeOrKeepBubbles,0.1)
+            self.opacity = 1
+        except:
+            pass
 
     
     def createAnimation(self, speed, destination):
@@ -232,29 +232,35 @@ class Bubble(Image):
     
     #now check every bubble for the matched color and calculate the sum of the same colors
     def callbackPosWallCollision(self, instance, pos):
-        #check if collision with wall
-        leftWall = self.parent.parent.ids.leftWall
-        rightWall = self.parent.parent.ids.rightWall
-        #only do this once....hmmm
-        if self.collide_widget(leftWall):
-            self.onWallCollision(90)
+        try:
+            #check if collision with wall
+            leftWall = self.parent.parent.ids.leftWall
+            rightWall = self.parent.parent.ids.rightWall
+            #only do this once....hmmm
+            if self.collide_widget(leftWall):
+                self.onWallCollision(90)
 
-        if self.collide_widget(rightWall):
-            self.onWallCollision(-90)
+            if self.collide_widget(rightWall):
+                self.onWallCollision(-90)
+        except:
+            pass
 
 
     def callbackPos(self, instance, pos):
-        # check if there's a collision with a threat
-        if not len(self.parent.parent.threatListCopy) == 0:
-            for threat in self.parent.parent.threatListCopy:
-                if self.checkThreatCollision(threat):
-                    return
+        try:
+            # check if there's a collision with a threat
+            if not len(self.parent.parent.threatListCopy) == 0:
+                for threat in self.parent.parent.threatListCopy:
+                    if self.checkThreatCollision(threat):
+                        return
 
-        # check here if the bubble collides with another bubble
-        if not len(self.parent.parent.bubbleList) == 0:
-            for bubble in self.parent.parent.bubbleList:
-                if self.checkBubbleCollision(bubble):
-                    return
+            # check here if the bubble collides with another bubble
+            if not len(self.parent.parent.bubbleList) == 0:
+                for bubble in self.parent.parent.bubbleList:
+                    if self.checkBubbleCollision(bubble):
+                        return
+        except:
+            pass
          
     #returns a string with the color name  
     def setRandomColor(self):
@@ -276,12 +282,14 @@ class Bubble(Image):
         Clock.schedule_once(self.removeBubble, 0.6)
 
     def removeBubble(self, instance):
-        layout = self.app.root.bubbleLayout
-        #ensure the bubble exists in the layout before trying to remove it/add points! to prevent app from crashing
-        for child in layout.children:
-            if child == self:
-                self.parent.parent.setPoints(10)
-                self.parent.parent.bubbleLayout.remove_widget(self)
-
+        try:
+            layout = self.app.root.bubbleLayout
+            #ensure the bubble exists in the layout before trying to remove it/add points! to prevent app from crashing
+            for child in layout.children:
+                if child == self:
+                    self.parent.parent.setPoints(10)
+                    self.parent.parent.bubbleLayout.remove_widget(self)
+        except:
+            pass
 
     
